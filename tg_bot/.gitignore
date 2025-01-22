@@ -1,0 +1,29 @@
+# Gradle files
+.gradle/
+build/
+
+# IDEA project files
+*.iml
+.idea/
+
+# Logs and temp files
+*.log
+*.tmp
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Dependency directories
+lib/
+bin/
+
+# Generated files
+out/
+target/
+
+# Docker-related files
+.env
+
+# Excluded environment and secret files
+application.properties

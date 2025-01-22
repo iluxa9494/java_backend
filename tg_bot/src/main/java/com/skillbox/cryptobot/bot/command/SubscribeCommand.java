@@ -1,30 +1,43 @@
 package com.skillbox.cryptobot.bot.command;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.extensions.bots.commandbot.commands.IBotCommand;
+import com.skillbox.cryptobot.entity.Subscriber;
+import com.skillbox.cryptobot.repository.SubscriberRepository;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.bots.AbsSender;
+import org.telegram.telegrambots.meta.api.objects.commands.Command;
 
-/**
- * Обработка команды подписки на курс валюты
- */
-@Service
-@Slf4j
-public class SubscribeCommand implements IBotCommand {
+import java.util.Optional;
+import java.util.UUID;
 
-    @Override
-    public String getCommandIdentifier() {
-        return "subscribe";
+public class SubscribeCommand implements CommandExecutor {
+
+    private final SubscriberRepository subscriberRepository;
+
+    public SubscribeCommand(SubscriberRepository subscriberRepository) {
+        this.subscriberRepository = subscriberRepository;
     }
 
     @Override
-    public String getDescription() {
-        return "Подписывает пользователя на стоимость биткоина";
-    }
+    public void execute(Message message) {
+        String[] args = message.getText().split(" ");
+        if (args.length != 2 || !args[1].matches("\\d+(\\.\\d+)?")) {
+            sendMessage(message.getChatId(), "Неверный формат команды. Используйте /subscribe [цена].");
+            return;
+        }
 
-    @Override
-    public void processMessage(AbsSender absSender, Message message, String[] arguments) {
+        double price = Double.parseDouble(args[1]);
+        long telegramId = message.getFrom().getId();
 
+        Optional<Subscriber> existingSubscriber = subscriberRepository.findByTelegramId(telegramId);
+        Subscriber subscriber = existingSubscriber.orElseGet(() -> {
+            Subscriber newSubscriber = new Subscriber();
+            newSubscriber.setUuid(UUID.randomUUID());
+            newSubscriber.setTelegramId(telegramId);
+            return newSubscriber;
+        });
+
+        subscriber.setSubscriptionPrice(price);
+        subscriberRepository.save(subscriber);
+
+        sendMessage(message.getChatId(), "Новая подписка создана на стоимость " + price + " USD.");
     }
 }
