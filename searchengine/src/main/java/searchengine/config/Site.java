@@ -1,11 +1,16 @@
 package searchengine.config;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Setter
-@Getter
+/**
+ * Класс для конфигурации информации о сайте.
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Site {
-    private String url;
     private String name;
+    private String url;
 }

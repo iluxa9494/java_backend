@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/search_engine_test?useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: password123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+
+server:
+  port: 8081
+
+indexing-settings:
+  sites:
+    - url: https://test.lenta.ru
+      name: Тест Лента.ру
+    - url: https://test.skillbox.ru
+      name: Тест Skillbox
+    - url: https://test.playback.ru
+      name: Тест PlayBack.Ru

@@ -1,10 +1,25 @@
-# example values
+spring:
+  profiles:
+    active: default  # Правильное место для профилей
 
-indexing-settings:
-  sites:
-    - url: https://www.lenta.ru
-      name: Лента.ру
-    - url: https://www.skillbox.ru
-      name: Skillbox
-    - url: https://www.playback.ru
-      name: PlayBack.Ru
+  datasource:
+    url: jdbc:mysql://localhost:3306/search_engine?useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: password123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update  # Автоматическое обновление структуры БД
+    show-sql: true      # Вывод SQL-запросов в консоль
+    open-in-view: false # Отключение open-in-view для предотвращения неожиданных запросов к БД
+
+  sql:
+    init:
+      mode: always  # Если БД пустая, то автоматически создать таблицы
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework: DEBUG
+    searchengine: DEBUG
