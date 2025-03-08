@@ -1,11 +1,16 @@
 package com.skillbox.cryptobot.utils;
 
-/**
- * Дополнительная обработка текстовых сообщений.
- * */
+import java.math.BigDecimal;
+
 public class TextUtil {
 
-    public static String toString(double value) {
+    /**
+     * Форматирует число с 3 знаками после запятой.
+     *
+     * @param value Число в BigDecimal
+     * @return Строка с округленным числом
+     */
+    public static String toString(BigDecimal value) {
         return String.format("%.3f", value);
     }
 }

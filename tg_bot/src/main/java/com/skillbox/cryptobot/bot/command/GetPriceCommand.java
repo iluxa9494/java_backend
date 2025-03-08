@@ -1,44 +1,62 @@
 package com.skillbox.cryptobot.bot.command;
 
 import com.skillbox.cryptobot.service.CryptoCurrencyService;
-import com.skillbox.cryptobot.utils.TextUtil;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.extensions.bots.commandbot.commands.IBotCommand;
+import org.telegram.telegrambots.extensions.bots.commandbot.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-/**
- * Обработка команды получения текущей стоимости валюты
- */
-@Service
+import java.io.IOException;
+import java.math.BigDecimal;
+
 @Slf4j
-@AllArgsConstructor
-public class GetPriceCommand implements IBotCommand {
+@Service
+public class GetPriceCommand extends BotCommand {
 
     private final CryptoCurrencyService service;
 
-    @Override
-    public String getCommandIdentifier() {
-        return "get_price";
+    public GetPriceCommand(CryptoCurrencyService service) {
+        super("get_price", "Получить текущую цену BTC");
+        this.service = service;
     }
 
     @Override
-    public String getDescription() {
-        return "Возвращает цену биткоина в USD";
+    public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
+        Long chatId = chat.getId();
+        log.info("Получен запрос цены BTC от пользователя {}", chatId);
+        handlePriceRequest(absSender, chatId);
     }
 
-    @Override
-    public void processMessage(AbsSender absSender, Message message, String[] arguments) {
-        SendMessage answer = new SendMessage();
-        answer.setChatId(message.getChatId());
+    /**
+     * Метод обработки Callback Query (кнопка "Обновить цену")
+     */
+    public void handlePriceRequest(AbsSender absSender, Long chatId) {
+        log.info("Обрабатываем Callback Query: получение цены BTC для пользователя {}", chatId);
+
         try {
-            answer.setText("Текущая цена биткоина " + TextUtil.toString(service.getBitcoinPrice()) + " USD");
-            absSender.execute(answer);
+            BigDecimal price = service.getBitcoinPrice();
+            sendMessage(absSender, chatId, "📈 Текущая цена BTC: " + price + " USD.");
+        } catch (IOException e) {
+            log.error("Ошибка при получении цены BTC: {}", e.getMessage(), e);
+            sendMessage(absSender, chatId, "❌ Ошибка получения данных с Binance API.");
+        }
+    }
+
+    /**
+     * Отправляет сообщение пользователю
+     */
+    private void sendMessage(AbsSender sender, Long chatId, String text) {
+        if (sender == null) {
+            log.error("Ошибка: AbsSender не может быть null при отправке сообщения.");
+            return;
+        }
+        try {
+            sender.execute(new SendMessage(chatId.toString(), text));
         } catch (Exception e) {
-            log.error("Ошибка возникла /get_price методе", e);
+            log.error("Ошибка при отправке сообщения пользователю {}: {}", chatId, e.getMessage(), e);
         }
     }
 }

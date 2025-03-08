@@ -1,33 +1,41 @@
 package com.skillbox.cryptobot.bot.command;
 
-import lombok.AllArgsConstructor;
+import com.skillbox.cryptobot.service.SubscriptionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.extensions.bots.commandbot.commands.IBotCommand;
-import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.extensions.bots.commandbot.commands.BotCommand;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 
-/**
- * Обработка команды отмены подписки на курс валюты
- */
-@Service
 @Slf4j
-@AllArgsConstructor
-public class UnsubscribeCommand implements IBotCommand {
+@Service
+public class UnsubscribeCommand extends BotCommand {
 
+    private final SubscriptionService subscriptionService;
 
-    @Override
-    public String getCommandIdentifier() {
-        return "unsubscribe";
+    public UnsubscribeCommand(SubscriptionService subscriptionService) {
+        super("unsubscribe", "Отменить подписку на курс биткоина");
+        this.subscriptionService = subscriptionService;
     }
 
     @Override
-    public String getDescription() {
-        return "Отменяет подписку пользователя";
+    public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
+        subscriptionService.unsubscribe(chat.getId());
+        sendMessage(absSender, chat.getId(), "Подписка отменена.");
     }
 
-    @Override
-    public void processMessage(AbsSender absSender, Message message, String[] arguments) {
+    private void sendMessage(AbsSender sender, Long chatId, String text) {
+        try {
+            sender.execute(new org.telegram.telegrambots.meta.api.methods.send.SendMessage(chatId.toString(), text));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    public void handleUnsubscription(Long chatId) {
+        log.info("Обрабатываем отписку пользователя {}", chatId);
+        subscriptionService.unsubscribe(chatId);
+        sendMessage(null, chatId, "✅ Вы отписались от уведомлений о BTC!");
     }
 }

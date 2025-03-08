@@ -1,9 +1,7 @@
 telegram:
   bot:
-#    не вписывайте данные, так как можете отправить в публичный репозиторий
-#    используйте переменные среды для установки значений
-    username: ${BOT_NAME}
-    token: ${BOT_TOKEN}
+    username: ${TELEGRAM_BOT_USERNAME:MUR_BTCBot}
+    token: ${TELEGRAM_BOT_TOKEN}
     notify:
       delay:
         value: 10
@@ -13,9 +11,25 @@ binance:
   api:
     getPrice: https://api.binance.com/api/v3/avgPrice?symbol=BTCUSDT
 
-db:
-  driver:
-    name: org.postgresql.Driver
-  url: jdbc:postgresql://localhost:5432/db
-  user: root
-  password: root
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/cryptobot
+    username: ${POSTGRES_USER:bot_user}
+    password: ${POSTGRES_PASSWORD:secure_password}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: always
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    com.skillbox.cryptobot: DEBUG
