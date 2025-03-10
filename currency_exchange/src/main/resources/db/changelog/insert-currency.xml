@@ -1,0 +1,36 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <changeSet author="ilia" id="insert_currency">
+
+        <insert tableName="currency">
+            <column name="id" valueComputed="nextval('currency_id_seq')"/>
+            <column name="currency_from" value="USD"/>
+            <column name="currency_to" value="RUB"/>
+            <column name="rate" value="93.5224"/>
+            <column name="created_at" valueComputed="now()"/>
+        </insert>
+
+        <insert tableName="currency">
+            <column name="id" valueComputed="nextval('currency_id_seq')"/>
+            <column name="currency_from" value="EUR"/>
+            <column name="currency_to" value="RUB"/>
+            <column name="rate" value="99.5534"/>
+            <column name="created_at" valueComputed="now()"/>
+        </insert>
+
+        <insert tableName="currency">
+            <column name="id" valueComputed="nextval('currency_id_seq')"/>
+            <column name="currency_from" value="CNY"/>
+            <column name="currency_to" value="RUB"/>
+            <column name="rate" value="12.7660"/>
+            <column name="created_at" valueComputed="now()"/>
+        </insert>
+
+    </changeSet>
+
+</databaseChangeLog>

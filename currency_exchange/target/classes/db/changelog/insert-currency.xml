@@ -1,0 +1,48 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation=" http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <changeSet author="skillbox" id="insert_currency">
+
+        <insert tableName="currency">
+            <column name="id" value="1333"/>
+            <column name="name" value="Доллар США"/>
+            <column name="nominal" value="1"/>
+            <column name="value" value="93.5224"/>
+            <column name="iso_num_code" value="840"/>
+        </insert>
+        <insert tableName="currency">
+            <column name="id" value="2333"/>
+            <column name="name" value="Евро"/>
+            <column name="nominal" value="1"/>
+            <column name="value" value="99.5534"/>
+            <column name="iso_num_code" value="978"/>
+        </insert>
+        <insert tableName="currency">
+            <column name="id" value="3333"/>
+            <column name="name" value="Китайский юань"/>
+            <column name="nominal" value="1"/>
+            <column name="value" value="12.7660"/>
+            <column name="iso_num_code" value="156"/>
+        </insert>
+        <insert tableName="currency">
+            <column name="id" value="4333"/>
+            <column name="name" value="Фунт стерлингов Соединенного королевства"/>
+            <column name="nominal" value="1"/>
+            <column name="value" value="114.1721"/>
+            <column name="iso_num_code" value="826"/>
+        </insert>
+        <insert tableName="currency">
+            <column name="id" value="5333"/>
+            <column name="name" value="Грузинский лари"/>
+            <column name="nominal" value="1"/>
+            <column name="value" value="34.6752"/>
+            <column name="iso_num_code" value="981"/>
+        </insert>
+
+    </changeSet>
+
+</databaseChangeLog>

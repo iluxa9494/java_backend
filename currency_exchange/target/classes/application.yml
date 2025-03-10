@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+spring:
+  liquibase:
+    enabled: true
+    drop-first: true
+    default-schema: public
+    change-log: classpath:db/changelog_init.xml
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL95Dialect
+        show_sql: true
+        hbm2ddl:
+          auto: none
+

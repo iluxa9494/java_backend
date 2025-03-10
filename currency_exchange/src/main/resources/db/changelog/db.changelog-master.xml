@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <!-- Инициализация Liquibase -->
+    <include file="src/main/resources/db/changelog/changelog_init.xml"/>
+
+    <!-- Создание последовательности ID (если используется) -->
+    <include file="src/main/resources/db/changelog/create-sequence.xml"/>
+
+    <!-- Создание таблицы валют -->
+    <include file="src/main/resources/db/changelog/create-currency-table.xml"/>
+
+    <!-- Заполнение таблицы начальными данными -->
+    <include file="src/main/resources/db/changelog/insert-currency.xml"/>
+
+</databaseChangeLog>
