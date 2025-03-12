@@ -7,8 +7,8 @@ import ru.skillbox.currency.exchange.entity.Currency;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-03-10T12:59:38+0300",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.6 (Ubuntu)"
+    date = "2025-03-12T17:17:30+0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.14 (Ubuntu)"
 )
 @Component
 public class CurrencyMapperImpl implements CurrencyMapper {
@@ -24,8 +24,10 @@ public class CurrencyMapperImpl implements CurrencyMapper {
         currencyDto.setId( currency.getId() );
         currencyDto.setName( currency.getName() );
         currencyDto.setNominal( currency.getNominal() );
-        currencyDto.setValue( currency.getValue() );
         currencyDto.setIsoNumCode( currency.getIsoNumCode() );
+        currencyDto.setIsoCharCode( currency.getIsoCharCode() );
+        currencyDto.setExchangeRate( currency.getExchangeRate() );
+        currencyDto.setCreatedAt( currency.getCreatedAt() );
 
         return currencyDto;
     }
@@ -41,8 +43,10 @@ public class CurrencyMapperImpl implements CurrencyMapper {
         currency.setId( currencyDto.getId() );
         currency.setName( currencyDto.getName() );
         currency.setNominal( currencyDto.getNominal() );
-        currency.setValue( currencyDto.getValue() );
         currency.setIsoNumCode( currencyDto.getIsoNumCode() );
+        currency.setIsoCharCode( currencyDto.getIsoCharCode() );
+        currency.setExchangeRate( currencyDto.getExchangeRate() );
+        currency.setCreatedAt( currencyDto.getCreatedAt() );
 
         return currency;
     }

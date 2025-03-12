@@ -6,29 +6,36 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "currency")
 public class Currency {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "create_sequence", allocationSize = 0)
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", columnDefinition = "BIGINT", updatable = false, nullable = false)
     private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "nominal")
-    private Long nominal;
+    @Column(name = "nominal", nullable = false)
+    private Integer nominal;
 
-    @Column(name = "value")
-    private Double value;
+    @Column(name = "iso_numeric_code", nullable = false, unique = true)
+    private Integer isoNumCode;
 
-    @Column(name = "iso_num_code")
-    private Long isoNumCode;
+    @Column(name = "iso_char_code", nullable = false, unique = true, length = 10)
+    private String isoCharCode;
 
+    @Column(name = "exchange_rate", nullable = false, precision = 18, scale = 6)
+    private BigDecimal exchangeRate;
+
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
+    private LocalDateTime createdAt;
 }

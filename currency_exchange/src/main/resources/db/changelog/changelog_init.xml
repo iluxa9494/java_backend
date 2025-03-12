@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -6,20 +7,27 @@
 
     <changeSet id="1" author="ilia">
         <createTable tableName="currency">
-            <column name="id" type="serial">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="currency_from" type="varchar(10)">
+            <column name="name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="currency_to" type="varchar(10)">
+            <column name="nominal" type="INT">
                 <constraints nullable="false"/>
             </column>
-            <column name="rate" type="decimal(10,4)">
+            <column name="iso_numeric_code" type="INT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="iso_char_code" type="VARCHAR(10)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="exchange_rate" type="DECIMAL(18,6)">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_at" type="timestamp" defaultValueComputed="NOW()"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
-
 </databaseChangeLog>
