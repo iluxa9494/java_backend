@@ -13,7 +13,7 @@ public class CurrencyUpdateScheduler {
 
     private final CurrencyUpdateService currencyUpdateService;
 
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "${scheduler.cron.expression:0 0 * * * *}")
     public void scheduledCurrencyUpdate() {
         log.info("Запуск планового обновления курсов валют...");
         try {

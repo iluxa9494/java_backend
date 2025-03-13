@@ -1,13 +1,13 @@
 package ru.skillbox.currency.exchange.mapper;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 import ru.skillbox.currency.exchange.dto.CurrencyDto;
 import ru.skillbox.currency.exchange.entity.Currency;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-03-12T18:20:37+0300",
+    date = "2025-03-13T17:37:27+0300",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.14 (Ubuntu)"
 )
 @Component
