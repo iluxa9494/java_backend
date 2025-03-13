@@ -80,7 +80,7 @@
 
     <build>
         <plugins>
-            <!-- Компилятор -->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -108,8 +108,6 @@
                 </configuration>
             </plugin>
 
-
-            <!-- Spring Boot плагин -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -124,7 +122,7 @@
                             <goal>repackage</goal>
                         </goals>
                     </execution>
-                    <!-- Выполнить запуск приложения в фазе verify после успешного прохождения тестов -->
+
                     <execution>
                         <id>run-app</id>
                         <phase>verify</phase>
@@ -135,7 +133,6 @@
                 </executions>
             </plugin>
 
-            <!-- Плагин для запуска unit-тестов -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

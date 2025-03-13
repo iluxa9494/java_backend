@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!-- Задаём формат вывода сообщений -->
     <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n"/>
 
-    <!-- Аппендер для записи логов в файл с ротацией -->
     <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <!-- Основной файл лога -->
         <file>logs/currency_exchange.log</file>
 
-        <!-- Политика ротации по времени и размеру -->
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!-- Паттерн имени архивных файлов: дата и индекс (если несколько файлов в один день) -->
             <fileNamePattern>logs/currency_exchange.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <!-- Максимальный размер файла, после которого будет произведена ротация -->
             <maxFileSize>10MB</maxFileSize>
-            <!-- Максимальное количество дней для хранения архивных логов -->
             <maxHistory>30</maxHistory>
-            <!-- Общий размер всех архивных файлов, можно указать ограничение -->
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
 
@@ -26,12 +18,10 @@
         </encoder>
     </appender>
 
-    <!-- Корневой логгер, который выводит все сообщения в наш аппендер -->
     <root level="INFO">
         <appender-ref ref="ROLLING_FILE"/>
     </root>
 
-    <!-- Можно добавить отдельные логгеры для нужных пакетов с более детальной настройкой -->
     <logger name="ru.skillbox.currency.exchange.controller" level="DEBUG" additivity="false">
         <appender-ref ref="ROLLING_FILE"/>
     </logger>
