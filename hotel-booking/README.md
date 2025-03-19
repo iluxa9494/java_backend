@@ -1,39 +1,106 @@
-# Read Me First
-The following was discovered as part of building this project:
+# **Настройка базы данных**
 
-* The original package name 'com.example.hotel-booking' is invalid and this project uses 'com.example.hotel_booking' instead.
+## **Используемые БД**
+Проект использует **две базы данных**:
+1. **PostgreSQL** – для хранения основной информации (отели, комнаты, пользователи, бронирования и роли).
+2. **MongoDB** – для хранения статистики (события регистрации и бронирования).
 
-# Getting Started
+---
 
-### Reference Documentation
-For further reference, please consider the following sections:
+## **Настройка PostgreSQL**
+### **1. Создание базы данных и пользователя**
+Для работы с PostgreSQL необходимо создать базу данных и пользователя:
+```sql
+CREATE DATABASE hotel_booking;
+CREATE USER hotel_admin WITH PASSWORD 'postgres';
+ALTER ROLE hotel_admin SET client_encoding TO 'utf8';
+ALTER ROLE hotel_admin SET default_transaction_isolation TO 'read committed';
+ALTER ROLE hotel_admin SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE hotel_booking TO hotel_admin;
+```
 
-* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
-* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/3.4.3/maven-plugin)
-* [Create an OCI image](https://docs.spring.io/spring-boot/3.4.3/maven-plugin/build-image.html)
-* [Spring Web](https://docs.spring.io/spring-boot/3.4.3/reference/web/servlet.html)
-* [Spring Data JPA](https://docs.spring.io/spring-boot/3.4.3/reference/data/sql.html#data.sql.jpa-and-spring-data)
-* [Spring Security](https://docs.spring.io/spring-boot/3.4.3/reference/web/spring-security.html)
-* [Flyway Migration](https://docs.spring.io/spring-boot/3.4.3/how-to/data-initialization.html#howto.data-initialization.migration-tool.flyway)
-* [Spring Data MongoDB](https://docs.spring.io/spring-boot/3.4.3/reference/data/nosql.html#data.nosql.mongodb)
-* [Spring for Apache Kafka](https://docs.spring.io/spring-boot/3.4.3/reference/messaging/kafka.html)
+### **2. Настройка Flyway для миграций**
+Все миграции хранятся в папке `src/main/resources/db/migration`.
+Для применения миграций используйте команду:
+```sh
+./mvnw flyway:migrate -Dflyway.url=jdbc:postgresql://localhost:5432/hotel_booking -Dflyway.user=hotel_admin -Dflyway.password=postgres -Dflyway.outOfOrder=true
+```
+> **Важно:** необходимо указывать полные параметры в скрипте, иначе миграция может не выполниться корректно.
 
-### Guides
-The following guides illustrate how to use some features concretely:
+Проверить статус миграций:
+```sql
+SELECT * FROM flyway_schema_history;
+```
 
-* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
-* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
-* [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
-* [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
-* [Securing a Web Application](https://spring.io/guides/gs/securing-web/)
-* [Spring Boot and OAuth2](https://spring.io/guides/tutorials/spring-boot-oauth2/)
-* [Authenticating a User with LDAP](https://spring.io/guides/gs/authenticating-ldap/)
-* [Accessing Data with MongoDB](https://spring.io/guides/gs/accessing-data-mongodb/)
+### **3. Описание миграционных файлов**
+Каждый SQL-файл отвечает за создание соответствующей таблицы:
 
-### Maven Parent overrides
+| Файл                           | Назначение |
+|--------------------------------|-----------|
+| `V2__add_hotel_table.sql`      | Создание таблицы `hotels` (отели) |
+| `V3__add_room_table.sql`       | Создание таблицы `rooms` (комнаты) |
+| `V4__add_user_table.sql`       | Создание таблицы `users` (пользователи) |
+| `V5__add_booking_table.sql`    | Создание таблицы `bookings` (бронирования) |
+| `V6__add_ratings_table.sql`    | Создание таблицы `ratings` (оценки отелей) |
+| `V7__add_roles_table.sql`      | Создание таблицы `roles` (роли пользователей) |
 
-Due to Maven's design, elements are inherited from the parent POM to the project POM.
-While most of the inheritance is fine, it also inherits unwanted elements like `<license>` and `<developers>` from the parent.
-To prevent this, the project POM contains empty overrides for these elements.
-If you manually switch to a different parent and actually want the inheritance, you need to remove those overrides.
+### **4. Таблицы в PostgreSQL**
+После миграций в базе данных создадутся следующие таблицы:
 
+| Таблица    | Назначение |
+|------------|-----------|
+| `hotels`   | Отели |
+| `rooms`    | Комнаты |
+| `users`    | Пользователи |
+| `bookings` | Бронирования |
+| `ratings`  | Оценки отелей |
+| `roles`    | Роли пользователей (Spring Security) |
+
+### **5. Проверка данных**
+Примеры SQL-запросов:
+```sql
+-- Проверка пользователей
+SELECT * FROM users;
+
+-- Проверка отелей
+SELECT * FROM hotels;
+
+-- Проверка комнат
+SELECT * FROM rooms;
+
+-- Проверка бронирований
+SELECT * FROM bookings;
+
+-- Проверка оценок отелей
+SELECT * FROM ratings;
+
+-- Проверка ролей пользователей
+SELECT * FROM roles;
+```
+
+---
+
+## **Настройка MongoDB**
+### **1. Запуск MongoDB**
+Если MongoDB не установлена, её можно запустить через Docker:
+```sh
+docker run -d --name mongodb -p 27017:27017 mongo
+```
+### **2. Создание базы и коллекции**
+MongoDB автоматически создаст коллекцию `statistics` при первой вставке данных.
+
+### **3. Индексация (разово)**
+```sh
+mongosh
+use hotel_booking
+db.statistics.createIndex({ "eventType": 1 })
+db.statistics.createIndex({ "userId": 1 })
+db.statistics.createIndex({ "timestamp": -1 })
+```
+
+### **4. Проверка данных в MongoDB**
+```sh
+db.statistics.find().pretty()
+```
+
+---
