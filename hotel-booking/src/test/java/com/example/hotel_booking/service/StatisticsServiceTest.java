@@ -41,9 +41,7 @@ class StatisticsServiceTest {
     void testGetAllStatistics() {
         List<Statistics> statisticsList = List.of(new Statistics("1", "USER_REGISTRATION", "user1", null, LocalDateTime.now()));
         when(statisticsRepository.findAll()).thenReturn(statisticsList);
-
         List<StatisticsDto> result = statisticsService.getAllStatistics();
-
         assertEquals(1, result.size());
         assertEquals("USER_REGISTRATION", result.get(0).getEventType());
         verify(statisticsRepository, times(1)).findAll();
@@ -53,9 +51,7 @@ class StatisticsServiceTest {
     void testGetStatisticsByType() {
         List<Statistics> statisticsList = List.of(new Statistics("1", "ROOM_BOOKING", "user1", null, LocalDateTime.now()));
         when(statisticsRepository.findByEventType("ROOM_BOOKING")).thenReturn(statisticsList);
-
         List<StatisticsDto> result = statisticsService.getStatisticsByType("ROOM_BOOKING");
-
         assertEquals(1, result.size());
         assertEquals("ROOM_BOOKING", result.get(0).getEventType());
         verify(statisticsRepository, times(1)).findByEventType("ROOM_BOOKING");
@@ -64,14 +60,12 @@ class StatisticsServiceTest {
     @Test
     void testSaveUserRegistration() {
         statisticsService.saveUserRegistration("user1");
-
         verify(kafkaProducerService, times(1)).sendEvent(eq("statistics-events"), any(StatisticsEventDto.class));
     }
 
     @Test
     void testSaveRoomBooking() {
         statisticsService.saveRoomBooking("user1", "booking1", "room1", LocalDateTime.now(), LocalDateTime.now().plusDays(2));
-
         verify(kafkaProducerService, times(1)).sendEvent(eq("statistics-events"), any(StatisticsEventDto.class));
     }
 
@@ -79,15 +73,11 @@ class StatisticsServiceTest {
     void testExportStatisticsToCSV() {
         List<Statistics> statisticsList = List.of(new Statistics("1", "ROOM_BOOKING", "user1",
                 new BookingDetails("booking1", "room1", LocalDateTime.now(), LocalDateTime.now().plusDays(2)), LocalDateTime.now()));
-
         when(statisticsRepository.findAll()).thenReturn(statisticsList);
-
         StringWriter stringWriter = new StringWriter();
         PrintWriter writer = new PrintWriter(stringWriter);
-
         statisticsService.exportStatisticsToCSV(writer);
         writer.flush();
-
         String csvContent = stringWriter.toString();
         assertTrue(csvContent.contains("ROOM_BOOKING"));
         assertTrue(csvContent.contains("user1"));

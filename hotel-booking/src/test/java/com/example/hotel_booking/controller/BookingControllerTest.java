@@ -42,32 +42,23 @@ class BookingControllerTest {
         request.setRoomId(1L);
         request.setCheckIn(LocalDate.now());
         request.setCheckOut(LocalDate.now().plusDays(3));
-
         BookingDto responseDto = new BookingDto(1L, 1L, 1L, request.getCheckIn(), request.getCheckOut());
-
         when(bookingService.createBooking(request)).thenReturn(responseDto);
-
         ResponseEntity<BookingDto> response = bookingController.createBooking(request);
-
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1L, response.getBody().getId());
         verify(bookingService, times(1)).createBooking(request);
     }
 
-
     @Test
     void testUpdateBooking() {
         BookingUpdateRequest request = new BookingUpdateRequest();
         request.setCheckIn(LocalDate.now());
         request.setCheckOut(LocalDate.now().plusDays(3));
-
         BookingDto responseDto = new BookingDto(1L, 1L, 1L, request.getCheckIn(), request.getCheckOut());
-
         when(bookingService.updateBooking(1L, request)).thenReturn(responseDto);
-
         ResponseEntity<BookingDto> response = bookingController.updateBooking(1L, request);
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1L, response.getBody().getId());
@@ -77,20 +68,15 @@ class BookingControllerTest {
     @Test
     void testDeleteBooking() {
         doNothing().when(bookingService).deleteBooking(1L);
-
         bookingController.deleteBooking(1L);
-
         verify(bookingService, times(1)).deleteBooking(1L);
     }
 
     @Test
     void testGetBookingById() {
         BookingDto responseDto = new BookingDto(1L, 1L, 1L, LocalDate.now(), LocalDate.now().plusDays(3));
-
         when(bookingService.getBookingById(1L)).thenReturn(responseDto);
-
         ResponseEntity<BookingDto> response = bookingController.getBookingById(1L);
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1L, response.getBody().getId());
@@ -100,11 +86,8 @@ class BookingControllerTest {
     @Test
     void testGetAllBookings() {
         Page<BookingDto> bookingsPage = new PageImpl<>(List.of(new BookingDto(1L, 1L, 1L, LocalDate.now(), LocalDate.now().plusDays(3))));
-
         when(bookingService.getAllBookings(PageRequest.of(0, 10))).thenReturn(bookingsPage);
-
         ResponseEntity<Page<BookingDto>> response = bookingController.getAllBookings(0, 10);
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().getTotalElements());

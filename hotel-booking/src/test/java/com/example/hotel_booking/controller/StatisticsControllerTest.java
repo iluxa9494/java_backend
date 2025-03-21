@@ -32,9 +32,7 @@ class StatisticsControllerTest {
     void testGetAllStatistics() {
         List<StatisticsDto> statisticsList = List.of(new StatisticsDto("1", "USER_REGISTRATION", "user1", null, LocalDateTime.now()));
         when(statisticsService.getAllStatistics()).thenReturn(statisticsList);
-
         ResponseEntity<List<StatisticsDto>> response = statisticsController.getAllStatistics();
-
         assertEquals(1, response.getBody().size());
         assertEquals("USER_REGISTRATION", response.getBody().get(0).getEventType());
         verify(statisticsService, times(1)).getAllStatistics();
@@ -44,9 +42,7 @@ class StatisticsControllerTest {
     void testGetStatisticsByType() {
         List<StatisticsDto> statisticsList = List.of(new StatisticsDto("1", "ROOM_BOOKING", "user1", null, LocalDateTime.now()));
         when(statisticsService.getStatisticsByType("ROOM_BOOKING")).thenReturn(statisticsList);
-
         ResponseEntity<List<StatisticsDto>> response = statisticsController.getStatisticsByType("ROOM_BOOKING");
-
         assertEquals(1, response.getBody().size());
         assertEquals("ROOM_BOOKING", response.getBody().get(0).getEventType());
         verify(statisticsService, times(1)).getStatisticsByType("ROOM_BOOKING");

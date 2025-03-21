@@ -41,9 +41,7 @@ class RoleServiceTest {
             Role role = invocation.getArgument(0);
             return new RoleDto(role.getId(), role.getName());
         });
-
         List<RoleDto> result = roleService.getAllRoles();
-
         assertEquals(1, result.size());
         assertEquals(RoleType.ADMIN, result.get(0).getName());
         verify(roleRepository, times(1)).findAll();
@@ -54,9 +52,7 @@ class RoleServiceTest {
         Role role = new Role(1L, RoleType.USER, null);
         when(roleRepository.findByName(RoleType.USER)).thenReturn(Optional.of(role));
         when(roleMapper.toDto(role)).thenReturn(new RoleDto(role.getId(), role.getName()));
-
         Optional<RoleDto> result = roleService.getRoleByName(RoleType.USER);
-
         assertTrue(result.isPresent());
         assertEquals(RoleType.USER, result.get().getName());
         verify(roleRepository, times(1)).findByName(RoleType.USER);
@@ -65,9 +61,7 @@ class RoleServiceTest {
     @Test
     void testGetRoleByName_WhenRoleDoesNotExist() {
         when(roleRepository.findByName(RoleType.MANAGER)).thenReturn(Optional.empty());
-
         Optional<RoleDto> result = roleService.getRoleByName(RoleType.MANAGER);
-
         assertFalse(result.isPresent());
         verify(roleRepository, times(1)).findByName(RoleType.MANAGER);
     }
@@ -76,14 +70,11 @@ class RoleServiceTest {
     void testCreateRole_WhenRoleDoesNotExist() {
         RoleDto roleDto = new RoleDto(null, RoleType.MANAGER);
         Role role = new Role(2L, RoleType.MANAGER, null);
-
         when(roleRepository.findByName(RoleType.MANAGER)).thenReturn(Optional.empty());
         when(roleMapper.toEntity(roleDto)).thenReturn(role);
         when(roleRepository.save(role)).thenReturn(role);
         when(roleMapper.toDto(role)).thenReturn(new RoleDto(role.getId(), role.getName()));
-
         RoleDto result = roleService.createRole(roleDto);
-
         assertNotNull(result);
         assertEquals(RoleType.MANAGER, result.getName());
         verify(roleRepository, times(1)).save(role);
@@ -93,9 +84,7 @@ class RoleServiceTest {
     void testCreateRole_WhenRoleAlreadyExists() {
         RoleDto roleDto = new RoleDto(null, RoleType.ADMIN);
         Role role = new Role(1L, RoleType.ADMIN, null);
-
         when(roleRepository.findByName(RoleType.ADMIN)).thenReturn(Optional.of(role));
-
         assertThrows(IllegalArgumentException.class, () -> roleService.createRole(roleDto));
         verify(roleRepository, times(1)).findByName(RoleType.ADMIN);
         verify(roleRepository, never()).save(any(Role.class));
@@ -104,11 +93,8 @@ class RoleServiceTest {
     @Test
     void testDeleteRole() {
         Long roleId = 1L;
-
         doNothing().when(roleRepository).deleteById(roleId);
-
         roleService.deleteRole(roleId);
-
         verify(roleRepository, times(1)).deleteById(roleId);
     }
 }

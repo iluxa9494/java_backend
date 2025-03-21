@@ -38,9 +38,7 @@ class HotelControllerTest {
     void testGetAllHotels() {
         List<HotelDto> hotels = List.of(new HotelDto(1L, "Hotel 1", "Luxury Hotel", "New York", "Main St", BigDecimal.valueOf(2.5), BigDecimal.valueOf(4.5), 10));
         when(hotelService.getAllHotels()).thenReturn(hotels);
-
         ResponseEntity<List<HotelDto>> response = hotelController.getAllHotels();
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
@@ -52,9 +50,7 @@ class HotelControllerTest {
     void testGetHotelById() {
         HotelDto hotel = new HotelDto(1L, "Hotel 1", "Luxury Hotel", "New York", "Main St", BigDecimal.valueOf(2.5), BigDecimal.valueOf(4.5), 10);
         when(hotelService.getHotelById(1L)).thenReturn(hotel);
-
         ResponseEntity<HotelDto> response = hotelController.getHotelById(1L);
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Hotel 1", response.getBody().getName());
@@ -65,11 +61,8 @@ class HotelControllerTest {
     void testCreateHotel() {
         HotelCreateRequest request = new HotelCreateRequest("Hotel 1", "Luxury Hotel", "New York", "Main St", BigDecimal.valueOf(2.5));
         HotelDto hotelDto = new HotelDto(1L, "Hotel 1", "Luxury Hotel", "New York", "Main St", BigDecimal.valueOf(2.5), BigDecimal.valueOf(4.5), 10);
-
         when(hotelService.createHotel(request)).thenReturn(hotelDto);
-
         ResponseEntity<HotelDto> response = hotelController.createHotel(request);
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Hotel 1", response.getBody().getName());
@@ -80,11 +73,8 @@ class HotelControllerTest {
     void testUpdateHotel() {
         HotelUpdateRequest request = new HotelUpdateRequest("Hotel Updated", "Updated Luxury", "Los Angeles", "Broadway", BigDecimal.valueOf(3.0));
         HotelDto hotelDto = new HotelDto(1L, "Hotel Updated", "Updated Luxury", "Los Angeles", "Broadway", BigDecimal.valueOf(3.0), BigDecimal.valueOf(4.5), 10);
-
         when(hotelService.updateHotel(1L, request)).thenReturn(hotelDto);
-
         ResponseEntity<HotelDto> response = hotelController.updateHotel(1L, request);
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Hotel Updated", response.getBody().getName());
@@ -94,9 +84,7 @@ class HotelControllerTest {
     @Test
     void testDeleteHotel() {
         doNothing().when(hotelService).deleteHotel(1L);
-
         ResponseEntity<Void> response = hotelController.deleteHotel(1L);
-
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         verify(hotelService, times(1)).deleteHotel(1L);
     }
@@ -104,11 +92,8 @@ class HotelControllerTest {
     @Test
     void testGetHotels() {
         Page<HotelDto> hotelsPage = new PageImpl<>(List.of(new HotelDto(1L, "Hotel 1", "Luxury Hotel", "New York", "Main St", BigDecimal.valueOf(2.5), BigDecimal.valueOf(4.5), 10)));
-
         when(hotelService.getHotels("New York", 0, 10)).thenReturn(hotelsPage);
-
         ResponseEntity<Page<HotelDto>> response = hotelController.getHotels("New York", 0, 10);
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().getTotalElements());

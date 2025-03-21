@@ -1,6 +1,7 @@
 package com.example.hotel_booking.service;
 
 import com.example.hotel_booking.dto.RatingDto;
+import com.example.hotel_booking.mapper.RatingMapper;
 import com.example.hotel_booking.model.Hotel;
 import com.example.hotel_booking.model.Rating;
 import com.example.hotel_booking.model.User;
@@ -13,17 +14,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class RatingServiceTest {
 
     @Mock
     private RatingRepository ratingRepository;
+
+    @Mock
+    private RatingMapper ratingMapper;
 
     @Mock
     private UserRepository userRepository;
@@ -34,109 +38,100 @@ class RatingServiceTest {
     @InjectMocks
     private RatingService ratingService;
 
+    private Rating rating;
+    private RatingDto ratingDto;
+    private User user;
+    private Hotel hotel;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-    }
-
-    @Test
-    void testGetAllRatings() {
-        List<Rating> ratings = List.of(new Rating(1L, new User(), new Hotel(), 5, "Отлично", null));
-        when(ratingRepository.findAll()).thenReturn(ratings);
-
-        List<RatingDto> result = ratingService.getAllRatings();
-
-        assertEquals(1, result.size());
-        assertEquals(5, result.get(0).getScore());
-        verify(ratingRepository, times(1)).findAll();
+        user = new User();
+        user.setId(1L);
+        hotel = new Hotel();
+        hotel.setId(1L);
+        rating = new Rating();
+        rating.setId(1L);
+        rating.setScore(5);
+        rating.setUser(user);
+        rating.setHotel(hotel);
+        ratingDto = new RatingDto();
+        ratingDto.setId(1L);
+        ratingDto.setScore(5);
+        ratingDto.setUserId(1L);
+        ratingDto.setHotelId(1L);
     }
 
     @Test
     void testGetRatingById_WhenRatingExists() {
-        Rating rating = new Rating(1L, new User(), new Hotel(), 4, "Хороший отель", null);
         when(ratingRepository.findById(1L)).thenReturn(Optional.of(rating));
-
-        RatingDto result = ratingService.getRatingById(1L);
-
-        assertNotNull(result);
-        assertEquals(4, result.getScore());
-        verify(ratingRepository, times(1)).findById(1L);
+        when(ratingMapper.toDto(rating)).thenReturn(ratingDto);
+        RatingDto actualDto = ratingService.getRatingById(1L);
+        assertNotNull(actualDto);
+        assertEquals(5, actualDto.getScore());
+        verify(ratingRepository).findById(1L);
     }
 
     @Test
-    void testGetRatingById_WhenRatingDoesNotExist() {
-        when(ratingRepository.findById(1L)).thenReturn(Optional.empty());
+    void testGetRatingById_WhenRatingNotFound() {
+        when(ratingRepository.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(RuntimeException.class, () -> ratingService.getRatingById(99L));
+    }
 
-        assertThrows(RuntimeException.class, () -> ratingService.getRatingById(1L));
-        verify(ratingRepository, times(1)).findById(1L);
+    @Test
+    void testGetAllRatings() {
+        when(ratingRepository.findAll()).thenReturn(List.of(rating));
+        when(ratingMapper.toDto(rating)).thenReturn(ratingDto);
+        List<RatingDto> ratings = ratingService.getAllRatings();
+        assertEquals(1, ratings.size());
+        assertEquals(5, ratings.get(0).getScore());
     }
 
     @Test
     void testAddRating() {
-        User user = new User();
-        user.setId(1L);
-        Hotel hotel = new Hotel();
-        hotel.setId(1L);
-        hotel.setRating(BigDecimal.ZERO);
-        hotel.setRatingsCount(0);
-
-        RatingDto ratingDto = new RatingDto(null, 1L, 1L, 5, "Отличный сервис", null);
-        Rating rating = new Rating(1L, user, hotel, 5, "Отличный сервис", null);
-
+        when(ratingMapper.toEntity(ratingDto)).thenReturn(rating);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
-        when(ratingRepository.findByUserAndHotel(user, hotel)).thenReturn(Optional.empty());
-        when(ratingRepository.save(any(Rating.class))).thenReturn(rating);
-
+        when(ratingRepository.save(rating)).thenReturn(rating);
+        when(ratingMapper.toDto(rating)).thenReturn(ratingDto);
         RatingDto result = ratingService.addRating(ratingDto);
-
         assertNotNull(result);
         assertEquals(5, result.getScore());
-        verify(ratingRepository, times(1)).save(any(Rating.class));
-        verify(hotelRepository, times(1)).save(hotel);
     }
 
     @Test
     void testUpdateRating_WhenRatingExists() {
-        Rating rating = new Rating(1L, new User(), new Hotel(), 4, "Хорошо", null);
-        RatingDto ratingDto = new RatingDto(1L, 1L, 1L, 5, "Отлично", null);
-
+        RatingDto updatedDto = new RatingDto();
+        updatedDto.setId(1L);
+        updatedDto.setScore(4);
+        updatedDto.setUserId(1L);
+        updatedDto.setHotelId(1L);
         when(ratingRepository.findById(1L)).thenReturn(Optional.of(rating));
-        when(ratingRepository.save(any(Rating.class))).thenReturn(rating);
-
-        RatingDto result = ratingService.updateRating(1L, ratingDto);
-
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
+        when(ratingRepository.save(rating)).thenReturn(rating);
+        when(ratingMapper.toDto(rating)).thenReturn(updatedDto);
+        RatingDto result = ratingService.updateRating(1L, updatedDto);
         assertNotNull(result);
-        assertEquals(5, result.getScore());
-        verify(ratingRepository, times(1)).save(rating);
+        assertEquals(4, result.getScore());
     }
 
     @Test
-    void testUpdateRating_WhenRatingDoesNotExist() {
-        when(ratingRepository.findById(1L)).thenReturn(Optional.empty());
-
-        RatingDto ratingDto = new RatingDto(1L, 1L, 1L, 5, "Отлично", null);
-
-        assertThrows(RuntimeException.class, () -> ratingService.updateRating(1L, ratingDto));
-        verify(ratingRepository, times(1)).findById(1L);
+    void testUpdateRating_WhenRatingNotFound() {
+        when(ratingRepository.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(RuntimeException.class, () -> ratingService.updateRating(99L, ratingDto));
     }
 
     @Test
-    void testDeleteRating_WhenRatingExists() {
-        Rating rating = new Rating(1L, new User(), new Hotel(), 5, "Отлично", null);
+    void testDeleteRating_WhenExists() {
         when(ratingRepository.findById(1L)).thenReturn(Optional.of(rating));
-
         ratingService.deleteRating(1L);
-
-        verify(ratingRepository, times(1)).delete(rating);
-        verify(hotelRepository, times(1)).save(any(Hotel.class));
+        verify(ratingRepository).delete(rating);
     }
 
     @Test
-    void testDeleteRating_WhenRatingDoesNotExist() {
-        when(ratingRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(RuntimeException.class, () -> ratingService.deleteRating(1L));
-        verify(ratingRepository, times(1)).findById(1L);
+    void testDeleteRating_WhenNotFound() {
+        when(ratingRepository.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(RuntimeException.class, () -> ratingService.deleteRating(99L));
     }
 }

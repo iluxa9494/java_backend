@@ -39,9 +39,7 @@ class HotelServiceTest {
     void testGetAllHotels() {
         List<Hotel> hotels = List.of(new Hotel(1L, "Hotel1", "Title1", "City1", "Address1", BigDecimal.valueOf(1.5), BigDecimal.valueOf(4.0), 10, null, null));
         when(hotelRepository.findAll()).thenReturn(hotels);
-
         List<HotelDto> result = hotelService.getAllHotels();
-
         assertEquals(1, result.size());
         assertEquals("Hotel1", result.get(0).getName());
         verify(hotelRepository, times(1)).findAll();
@@ -51,9 +49,7 @@ class HotelServiceTest {
     void testGetHotelById_WhenHotelExists() {
         Hotel hotel = new Hotel(1L, "Hotel1", "Title1", "City1", "Address1", BigDecimal.valueOf(1.5), BigDecimal.valueOf(4.0), 10, null, null);
         when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
-
         HotelDto result = hotelService.getHotelById(1L);
-
         assertNotNull(result);
         assertEquals("Hotel1", result.getName());
         verify(hotelRepository, times(1)).findById(1L);
@@ -62,7 +58,6 @@ class HotelServiceTest {
     @Test
     void testGetHotelById_WhenHotelDoesNotExist() {
         when(hotelRepository.findById(1L)).thenReturn(Optional.empty());
-
         assertThrows(EntityNotFoundException.class, () -> hotelService.getHotelById(1L));
         verify(hotelRepository, times(1)).findById(1L);
     }
@@ -71,11 +66,8 @@ class HotelServiceTest {
     void testCreateHotel() {
         HotelCreateRequest request = new HotelCreateRequest("Hotel1", "Title1", "City1", "Address1", BigDecimal.valueOf(1.5));
         Hotel hotel = new Hotel(1L, request.getName(), request.getTitle(), request.getCity(), request.getAddress(), request.getDistanceFromCenter(), BigDecimal.ZERO, 0, null, null);
-
         when(hotelRepository.save(any(Hotel.class))).thenReturn(hotel);
-
         HotelDto result = hotelService.createHotel(request);
-
         assertNotNull(result);
         assertEquals("Hotel1", result.getName());
         verify(hotelRepository, times(1)).save(any(Hotel.class));
@@ -85,12 +77,9 @@ class HotelServiceTest {
     void testUpdateHotel_WhenHotelExists() {
         Hotel hotel = new Hotel(1L, "Hotel1", "Title1", "City1", "Address1", BigDecimal.valueOf(1.5), BigDecimal.valueOf(4.0), 10, null, null);
         HotelUpdateRequest request = new HotelUpdateRequest("Updated Hotel", "Updated Title", "Updated City", "Updated Address", BigDecimal.valueOf(2.0));
-
         when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
         when(hotelRepository.save(any(Hotel.class))).thenReturn(hotel);
-
         HotelDto result = hotelService.updateHotel(1L, request);
-
         assertNotNull(result);
         assertEquals("Updated Hotel", result.getName());
         verify(hotelRepository, times(1)).save(hotel);
@@ -99,9 +88,7 @@ class HotelServiceTest {
     @Test
     void testUpdateHotel_WhenHotelDoesNotExist() {
         when(hotelRepository.findById(1L)).thenReturn(Optional.empty());
-
         HotelUpdateRequest request = new HotelUpdateRequest("Updated Hotel", "Updated Title", "Updated City", "Updated Address", BigDecimal.valueOf(2.0));
-
         assertThrows(EntityNotFoundException.class, () -> hotelService.updateHotel(1L, request));
         verify(hotelRepository, times(1)).findById(1L);
     }
@@ -109,16 +96,13 @@ class HotelServiceTest {
     @Test
     void testDeleteHotel_WhenHotelExists() {
         when(hotelRepository.existsById(1L)).thenReturn(true);
-
         hotelService.deleteHotel(1L);
-
         verify(hotelRepository, times(1)).deleteById(1L);
     }
 
     @Test
     void testDeleteHotel_WhenHotelDoesNotExist() {
         when(hotelRepository.existsById(1L)).thenReturn(false);
-
         assertThrows(EntityNotFoundException.class, () -> hotelService.deleteHotel(1L));
         verify(hotelRepository, times(1)).existsById(1L);
     }
@@ -127,9 +111,7 @@ class HotelServiceTest {
     void testGetHotels_WithPagination() {
         Page<Hotel> hotels = new PageImpl<>(List.of(new Hotel(1L, "Hotel1", "Title1", "City1", "Address1", BigDecimal.valueOf(1.5), BigDecimal.valueOf(4.0), 10, null, null)));
         when(hotelRepository.findAll(any(Pageable.class))).thenReturn(hotels);
-
         Page<HotelDto> result = hotelService.getHotels(null, 0, 10);
-
         assertEquals(1, result.getTotalElements());
         assertEquals("Hotel1", result.getContent().get(0).getName());
         verify(hotelRepository, times(1)).findAll(any(Pageable.class));

@@ -62,10 +62,9 @@ public class BookingService {
 
     @Transactional
     public void deleteBooking(Long id) {
-        if (!bookingRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Бронирование не найдено");
-        }
-        bookingRepository.deleteById(id);
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Бронирование не найдено"));
+        bookingRepository.delete(booking);
     }
 
     public BookingDto getBookingById(Long id) {

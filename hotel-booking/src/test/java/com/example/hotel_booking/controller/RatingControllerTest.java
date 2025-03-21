@@ -36,9 +36,7 @@ class RatingControllerTest {
                 new RatingDto(1L, 1L, 1L, 5, "Отличный отель", LocalDateTime.now())
         );
         when(ratingService.getAllRatings()).thenReturn(ratings);
-
         ResponseEntity<List<RatingDto>> response = ratingController.getAllRatings();
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
@@ -50,9 +48,7 @@ class RatingControllerTest {
     void testGetRatingById() {
         RatingDto ratingDto = new RatingDto(1L, 1L, 1L, 4, "Хороший сервис", LocalDateTime.now());
         when(ratingService.getRatingById(1L)).thenReturn(ratingDto);
-
         ResponseEntity<RatingDto> response = ratingController.getRatingById(1L);
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(4, response.getBody().getScore());
@@ -63,11 +59,8 @@ class RatingControllerTest {
     void testAddRating() {
         RatingDto requestDto = new RatingDto(null, 1L, 1L, 5, "Супер!", LocalDateTime.now());
         RatingDto responseDto = new RatingDto(1L, 1L, 1L, 5, "Супер!", LocalDateTime.now());
-
         when(ratingService.addRating(requestDto)).thenReturn(responseDto);
-
         ResponseEntity<RatingDto> response = ratingController.addRating(requestDto);
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(5, response.getBody().getScore());
@@ -78,11 +71,8 @@ class RatingControllerTest {
     void testUpdateRating() {
         RatingDto requestDto = new RatingDto(1L, 1L, 1L, 3, "Средний", LocalDateTime.now());
         RatingDto responseDto = new RatingDto(1L, 1L, 1L, 3, "Средний", LocalDateTime.now());
-
         when(ratingService.updateRating(1L, requestDto)).thenReturn(responseDto);
-
         ResponseEntity<RatingDto> response = ratingController.updateRating(1L, requestDto);
-
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(3, response.getBody().getScore());
@@ -92,9 +82,7 @@ class RatingControllerTest {
     @Test
     void testDeleteRating() {
         doNothing().when(ratingService).deleteRating(1L);
-
         ResponseEntity<Void> response = ratingController.deleteRating(1L);
-
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         verify(ratingService, times(1)).deleteRating(1L);
     }
