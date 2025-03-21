@@ -10,5 +10,4 @@ CREATE TABLE hotels (
 );
 
 CREATE INDEX idx_hotel_city ON hotels(city);
-
 CREATE INDEX idx_hotel_rating ON hotels(rating DESC);
