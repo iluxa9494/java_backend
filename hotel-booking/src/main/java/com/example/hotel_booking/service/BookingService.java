@@ -14,12 +14,14 @@ import com.example.hotel_booking.repository.RoomRepository;
 import com.example.hotel_booking.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookingService {
@@ -30,50 +32,60 @@ public class BookingService {
 
     @Transactional
     public BookingDto createBooking(BookingCreateRequest request) {
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден"));
-
-        Room room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(() -> new ResourceNotFoundException("Комната не найдена"));
-
+        log.info("Создание нового бронирования: {}", request);
+        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> {
+            log.warn("Пользователь с ID {} не найден", request.getUserId());
+            return new ResourceNotFoundException("Пользователь не найден");
+        });
+        Room room = roomRepository.findById(request.getRoomId()).orElseThrow(() -> {
+            log.warn("Комната с ID {} не найдена", request.getRoomId());
+            return new ResourceNotFoundException("Комната не найдена");
+        });
         Booking booking = bookingMapper.toEntity(request);
         booking.setUser(user);
         booking.setRoom(room);
-
         booking = bookingRepository.save(booking);
+        log.info("Бронирование успешно создано с ID {}", booking.getId());
         return bookingMapper.toDto(booking);
     }
 
     @Transactional
     public BookingDto updateBooking(Long id, BookingUpdateRequest request) {
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Бронирование не найдено"));
-
+        log.info("Обновление бронирования ID: {}", id);
+        Booking booking = bookingRepository.findById(id).orElseThrow(() -> {
+            log.warn("Бронирование с ID {} не найдено", id);
+            return new ResourceNotFoundException("Бронирование не найдено");
+        });
         if (!isRoomAvailable(booking.getRoom().getId(), request.getCheckIn(), request.getCheckOut())) {
             throw new RoomNotAvailableException("Комната уже забронирована на эти даты.");
         }
-
         bookingMapper.updateEntity(request, booking);
         booking.validateDates();
-
         Booking updatedBooking = bookingRepository.save(booking);
+        log.info("Бронирование с ID {} обновлено", id);
         return bookingMapper.toDto(updatedBooking);
     }
 
     @Transactional
     public void deleteBooking(Long id) {
+        log.info("Удаление бронирования с ID {}", id);
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Бронирование не найдено"));
         bookingRepository.delete(booking);
+        log.info("Бронирование с ID {} удалено", id);
     }
 
     public BookingDto getBookingById(Long id) {
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Бронирование не найдено"));
+        log.info("Поиск бронирования по ID: {}", id);
+        Booking booking = bookingRepository.findById(id).orElseThrow(() -> {
+            log.warn("Бронирование с ID {} не найдено", id);
+            return new ResourceNotFoundException("Бронирование не найдено");
+        });
         return bookingMapper.toDto(booking);
     }
 
     public Page<BookingDto> getAllBookings(Pageable pageable) {
+        log.info("Получение всех бронирований (страница: {})", pageable.getPageNumber());
         return bookingRepository.findAll(pageable).map(bookingMapper::toDto);
     }
 

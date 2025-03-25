@@ -7,6 +7,7 @@ import com.example.hotel_booking.mapper.StatisticsMapper;
 import com.example.hotel_booking.model.BookingDetails;
 import com.example.hotel_booking.model.Statistics;
 import com.example.hotel_booking.repository.StatisticsRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.PrintWriter;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class StatisticsService {
 
@@ -27,6 +29,7 @@ public class StatisticsService {
     }
 
     public void saveUserRegistration(String userId) {
+        log.info("Сохранение события регистрации пользователя: {}", userId);
         StatisticsEventDto event = StatisticsEventDto.builder()
                 .eventType("USER_REGISTRATION")
                 .userId(userId)
@@ -36,6 +39,7 @@ public class StatisticsService {
     }
 
     public void saveRoomBooking(String userId, String bookingId, String roomId, LocalDateTime checkIn, LocalDateTime checkOut) {
+        log.info("Сохранение события бронирования: userId={}, bookingId={}, roomId={}", userId, bookingId, roomId);
         StatisticsEventDto event = StatisticsEventDto.builder()
                 .eventType("ROOM_BOOKING")
                 .userId(userId)
@@ -46,18 +50,21 @@ public class StatisticsService {
     }
 
     public List<StatisticsDto> getAllStatistics() {
+        log.info("Получение всех записей статистики");
         return statisticsRepository.findAll().stream()
                 .map(statisticsMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     public List<StatisticsDto> getStatisticsByType(String eventType) {
+        log.info("Получение статистики по типу: {}", eventType);
         return statisticsRepository.findByEventType(eventType).stream()
                 .map(statisticsMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     public void exportStatisticsToCSV(PrintWriter writer) {
+        log.info("Экспорт статистики в CSV");
         List<Statistics> statisticsList = statisticsRepository.findAll();
         writer.println("Event Type, User ID, Timestamp, Booking ID, Room ID, Check-In, Check-Out");
 

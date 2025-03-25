@@ -4,6 +4,7 @@ import com.example.hotel_booking.dto.UserDto;
 import com.example.hotel_booking.mapper.UserMapper;
 import com.example.hotel_booking.model.User;
 import com.example.hotel_booking.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -25,21 +27,25 @@ public class UserService {
     }
 
     public List<UserDto> getAllUsers() {
+        log.info("Запрошен список всех пользователей");
         return userRepository.findAll().stream()
                 .map(userMapper::toDto)
                 .toList();
     }
 
     public Optional<UserDto> getUserByEmail(String email) {
+        log.info("Поиск пользователя по email: {}", email);
         return userRepository.findByEmail(email).map(userMapper::toDto);
     }
 
     public Optional<UserDto> getUserByUsername(String username) {
+        log.info("Поиск пользователя по username: {}", username);
         return userRepository.findByUsername(username).map(userMapper::toDto);
     }
 
     @Transactional
     public UserDto createUser(UserDto userDto) {
+        log.info("Создание пользователя с email: {}", userDto.getEmail());
         if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new IllegalArgumentException("Email уже используется");
         }
@@ -53,6 +59,7 @@ public class UserService {
 
     @Transactional
     public UserDto updateUser(Long id, UserDto userDto) {
+        log.info("Обновление пользователя с id: {}", id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
 
@@ -64,6 +71,7 @@ public class UserService {
 
     @Transactional
     public void deleteUser(Long id) {
+        log.info("Удаление пользователя с id: {}", id);
         userRepository.deleteById(id);
     }
 }

@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class RatingServiceTest {
+public class RatingServiceTest {
 
     @Mock
     private RatingRepository ratingRepository;

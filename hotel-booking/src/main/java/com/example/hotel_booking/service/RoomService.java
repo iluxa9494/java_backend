@@ -12,6 +12,7 @@ import com.example.hotel_booking.repository.RoomRepository;
 import com.example.hotel_booking.specification.RoomSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RoomService {
@@ -31,19 +33,24 @@ public class RoomService {
 
 
     public List<RoomDto> getAllRooms() {
+        log.info("Получение списка всех комнат");
         return roomRepository.findAll().stream()
                 .map(roomMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     public RoomDto getRoomById(Long id) {
-        Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Комната с id " + id + " не найдена"));
+        log.info("Получение комнаты по ID: {}", id);
+        Room room = roomRepository.findById(id).orElseThrow(() -> {
+            log.warn("Комната с ID {} не найдена", id);
+            return new ResourceNotFoundException("Комната не найдена");
+        });
         return roomMapper.toDto(room);
     }
 
     @Transactional
     public RoomDto createRoom(RoomCreateRequest request) {
+        log.info("Создание новой комнаты для отеля ID: {}", request.getHotelId());
         Hotel hotel = hotelRepository.findById(request.getHotelId())
                 .orElseThrow(() -> new ResourceNotFoundException("Отель с id " + request.getHotelId() + " не найден"));
 
@@ -58,25 +65,33 @@ public class RoomService {
 
         room.setHotel(hotel);
         room = roomRepository.save(room);
+        log.info("Комната успешно создана с ID {}", room.getId());
         return roomMapper.toDto(room);
     }
 
 
     @Transactional
     public RoomDto updateRoom(Long id, RoomUpdateRequest request) {
-        Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Комната с id " + id + " не найдена"));
-
+        log.info("Обновление комнаты с ID {}", id);
+        Room room = roomRepository.findById(id).orElseThrow(() -> {
+            log.warn("Комната с ID {} не найдена", id);
+            return new ResourceNotFoundException("Комната не найдена");
+        });
         roomMapper.updateEntity(request, room);
         room = roomRepository.save(room);
+        log.info("Комната с ID {} успешно обновлена", room.getId());
         return roomMapper.toDto(room);
     }
 
     @Transactional
     public void deleteRoom(Long id) {
-        Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Комната с id " + id + " не найдена"));
+        log.info("Удаление комнаты с ID {}", id);
+        Room room = roomRepository.findById(id).orElseThrow(() -> {
+            log.warn("Комната с ID {} не найдена", id);
+            return new ResourceNotFoundException("Комната не найдена");
+        });
         roomRepository.delete(room);
+        log.info("Комната с ID {} успешно удалена", id);
     }
 
     public Page<RoomDto> getFilteredRooms(Long hotelId, Double minPrice, Double maxPrice, Integer minGuests, Integer maxGuests, LocalDate checkIn, LocalDate checkOut, int page, int size) {

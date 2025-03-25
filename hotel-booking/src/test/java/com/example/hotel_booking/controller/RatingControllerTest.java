@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
-class RatingControllerTest {
+public class RatingControllerTest {
 
     @Mock
     private RatingService ratingService;

@@ -71,7 +71,6 @@ public class HotelService {
             throw new EntityNotFoundException("Отель не найден");
         }
         hotelRepository.deleteById(id);
-        log.info("Отель с ID {} успешно удалён", id);
     }
 
     public Page<HotelDto> getHotels(String city, int page, int size) {

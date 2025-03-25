@@ -17,7 +17,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class RoleServiceTest {
+public class RoleServiceTest {
 
     @Mock
     private RoleRepository roleRepository;
