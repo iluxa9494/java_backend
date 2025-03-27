@@ -1,4 +1,4 @@
-package searchengine.services;
+package searchengine.services.indexing;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

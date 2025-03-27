@@ -1,4 +1,4 @@
-package searchengine.services;
+package searchengine.services.search;
 
 import org.springframework.stereotype.Service;
 import searchengine.dto.search.SearchRequest;
@@ -9,7 +9,7 @@ import searchengine.model.Page;
 import searchengine.repositories.IndexRepository;
 import searchengine.repositories.LemmaRepository;
 import searchengine.repositories.PageRepository;
-import searchengine.utils.Lemmatizer;
+import searchengine.services.lemma.Lemmatizer;
 import searchengine.utils.SnippetGenerator;
 
 import java.util.ArrayList;
