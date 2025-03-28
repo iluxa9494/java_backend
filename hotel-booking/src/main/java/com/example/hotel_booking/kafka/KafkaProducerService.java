@@ -1,6 +1,6 @@
 package com.example.hotel_booking.kafka;
 
-import com.example.hotel_booking.dto.StatisticsEventDto;
+import com.example.hotel_booking.dto.Statistics.StatisticsEventDto;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 

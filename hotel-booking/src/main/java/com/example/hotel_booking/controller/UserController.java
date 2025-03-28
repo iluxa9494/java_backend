@@ -1,13 +1,12 @@
 package com.example.hotel_booking.controller;
 
-import com.example.hotel_booking.dto.UserDto;
+import com.example.hotel_booking.dto.User.UserDto;
 import com.example.hotel_booking.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -21,41 +20,51 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         log.info("GET /api/v1/users | Получение списка всех пользователей");
-        return ResponseEntity.ok(userService.getAllUsers());
+        return userService.getAllUsers();
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<UserDto> getUserByEmail(@PathVariable String email) {
+    public UserDto getUserByEmail(@PathVariable String email) {
         log.info("GET /api/v1/users/{} | Получение пользователя по Email", email);
-        Optional<UserDto> user = userService.getUserByEmail(email);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return userService.getUserByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
     }
 
     @GetMapping("/username/{username}")
-    public ResponseEntity<UserDto> getUserByUsername(@PathVariable String username) {
+    public UserDto getUserByUsername(@PathVariable String username) {
         log.info("GET /api/v1/users/{} | Получение пользователя по username", username);
-        Optional<UserDto> user = userService.getUserByUsername(username);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return userService.getUserByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
+    public UserDto createUser(@RequestBody UserDto userDto) {
         log.info("POST /api/v1/users | Создание пользователя с email={}", userDto.getEmail());
-        return ResponseEntity.ok(userService.createUser(userDto));
+        return userService.createUser(userDto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
+    public UserDto updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
         log.info("PUT /api/v1/users/{} | Обновление пользователя", id);
-        return ResponseEntity.ok(userService.updateUser(id, userDto));
+        return userService.updateUser(id, userDto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable Long id) {
         log.info("DELETE /api/v1/users/{} | Удаление пользователя", id);
         userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(UserNotFoundException.class)
+    public String handleUserNotFound(UserNotFoundException ex) {
+        return ex.getMessage();
+    }
+
+    public static class UserNotFoundException extends RuntimeException {
+        public UserNotFoundException(String identifier) {
+            super("Пользователь '" + identifier + "' не найден");
+        }
     }
 }

@@ -1,6 +1,6 @@
 package com.example.hotel_booking.mapper;
 
-import com.example.hotel_booking.dto.RoleDto;
+import com.example.hotel_booking.dto.Role.RoleDto;
 import com.example.hotel_booking.model.Role;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

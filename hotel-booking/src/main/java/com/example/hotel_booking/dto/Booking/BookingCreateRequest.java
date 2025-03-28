@@ -1,4 +1,4 @@
-package com.example.hotel_booking.dto;
+package com.example.hotel_booking.dto.Booking;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;

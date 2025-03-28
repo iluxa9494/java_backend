@@ -43,7 +43,7 @@ GRANT ALL PRIVILEGES ON DATABASE hotel_booking TO hotel_admin;
 ```bash
 ./mvnw flyway:migrate \
   -Dflyway.url=jdbc:postgresql://localhost:5432/hotel_booking \
-  -Dflyway.user=hotel_admin \
+  -Dflyway.User=hotel_admin \
   -Dflyway.password=postgres \
   -Dflyway.outOfOrder=true
 ```

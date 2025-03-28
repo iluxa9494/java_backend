@@ -1,8 +1,8 @@
 package com.example.hotel_booking.mapper;
 
-import com.example.hotel_booking.dto.HotelCreateRequest;
-import com.example.hotel_booking.dto.HotelDto;
-import com.example.hotel_booking.dto.HotelUpdateRequest;
+import com.example.hotel_booking.dto.Hotel.HotelCreateRequest;
+import com.example.hotel_booking.dto.Hotel.HotelDto;
+import com.example.hotel_booking.dto.Hotel.HotelUpdateRequest;
 import com.example.hotel_booking.model.Hotel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

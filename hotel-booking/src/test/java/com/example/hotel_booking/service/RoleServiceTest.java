@@ -1,6 +1,6 @@
 package com.example.hotel_booking.service;
 
-import com.example.hotel_booking.dto.RoleDto;
+import com.example.hotel_booking.dto.Role.RoleDto;
 import com.example.hotel_booking.mapper.RoleMapper;
 import com.example.hotel_booking.model.Role;
 import com.example.hotel_booking.model.RoleType;

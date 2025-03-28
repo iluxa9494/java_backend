@@ -1,4 +1,4 @@
-package com.example.hotel_booking.dto;
+package com.example.hotel_booking.dto.Rating;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

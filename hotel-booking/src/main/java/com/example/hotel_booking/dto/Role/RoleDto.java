@@ -1,4 +1,4 @@
-package com.example.hotel_booking.dto;
+package com.example.hotel_booking.dto.Role;
 
 import com.example.hotel_booking.model.RoleType;
 import jakarta.validation.constraints.NotNull;

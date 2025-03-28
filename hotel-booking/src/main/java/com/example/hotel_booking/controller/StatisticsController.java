@@ -1,12 +1,12 @@
 package com.example.hotel_booking.controller;
 
-import com.example.hotel_booking.dto.StatisticsDto;
+import com.example.hotel_booking.dto.Statistics.StatisticsDto;
 import com.example.hotel_booking.model.Statistics;
 import com.example.hotel_booking.service.StatisticsService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,29 +28,30 @@ public class StatisticsController {
     }
 
     @GetMapping
-    public ResponseEntity<List<StatisticsDto>> getAllStatistics() {
+    public List<StatisticsDto> getAllStatistics() {
         log.info("Получен запрос на получение всех статистик");
-        return ResponseEntity.ok(statisticsService.getAllStatistics());
+        return statisticsService.getAllStatistics();
     }
 
     @GetMapping("/type/{eventType}")
-    public ResponseEntity<List<StatisticsDto>> getStatisticsByType(@PathVariable String eventType) {
+    public List<StatisticsDto> getStatisticsByType(@PathVariable String eventType) {
         log.info("Получен запрос на получение статистики по типу: {}", eventType);
-        return ResponseEntity.ok(statisticsService.getStatisticsByType(eventType));
+        return statisticsService.getStatisticsByType(eventType);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> saveUserRegistration(@RequestParam String userId) {
+    @ResponseStatus(HttpStatus.OK)
+    public String saveUserRegistration(@RequestParam String userId) {
         log.info("Получен запрос на регистрацию пользователя: {}", userId);
         statisticsService.saveUserRegistration(userId);
-        return ResponseEntity.ok("User registration event sent to Kafka");
+        return "User registration event sent to Kafka";
     }
 
     @PostMapping("/booking")
-    public ResponseEntity<String> saveRoomBooking(@RequestBody Statistics statistics) {
+    public String saveRoomBooking(@RequestBody Statistics statistics) {
         log.info("Получен запрос на бронирование от пользователя: {}", statistics.getUserId());
         if (statistics.getDetails() == null) {
-            return ResponseEntity.badRequest().body("Booking details are required");
+            throw new IllegalArgumentException("Booking details are required");
         }
         statisticsService.saveRoomBooking(
                 statistics.getUserId(),
@@ -60,7 +61,7 @@ public class StatisticsController {
                 statistics.getDetails().getCheckOut()
         );
         log.debug("Событие бронирования пользователя {} отправлено в Kafka", statistics.getUserId());
-        return ResponseEntity.ok("Room booking event sent to Kafka");
+        return "Room booking event sent to Kafka";
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -74,5 +75,11 @@ public class StatisticsController {
         statisticsService.exportStatisticsToCSV(writer);
         writer.flush();
         log.debug("Файл statistics.csv успешно сгенерирован и отправлен");
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public String handleIllegalArgument(IllegalArgumentException ex) {
+        return ex.getMessage();
     }
 }

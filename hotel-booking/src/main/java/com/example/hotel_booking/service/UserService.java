@@ -1,6 +1,6 @@
 package com.example.hotel_booking.service;
 
-import com.example.hotel_booking.dto.UserDto;
+import com.example.hotel_booking.dto.User.UserDto;
 import com.example.hotel_booking.mapper.UserMapper;
 import com.example.hotel_booking.model.User;
 import com.example.hotel_booking.repository.UserRepository;
@@ -46,12 +46,15 @@ public class UserService {
     @Transactional
     public UserDto createUser(UserDto userDto) {
         log.info("Создание пользователя с email: {}", userDto.getEmail());
+
         if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new IllegalArgumentException("Email уже используется");
         }
+
         if (userRepository.existsByUsername(userDto.getUsername())) {
             throw new IllegalArgumentException("Имя пользователя уже занято");
         }
+
         User user = userMapper.toEntity(userDto);
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         return userMapper.toDto(userRepository.save(user));
@@ -60,6 +63,7 @@ public class UserService {
     @Transactional
     public UserDto updateUser(Long id, UserDto userDto) {
         log.info("Обновление пользователя с id: {}", id);
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
 
@@ -69,7 +73,6 @@ public class UserService {
         return userMapper.toDto(userRepository.save(user));
     }
 
-    @Transactional
     public void deleteUser(Long id) {
         log.info("Удаление пользователя с id: {}", id);
         userRepository.deleteById(id);

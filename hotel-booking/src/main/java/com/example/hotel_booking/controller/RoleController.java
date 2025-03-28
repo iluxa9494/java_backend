@@ -1,14 +1,13 @@
 package com.example.hotel_booking.controller;
 
-import com.example.hotel_booking.dto.RoleDto;
+import com.example.hotel_booking.dto.Role.RoleDto;
 import com.example.hotel_booking.model.RoleType;
 import com.example.hotel_booking.service.RoleService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -22,28 +21,39 @@ public class RoleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<RoleDto>> getAllRoles() {
+    public List<RoleDto> getAllRoles() {
         log.info("GET /api/v1/roles | Получение списка всех ролей");
-        return ResponseEntity.ok(roleService.getAllRoles());
+        return roleService.getAllRoles();
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity<RoleDto> getRoleByName(@PathVariable RoleType name) {
+    public RoleDto getRoleByName(@PathVariable RoleType name) {
         log.info("GET /api/v1/roles/{} | Получение роли по имени", name);
-        Optional<RoleDto> role = roleService.getRoleByName(name);
-        return role.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return roleService.getRoleByName(name).orElseThrow(() -> new RoleNotFoundException(name));
     }
 
     @PostMapping
-    public ResponseEntity<RoleDto> createRole(@RequestBody RoleDto roleDto) {
+    public RoleDto createRole(@RequestBody RoleDto roleDto) {
         log.info("POST /api/v1/roles | Создание новой роли: {}", roleDto.getName());
-        return ResponseEntity.ok(roleService.createRole(roleDto));
+        return roleService.createRole(roleDto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteRole(@PathVariable Long id) {
         log.info("DELETE /api/v1/roles/{} | Удаление роли", id);
         roleService.deleteRole(id);
-        return ResponseEntity.noContent().build();
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(RoleNotFoundException.class)
+    public String handleRoleNotFound(RoleNotFoundException ex) {
+        return ex.getMessage();
+    }
+
+    public static class RoleNotFoundException extends RuntimeException {
+        public RoleNotFoundException(RoleType name) {
+            super("Роль '" + name + "' не найдена");
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.hotel_booking.dto;
+package com.example.hotel_booking.dto.Room;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

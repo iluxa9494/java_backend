@@ -1,6 +1,6 @@
 package com.example.hotel_booking.service;
 
-import com.example.hotel_booking.dto.RatingDto;
+import com.example.hotel_booking.dto.Rating.RatingDto;
 import com.example.hotel_booking.mapper.RatingMapper;
 import com.example.hotel_booking.model.Hotel;
 import com.example.hotel_booking.model.Rating;

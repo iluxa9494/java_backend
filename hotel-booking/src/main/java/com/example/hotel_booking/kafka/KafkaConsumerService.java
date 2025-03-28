@@ -1,6 +1,6 @@
 package com.example.hotel_booking.kafka;
 
-import com.example.hotel_booking.dto.StatisticsEventDto;
+import com.example.hotel_booking.dto.Statistics.StatisticsEventDto;
 import com.example.hotel_booking.model.Statistics;
 import com.example.hotel_booking.repository.StatisticsRepository;
 import org.springframework.kafka.annotation.KafkaListener;

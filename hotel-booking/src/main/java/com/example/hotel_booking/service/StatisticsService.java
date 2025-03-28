@@ -1,7 +1,7 @@
 package com.example.hotel_booking.service;
 
-import com.example.hotel_booking.dto.StatisticsDto;
-import com.example.hotel_booking.dto.StatisticsEventDto;
+import com.example.hotel_booking.dto.Statistics.StatisticsDto;
+import com.example.hotel_booking.dto.Statistics.StatisticsEventDto;
 import com.example.hotel_booking.kafka.KafkaProducerService;
 import com.example.hotel_booking.mapper.StatisticsMapper;
 import com.example.hotel_booking.model.BookingDetails;
@@ -71,16 +71,13 @@ public class StatisticsService {
         for (Statistics stat : statisticsList) {
             String bookingId = (stat.getDetails() != null) ? stat.getDetails().getBookingId() : "";
             String roomId = (stat.getDetails() != null) ? stat.getDetails().getRoomId() : "";
-            String checkIn = (stat.getDetails() != null) ? stat.getDetails().getCheckIn().toString() : "";
-            String checkOut = (stat.getDetails() != null) ? stat.getDetails().getCheckOut().toString() : "";
+            String checkIn = (stat.getDetails() != null && stat.getDetails().getCheckIn() != null)
+                    ? stat.getDetails().getCheckIn().toString() : "";
+            String checkOut = (stat.getDetails() != null && stat.getDetails().getCheckOut() != null)
+                    ? stat.getDetails().getCheckOut().toString() : "";
 
-            writer.println(stat.getEventType() + "," +
-                    stat.getUserId() + "," +
-                    stat.getCreatedAt() + "," +
-                    bookingId + "," +
-                    roomId + "," +
-                    checkIn + "," +
-                    checkOut);
+            writer.println(String.join(",", stat.getEventType(), stat.getUserId(),
+                    stat.getCreatedAt().toString(), bookingId, roomId, checkIn, checkOut));
         }
     }
 }

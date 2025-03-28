@@ -1,8 +1,8 @@
 package com.example.hotel_booking.service;
 
-import com.example.hotel_booking.dto.HotelCreateRequest;
-import com.example.hotel_booking.dto.HotelDto;
-import com.example.hotel_booking.dto.HotelUpdateRequest;
+import com.example.hotel_booking.dto.Hotel.HotelCreateRequest;
+import com.example.hotel_booking.dto.Hotel.HotelDto;
+import com.example.hotel_booking.dto.Hotel.HotelUpdateRequest;
 import com.example.hotel_booking.model.Hotel;
 import com.example.hotel_booking.repository.HotelRepository;
 import jakarta.persistence.EntityNotFoundException;

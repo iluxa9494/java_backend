@@ -1,13 +1,12 @@
 package com.example.hotel_booking.service;
 
-import com.example.hotel_booking.dto.HotelCreateRequest;
-import com.example.hotel_booking.dto.HotelDto;
-import com.example.hotel_booking.dto.HotelUpdateRequest;
+import com.example.hotel_booking.dto.Hotel.HotelCreateRequest;
+import com.example.hotel_booking.dto.Hotel.HotelDto;
+import com.example.hotel_booking.dto.Hotel.HotelUpdateRequest;
 import com.example.hotel_booking.mapper.HotelMapper;
 import com.example.hotel_booking.model.Hotel;
 import com.example.hotel_booking.repository.HotelRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,9 +19,9 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 public class HotelService {
+
     private final HotelRepository hotelRepository;
     private final HotelMapper hotelMapper = HotelMapper.INSTANCE;
 

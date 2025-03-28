@@ -1,6 +1,6 @@
 package com.example.hotel_booking.mapper;
 
-import com.example.hotel_booking.dto.StatisticsDto;
+import com.example.hotel_booking.dto.Statistics.StatisticsDto;
 import com.example.hotel_booking.model.Statistics;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

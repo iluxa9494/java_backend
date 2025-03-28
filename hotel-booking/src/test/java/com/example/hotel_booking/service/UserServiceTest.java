@@ -1,6 +1,6 @@
 package com.example.hotel_booking.service;
 
-import com.example.hotel_booking.dto.UserDto;
+import com.example.hotel_booking.dto.User.UserDto;
 import com.example.hotel_booking.mapper.UserMapper;
 import com.example.hotel_booking.model.User;
 import com.example.hotel_booking.repository.UserRepository;

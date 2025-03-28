@@ -1,7 +1,7 @@
 package com.example.hotel_booking.service;
 
-import com.example.hotel_booking.dto.StatisticsDto;
-import com.example.hotel_booking.dto.StatisticsEventDto;
+import com.example.hotel_booking.dto.Statistics.StatisticsDto;
+import com.example.hotel_booking.dto.Statistics.StatisticsEventDto;
 import com.example.hotel_booking.kafka.KafkaProducerService;
 import com.example.hotel_booking.model.BookingDetails;
 import com.example.hotel_booking.model.Statistics;

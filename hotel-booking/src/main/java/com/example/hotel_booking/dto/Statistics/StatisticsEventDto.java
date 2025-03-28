@@ -1,4 +1,4 @@
-package com.example.hotel_booking.dto;
+package com.example.hotel_booking.dto.Statistics;
 
 import com.example.hotel_booking.model.BookingDetails;
 import lombok.*;
@@ -10,10 +10,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StatisticsDto {
-    private String id;
+public class StatisticsEventDto {
     private String eventType;
     private String userId;
+    private LocalDateTime timestamp;
     private BookingDetails details;
-    private LocalDateTime createdAt;
 }

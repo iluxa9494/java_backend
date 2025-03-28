@@ -1,8 +1,8 @@
 package com.example.hotel_booking.service;
 
-import com.example.hotel_booking.dto.BookingCreateRequest;
-import com.example.hotel_booking.dto.BookingDto;
-import com.example.hotel_booking.dto.BookingUpdateRequest;
+import com.example.hotel_booking.dto.Booking.BookingCreateRequest;
+import com.example.hotel_booking.dto.Booking.BookingDto;
+import com.example.hotel_booking.dto.Booking.BookingUpdateRequest;
 import com.example.hotel_booking.exception.ResourceNotFoundException;
 import com.example.hotel_booking.mapper.BookingMapper;
 import com.example.hotel_booking.model.Booking;

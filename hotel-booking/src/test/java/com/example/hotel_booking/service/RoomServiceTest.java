@@ -1,7 +1,7 @@
 package com.example.hotel_booking.service;
 
-import com.example.hotel_booking.dto.RoomCreateRequest;
-import com.example.hotel_booking.dto.RoomDto;
+import com.example.hotel_booking.dto.Room.RoomCreateRequest;
+import com.example.hotel_booking.dto.Room.RoomDto;
 import com.example.hotel_booking.exception.ResourceNotFoundException;
 import com.example.hotel_booking.mapper.RoomMapper;
 import com.example.hotel_booking.model.Hotel;

@@ -1,6 +1,6 @@
 package com.example.hotel_booking.mapper;
 
-import com.example.hotel_booking.dto.UserDto;
+import com.example.hotel_booking.dto.User.UserDto;
 import com.example.hotel_booking.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,7 +18,7 @@ public interface UserMapper {
             @Mapping(source = "username", target = "username"),
             @Mapping(source = "email", target = "email"),
             @Mapping(target = "role", source = "role.name"),
-            @Mapping(target = "createdAt", expression = "java(user.getCreatedAt().toString())")})
+            @Mapping(target = "createdAt", expression = "java(User.getCreatedAt().toString())")})
     UserDto toDto(User user);
 
     @Mappings({

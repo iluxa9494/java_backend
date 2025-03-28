@@ -1,8 +1,8 @@
 package com.example.hotel_booking.controller;
 
-import com.example.hotel_booking.dto.BookingCreateRequest;
-import com.example.hotel_booking.dto.BookingDto;
-import com.example.hotel_booking.dto.BookingUpdateRequest;
+import com.example.hotel_booking.dto.Booking.BookingCreateRequest;
+import com.example.hotel_booking.dto.Booking.BookingDto;
+import com.example.hotel_booking.dto.Booking.BookingUpdateRequest;
 import com.example.hotel_booking.service.BookingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,16 +22,17 @@ public class BookingController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<BookingDto> createBooking(@Valid @RequestBody BookingCreateRequest request) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public BookingDto createBooking(@Valid @RequestBody BookingCreateRequest request) {
         log.info("POST /api/v1/bookings | Создание бронирования: userId={}, roomId={}", request.getUserId(), request.getRoomId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createBooking(request));
+        return bookingService.createBooking(request);
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-    public ResponseEntity<BookingDto> updateBooking(@PathVariable Long id, @Valid @RequestBody BookingUpdateRequest request) {
+    public BookingDto updateBooking(@PathVariable Long id, @Valid @RequestBody BookingUpdateRequest request) {
         log.info("PUT /api/v1/bookings/{} | Обновление бронирования", id);
-        return ResponseEntity.ok(bookingService.updateBooking(id, request));
+        return bookingService.updateBooking(id, request);
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -45,17 +45,17 @@ public class BookingController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    public ResponseEntity<BookingDto> getBookingById(@PathVariable Long id) {
+    public BookingDto getBookingById(@PathVariable Long id) {
         log.info("GET /api/v1/bookings/{} | Получение бронирования по id", id);
-        return ResponseEntity.ok(bookingService.getBookingById(id));
+        return bookingService.getBookingById(id);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
-    public ResponseEntity<Page<BookingDto>> getAllBookings(
+    public Page<BookingDto> getAllBookings(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         log.info("GET /api/v1/bookings | Получение списка бронирований");
-        return ResponseEntity.ok(bookingService.getAllBookings(PageRequest.of(page, size)));
+        return bookingService.getAllBookings(PageRequest.of(page, size));
     }
 }
