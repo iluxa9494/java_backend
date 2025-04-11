@@ -1,144 +1,125 @@
 package searchengine.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import searchengine.dto.search.SearchRequest;
-import searchengine.dto.search.SearchResponse;
-import searchengine.dto.statistics.StatisticsResponse;
+import searchengine.config.SitesList;
+import searchengine.dto.search.ErrorResponse;
+import searchengine.dto.search.SuccessResponse;
+import searchengine.dto.statistics.FinalStatisticsResponse;
+import searchengine.services.UrlValidationService;
 import searchengine.services.indexing.IndexingService;
 import searchengine.services.search.SearchService;
 import searchengine.services.statistics.StatisticsService;
 
-import java.net.MalformedURLException;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
+/**
+ * Контроллер для обработки API-запросов, связанных с управлением индексацией,
+ * поиском и получением статистики.
+ */
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class ApiController {
     private static final Logger logger = LoggerFactory.getLogger(ApiController.class);
-
     private final SearchService searchService;
     private final StatisticsService statisticsService;
     private final IndexingService indexingService;
+    private final HttpServletRequest request;
+    private final UrlValidationService urlValidationService;
 
     @Autowired
-    public ApiController(StatisticsService statisticsService, IndexingService indexingService, SearchService searchService) {
+    public ApiController(StatisticsService statisticsService, IndexingService indexingService, SearchService searchService,
+                         SitesList sitesList, HttpServletRequest request, UrlValidationService urlValidationService) {
         this.statisticsService = statisticsService;
         this.indexingService = indexingService;
         this.searchService = searchService;
+        this.request = request;
+        this.urlValidationService = urlValidationService;
     }
 
     @GetMapping("/statistics")
-    public ResponseEntity<StatisticsResponse> statistics() {
-        return ResponseEntity.ok(statisticsService.getStatistics());
+    public ResponseEntity<FinalStatisticsResponse> statistics() {
+        FinalStatisticsResponse statistics = statisticsService.getStatistics();
+        return ResponseEntity.ok(statistics);
     }
 
-    @PostMapping("/startIndexing")
+    @GetMapping("/startIndexing")
     public ResponseEntity<?> startIndexing() {
-        boolean indexingStarted = indexingService.startIndexing();
-        return indexingStarted
-                ? ResponseEntity.ok(createSuccessResponse("Индексация запущена."))
-                : ResponseEntity.badRequest().body(createErrorResponse("Индексация уже запущена."));
+        if (indexingService.startIndexing()) {
+            return ResponseEntity.ok(Map.of("result", true));
+        }
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(false, "Индексация уже запущена."));
     }
 
-    @PostMapping("/stopIndexing")
+    @GetMapping("/stopIndexing")
     public ResponseEntity<?> stopIndexing() {
-        boolean indexingStopped = indexingService.stopIndexing();
-        return indexingStopped
-                ? ResponseEntity.ok(createSuccessResponse("Индексация остановлена."))
-                : ResponseEntity.badRequest().body(createErrorResponse("Индексация не запущена."));
+        if (indexingService.stopIndexing()) {
+            return ResponseEntity.ok(Map.of("result", true));
+        }
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(false, "Индексация не запущена."));
     }
 
     @PostMapping("/indexPage")
-    public ResponseEntity<?> indexPage(@RequestParam(required = false) String url) {
-        logger.info("Запрос на индексацию страницы: {}", url);
-
-        if (url == null || url.trim().isEmpty()) {
-            logger.warn("❌ URL пустой или отсутствует.");
-            return ResponseEntity.badRequest().body(createErrorResponse("URL не может быть пустым."));
+    public ResponseEntity<?> indexPage(@RequestParam String url) {
+        log.info("method=POST, contentType={}, contentLength={}, url={}",
+                request.getContentType(), request.getContentLength(), url);
+        if (!urlValidationService.isValidUrl(url)) {
+            return ResponseEntity.badRequest()
+                    .body(new ErrorResponse("Некорректный формат URL"));
         }
-
-        if (!isValidUrl(url)) {
-            logger.warn("❌ Некорректный URL: {}", url);
-            return ResponseEntity.badRequest().body(createErrorResponse("Некорректный формат URL."));
+        if (!indexingService.isUrlAllowed(url)) {
+            return ResponseEntity.badRequest()
+                    .body(new ErrorResponse("Страница находится за пределами индексируемых сайтов"));
         }
-
-
-        boolean siteExists = indexingService.siteExists(url);
-
-        if (!siteExists && !url.endsWith("/")) {
-            logger.info("Повторный поиск сайта с `/`...");
-            siteExists = indexingService.siteExists(url + "/");
-        }
-
-        if (!siteExists) {
-            logger.error("❌ Ошибка: сайт для URL {} не найден в БД!", url);
-            return ResponseEntity.badRequest().body(createErrorResponse("Сайт не найден в базе данных."));
-        }
-
-        try {
-            boolean pageIndexed = indexingService.indexPage(url);
-            return pageIndexed
-                    ? ResponseEntity.ok(createSuccessResponse("Страница успешно проиндексирована."))
-                    : ResponseEntity.badRequest().body(createErrorResponse("Ошибка при индексации страницы."));
-        } catch (Exception e) {
-            logger.error("❌ Внутренняя ошибка сервера при индексации страницы: {}", url, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(createErrorResponse("Внутренняя ошибка сервера."));
-        }
+        indexingService.indexPage(url);
+        return ResponseEntity.ok(new SuccessResponse());
     }
 
     @PostMapping("/addSite")
     public ResponseEntity<?> addSite(@RequestParam String url, @RequestParam String name) {
         logger.info("Запрос на добавление сайта: {} ({})", name, url);
-
         boolean success = indexingService.addSite(url, name);
-        return success
-                ? ResponseEntity.ok(createSuccessResponse("Сайт успешно добавлен."))
-                : ResponseEntity.badRequest().body(createErrorResponse("Сайт уже существует."));
+        if (success) {
+            return ResponseEntity.ok(Map.of("result", true));
+        } else {
+            return ResponseEntity.badRequest()
+                    .body(new ErrorResponse(false, "Сайт уже существует."));
+        }
     }
 
-    @PostMapping("/search")
-    public ResponseEntity<?> search(@RequestBody SearchRequest request) {
-        logger.info("Поиск по запросу: {} (Сайт: {})", request.getQuery(), request.getSite());
-
-        if (request.getQuery() == null || request.getQuery().isEmpty()) {
-            logger.warn("⚠Поисковый запрос не должен быть пустым.");
-            return ResponseEntity.badRequest().body(createErrorResponse("Поисковый запрос не должен быть пустым."));
+    @GetMapping("/search")
+    public ResponseEntity<?> search(
+            @RequestParam String query,
+            @RequestParam(required = false) String site,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "20") int limit
+    ) {
+        if (query == null || query.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(
+                    new ErrorResponse(false, "Задан пустой поисковый запрос")
+            );
         }
-
         try {
-            SearchResponse response = searchService.search(request);
-            return ResponseEntity.ok(response);
+            return searchService.search(query.trim(), site, offset, limit);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(
+                    new ErrorResponse(false, e.getMessage())
+            );
         } catch (Exception e) {
-            logger.error("❌ Ошибка в поисковом запросе: {}", request.getQuery(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(createErrorResponse("Ошибка обработки поиска."));
+            return ResponseEntity.internalServerError().body(
+                    new ErrorResponse(false, "Ошибка при выполнении поиска")
+            );
         }
-    }
-
-
-    private boolean isValidUrl(String url) {
-        if (url == null || url.trim().isEmpty()) {
-            return false;
-        }
-        try {
-            new java.net.URL(url);
-            return true;
-        } catch (MalformedURLException e) {
-            return false;
-        }
-    }
-
-    private Map<String, Object> createSuccessResponse(String message) {
-        return Map.of("result", true, "message", message);
-    }
-
-    private Map<String, Object> createErrorResponse(String error) {
-        return Map.of("result", false, "error", error);
     }
 }

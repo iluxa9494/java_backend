@@ -13,5 +13,5 @@ import java.util.List;
 @Component
 @ConfigurationProperties(prefix = "indexing-settings")
 public class SitesList {
-    private List<searchengine.model.Site> sites;
+    private List<SiteConfig> sites;
 }

@@ -4,23 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Статистика по всем сайтам:
+ * общее количество сайтов, страниц, лемм и флаг активности индексации.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class TotalStatistics {
-
-    /**
-     * Общее количество сайтов.
-     */
-    private int totalSites;
-
-    /**
-     * Общее количество страниц.
-     */
-    private long totalPages;
-
-    /**
-     * Общее количество лемм.
-     */
-    private long totalLemmas;
+    private int sites;
+    private long pages;
+    private long lemmas;
+    private boolean isIndexing;
 }

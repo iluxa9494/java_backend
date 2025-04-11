@@ -5,12 +5,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Класс для конфигурации информации о сайте.
+ * Конфигурация одного сайта для индексации.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Site {
-    private String name;
+public class SiteConfig {
     private String url;
+    private String name;
 }

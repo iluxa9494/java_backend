@@ -1,35 +1,24 @@
 package searchengine.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import searchengine.model.Site;
+import searchengine.model.SiteStatus;
 
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Репозиторий для доступа к данным сайтов.
+ */
 @Repository
 public interface SiteRepository extends JpaRepository<Site, Integer> {
-
-    /**
-     * Найти сайт по его точному URL.
-     *
-     * @param url URL сайта.
-     * @return Optional с объектом Site, если сайт найден.
-     */
     Optional<Site> findByUrl(String url);
 
-    /**
-     * Найти сайты с указанным статусом.
-     *
-     * @param status Статус сайта (например, INDEXING, INDEXED, FAILED).
-     * @return Список сайтов.
-     */
-    List<Site> findByStatus(String status);
+    List<Site> findByStatus(SiteStatus status);
 
-    /**
-     * Удалить сайт по его URL.
-     *
-     * @param url URL сайта.
-     */
-    void deleteByUrl(String url);
+    @Query("SELECT s FROM Site s WHERE REPLACE(s.url, 'www.', '') = REPLACE(:url, 'www.', '')")
+    Optional<Site> findByUrlIgnoreWww(@Param("url") String url);
 }

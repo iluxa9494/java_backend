@@ -1,75 +1,82 @@
-//package searchengine.services;
-//
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.MockitoAnnotations;
-//import searchengine.dto.statistics.StatisticsResponse;
-//import searchengine.model.Lemma;
-//import searchengine.model.Page;
-//import searchengine.model.Site;
-//import searchengine.repositories.SiteRepository;
-//
-//import java.time.LocalDateTime;
-//import java.util.Arrays;
-//import java.util.Collections;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.Mockito.when;
-//
-//public class StatisticsServiceTest {
-//
-//    @Mock
-//    private SiteRepository siteRepository;
-//
-//    @InjectMocks
-//    private StatisticsServiceImpl statisticsService;
-//
-//    @BeforeEach
-//    void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//    }
-//
-//    @Test
-//    void testGetStatisticsWithEmptyDatabase() {
-//        when(siteRepository.findAll()).thenReturn(Collections.emptyList());
-//        StatisticsResponse response = statisticsService.getStatistics();
-//        assertNotNull(response);
-//        assertEquals(0, response.getTotal().getPages());
-//        assertEquals(0, response.getTotal().getLemmas());
-//        assertTrue(response.getDetailed().isEmpty());
-//    }
-//
-//    @Test
-//    void testGetStatisticsWithMultipleSites() {
-//        Site site1 = new Site(1, "Test Site 1", "https://testsite1.com", "INDEXED", LocalDateTime.now(), null);
-//        Site site2 = new Site(2, "Test Site 2", "https://testsite2.com", "FAILED", LocalDateTime.now(), "Connection error");
-//
-//        site1.setPages(Arrays.asList(
-//                new Page(1, "/page1", "Title 1", "<html>Content 1</html>", 200, site1),
-//                new Page(2, "/page2", "Title 2", "<html>Content 2</html>", 200, site1)
-//        ));
-//        site1.setLemmas(Arrays.asList(
-//                new Lemma(1, "lemma1", 10, site1),
-//                new Lemma(2, "lemma2", 20, site1)
-//        ));
-//
-//        site2.setPages(Collections.singletonList(
-//                new Page(3, "/page3", "Title 3", "<html>Content 3</html>", 200, site2)
-//        ));
-//        site2.setLemmas(Collections.singletonList(
-//                new Lemma(3, "lemma3", 30, site2)
-//        ));
-//
-//        when(siteRepository.findAll()).thenReturn(Arrays.asList(site1, site2));
-//        StatisticsResponse response = statisticsService.getStatistics();
-//        assertNotNull(response);
-//        assertEquals(3, response.getTotal().getPages());
-//        assertEquals(3, response.getTotal().getLemmas());
-//        assertEquals(2, response.getDetailed().size());
-//        assertEquals("Test Site 1", response.getDetailed().get(0).getName());
-//        assertEquals(2, response.getDetailed().get(0).getPages());
-//        assertEquals(2, response.getDetailed().get(0).getLemmas());
-//    }
-//}
+package searchengine.services;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import searchengine.dto.statistics.FinalStatisticsResponse;
+import searchengine.dto.statistics.StatisticsData;
+import searchengine.dto.statistics.TotalStatistics;
+import searchengine.model.Site;
+import searchengine.model.SiteStatus;
+import searchengine.repositories.LemmaRepository;
+import searchengine.repositories.PageRepository;
+import searchengine.repositories.SiteRepository;
+import searchengine.services.statistics.StatisticsServiceImpl;
+import java.time.LocalDateTime;
+import java.util.List;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class StatisticsServiceTest {
+    private SiteRepository siteRepository;
+    private PageRepository pageRepository;
+    private LemmaRepository lemmaRepository;
+    private StatisticsServiceImpl statisticsService;
+
+    @BeforeEach
+    public void setup() {
+        siteRepository = mock(SiteRepository.class);
+        pageRepository = mock(PageRepository.class);
+        lemmaRepository = mock(LemmaRepository.class);
+        statisticsService = new StatisticsServiceImpl(siteRepository, pageRepository, lemmaRepository);
+    }
+
+    @Test
+    public void getStatisticsReturnZeroOnEmptyData() {
+        when(siteRepository.findAll()).thenReturn(List.of());
+        FinalStatisticsResponse response = statisticsService.getStatistics();
+        assertTrue(response.isResult());
+        StatisticsData data = response.getStatistics();
+        TotalStatistics total = data.getTotal();
+        assertEquals(0, total.getSites());
+        assertEquals(0, total.getPages());
+        assertEquals(0, total.getLemmas());
+        assertFalse(total.isIndexing());
+        assertTrue(data.getDetailed().isEmpty());
+    }
+
+    @Test
+    public void getStatisticsReturnCorrectDataForOneSite() {
+        Site site = new Site();
+        site.setName("Test");
+        site.setUrl("https://test.com");
+        site.setStatus(SiteStatus.INDEXED);
+        site.setStatusTime(LocalDateTime.now());
+        when(siteRepository.findAll()).thenReturn(List.of(site));
+        when(pageRepository.countBySite(site)).thenReturn(5L);
+        when(lemmaRepository.countBySite(site)).thenReturn(10L);
+        FinalStatisticsResponse response = statisticsService.getStatistics();
+        assertTrue(response.isResult());
+        StatisticsData data = response.getStatistics();
+        TotalStatistics total = data.getTotal();
+        assertEquals(1, total.getSites());
+        assertEquals(5, total.getPages());
+        assertEquals(10, total.getLemmas());
+        assertFalse(total.isIndexing());
+        assertEquals(1, data.getDetailed().size());
+    }
+
+    @Test
+    public void getStatisticsSetIndexingTrueIfAnySiteIsIndexing() {
+        Site site = new Site();
+        site.setName("IndexingSite");
+        site.setUrl("https://indexing.com");
+        site.setStatus(SiteStatus.INDEXING);
+        site.setStatusTime(LocalDateTime.now());
+        when(siteRepository.findAll()).thenReturn(List.of(site));
+        when(pageRepository.countBySite(site)).thenReturn(3L);
+        when(lemmaRepository.countBySite(site)).thenReturn(7L);
+        FinalStatisticsResponse response = statisticsService.getStatistics();
+        assertTrue(response.getStatistics().getTotal().isIndexing());
+    }
+}

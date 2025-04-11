@@ -8,19 +8,22 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Сущность сайта, содержащая информацию о статусе, URL, имени и связанных страницах и леммах.
+ */
 @Entity
 @Table(name = "site")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Site {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private String status;
+    private SiteStatus status;
 
     @Column(name = "status_time", nullable = false)
     private LocalDateTime statusTime;
@@ -40,7 +43,7 @@ public class Site {
     @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Lemma> lemmas;
 
-    public Site(int id, String name, String url, String status, LocalDateTime statusTime, String lastError) {
+    public Site(int id, String name, String url, SiteStatus status, LocalDateTime statusTime, String lastError) {
         this.id = id;
         this.name = name;
         this.url = url;
@@ -51,11 +54,11 @@ public class Site {
 
     @Override
     public String toString() {
-        return "Site{" +
+        return "SiteConfig{" +
                 "id=" + id +
                 ", url='" + url + '\'' +
                 ", name='" + name + '\'' +
-                ", status='" + status + '\'' +
+                ", status=" + status +
                 ", statusTime=" + statusTime +
                 ", lastError='" + lastError + '\'' +
                 '}';

@@ -1458,31 +1458,10 @@ var API = function(){
         });
     }
     
-var send = {
-    startIndexing:{
-        address: '/startIndexing',
-        type: 'POST', // Заменили GET на POST
-        action: function(result, $this){
-            if (result.result){
-                if ($this.next('.API-error').length) {
-                    $this.next('.API-error').remove();
-                }
-                if ($this.is('[data-btntype="check"]')) {
-                    shiftCheck($this);
-                }
-            } else {
-                if ($this.next('.API-error').length) {
-                    $this.next('.API-error').text(result.error);
-                } else {
-                    $this.after('<div class="API-error">' + result.error + '</div>');
-                }
-            }
-        }
-    },
-
-        stopIndexing: {
-            address: '/stopIndexing',
-            type: 'POST',
+    var send = {
+        startIndexing:{
+            address: '/startIndexing',
+            type: 'GET',
             action: function(result, $this){
                 if (result.result){
                     if ($this.next('.API-error').length) {
@@ -1500,34 +1479,54 @@ var send = {
                 }
             }
         },
-    indexPage: {
-        address: '/indexPage',
-        type: 'POST', // Используем POST, так как это требуется API
-        action: function(result, $this) {
-            if (result.result) {
-                if ($this.next('.API-error').length) {
-                    $this.next('.API-error').remove();
-                }
-                if ($this.next('.API-success').length) {
-                    $this.next('.API-success').text('Страница добавлена/обновлена успешно');
+        stopIndexing: {
+            address: '/stopIndexing',
+            type: 'GET',
+            action: function(result, $this){
+                if (result.result){
+                    if ($this.next('.API-error').length) {
+                        $this.next('.API-error').remove();
+                    }
+                    if ($this.is('[data-btntype="check"]')) {
+                        shiftCheck($this);
+                    }
                 } else {
-                    $this.after('<div class="API-success">Страница успешно проиндексирована.</div>');
-                }
-            } else {
-                if ($this.next('.API-success').length) {
-                    $this.next('.API-success').remove();
-                }
-                if ($this.next('.API-error').length) {
-                    $this.next('.API-error').text(result.error);
-                } else {
-                    $this.after('<div class="API-error">' + result.error + '</div>');
+                    if ($this.next('.API-error').length) {
+                        $this.next('.API-error').text(result.error);
+                    } else {
+                        $this.after('<div class="API-error">' + result.error + '</div>');
+                    }
                 }
             }
-        }
-    },
+        },
+        indexPage: {
+            address: '/indexPage',
+            type: 'POST',
+            action: function(result, $this){
+                if (result.result){
+                    if ($this.next('.API-error').length) {
+                        $this.next('.API-error').remove();
+                    }
+                    if ($this.next('.API-success').length) {
+                        $this.next('.API-success').text('Страница добавлена/обновлена успешно');
+                    } else {
+                        $this.after('<div class="API-success">Страница поставлена в очередь на обновление / добавление</div>');
+                    }
+                } else {
+                    if ($this.next('.API-success').length) {
+                        $this.next('.API-success').remove();
+                    }
+                    if ($this.next('.API-error').length) {
+                        $this.next('.API-error').text(result.error);
+                    } else {
+                        $this.after('<div class="API-error">' + result.error + '</div>');
+                    }
+                }
+            }
+        },
         search: {
             address: '/search',
-            type: 'POST',
+            type: 'get',
             action: function(result, $this, data){
                 if (result.result){
                     if ($this.next('.API-error').length) {
@@ -1564,7 +1563,7 @@ var send = {
                     } else {
                         $('.SearchResult-footer').addClass('SearchResult-footer_hide')
                     }
-                    
+
                 } else {
                     if ($this.next('.API-error').length) {
                         $this.next('.API-error').text(result.error);
@@ -1576,13 +1575,13 @@ var send = {
         },
         statistics: {
             address: '/statistics',
-            type: 'GET',
+            type: 'get',
             action: function(result, $this){
                 if (result.result){
                     if ($this.next('.API-error').length) {
                         $this.next('.API-error').remove();
                     }
-    
+
                     var $statistics = $('.Statistics');
                     $statistics.find('.HideBlock').not('.Statistics-example').remove();
                     $('#totalSites').text(result.statistics.total.sites);
@@ -1602,7 +1601,7 @@ var send = {
                             case 'INDEXING':
                                 statusClass = 'Statistics-status_pause';
                                 break;
-                            
+
                         }
                         $('select[name="site"]').append('' +
                             '<option value="' + site.url + '">' +
@@ -1626,8 +1625,8 @@ var send = {
                                 '</div><div class="Statistics-option"><strong>Lemmas:</strong> ' + site.lemmas +
                                 '</div><div class="Statistics-option Statistics-option_error"><strong>Error:</strong> ' + site.error + '</div>'+
                                 '')
-    
-                        
+
+
                         $statistics.append($blockSiteExample);
                         var $thisHideBlock = $statistics.find('.HideBlock').last();
                         $thisHideBlock.on('click', HideBlock().trigger);
@@ -1661,7 +1660,7 @@ var send = {
                             .addClass('btn_check')
                         $('.UpdatePageBlock').hide(0)
                     }
-    
+
                 } else {
                     if ($this.next('.API-error').length) {
                         $this.next('.API-error').text(result.error);
@@ -1738,7 +1737,7 @@ var send = {
                 if (($this.hasClass('form') && e.type==='submit')
                     || (e.type==='click' && !$this.hasClass('form'))){
                     e.preventDefault();
-                    
+
                     switch ($this.data('send')) {
                         case 'indexPage':
                             var $page = $this.closest('.form').find('input[name="page"]');
@@ -1763,7 +1762,7 @@ var send = {
                                 }
                             }
                             break;
-        
+
                     }
                     sendData(
                         send[$this.data('send')].address,
