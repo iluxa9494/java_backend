@@ -1,3 +1,6 @@
+server:
+  port: 8083
+
 telegram:
   bot:
     username: ${TELEGRAM_BOT_USERNAME:MUR_BTCBot}

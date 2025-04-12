@@ -1,12 +1,13 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/search_engine?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf-8&connectionCollation=utf8mb4_general_ci
-    username: root
-    password: password123
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://mysql:3306/search_engine?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf-8&connectionCollation=utf8mb4_general_ci}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:password123}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   mvc:
     throw-exception-if-no-handler-found: true
+
   web:
     resources:
       add-mappings: true
@@ -57,7 +58,7 @@ indexing-settings:
       name: Svetlovka
 
 server:
-  port: 8080
+  port: 8082
 
 logging:
   level:
@@ -66,7 +67,9 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     searchengine: INFO
+
   file:
     name: logs/searchengine.log
+
   pattern:
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

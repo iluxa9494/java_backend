@@ -10,5 +10,5 @@ ENV SPRING_DATASOURCE_PASSWORD=postgres
 ENV KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 ENV SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/hotel_booking
 
-EXPOSE 8080
+EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "hotel-booking.jar"]
