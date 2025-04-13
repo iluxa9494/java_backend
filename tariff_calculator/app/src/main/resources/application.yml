@@ -1,0 +1,7 @@
+currency:
+  available:
+    - "RUB"
+cost:
+  rub:
+    perKg: 400
+    minimal: 350
