@@ -1,27 +1,28 @@
 package ru.fastdelivery.usecase;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.fastdelivery.domain.common.price.Price;
 import ru.fastdelivery.domain.delivery.shipment.Shipment;
+import ru.fastdelivery.usecase.calculator.TotalCalculator;
 
 import javax.inject.Named;
 
+/**
+ * Use case для расчета стоимости доставки на основе параметров отправления.
+ * Делегирует расчет калькулятору {@link TotalCalculator}.
+ */
+@Slf4j
 @Named
 @RequiredArgsConstructor
 public class TariffCalculateUseCase {
-    private final WeightPriceProvider weightPriceProvider;
+    private final TotalCalculator totalCalculator;
 
     public Price calc(Shipment shipment) {
-        var weightAllPackagesKg = shipment.weightAllPackages().kilograms();
-        var minimalPrice = weightPriceProvider.minimalPrice();
-
-        return weightPriceProvider
-                .costPerKg()
-                .multiply(weightAllPackagesKg)
-                .max(minimalPrice);
+        return totalCalculator.calculateTotal(shipment);
     }
 
     public Price minimalPrice() {
-        return weightPriceProvider.minimalPrice();
+        return totalCalculator.getMinimalPrice();
     }
 }

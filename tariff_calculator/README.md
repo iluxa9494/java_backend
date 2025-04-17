@@ -1,116 +1,127 @@
-# Проект Тарифный Калькулятор
+# Проект: Тарифный Калькулятор
 
-Расчет стоимости доставки грузов в зависимости от веса
-упаковок входящих в состав груза.
+Сервис для расчёта стоимости доставки грузов на основе веса и размеров упаковок, а также координат отправки и получения.
+
+---
 
 ## Используемые технологии
 
+- Java 17
 - Spring Boot 3
 - Maven 3
 - JUnit 5
-- Swagger
+- Swagger / OpenAPI
+
+---
 
 ## Локальный запуск
 
 ### Требования
 
-Проект использует синтаксис Java 17. Для локального запуска вам потребуется
-установленный JDK 17.
+- JDK 17
+- Maven или Maven Wrapper
 
-### Используя среду разработки IDEA
+### Через IntelliJ IDEA
 
-Откройте проект. Дождитесь индексации. Создайте конфигурацию запуска
-или запустите main метод класса [app/src/main/java/ru/fastdelivery/Main.java](app/src/main/java/ru/fastdelivery/Main.java)
+1. Откройте проект в IntelliJ.
+2. Дождитесь завершения индексации.
+3. Запустите `Main.java`:  
+   `app/src/main/java/ru/fastdelivery/Main.java`
 
-### Используя Docker
+---
 
-Вы можете создать Docker образ с приложением и запустить его.
+### Через Docker
 
-Соберите проект:
+1. Сборка проекта:
 
-```shell
-./mvnw clean package
-```
+   ```bash
+   ./mvnw clean package
+   ```
 
-Создать образ:
+2. Сборка Docker-образа:
 
-```shell
-docker build -t ru.fastdelivery:latest .
-```
+   ```bash
+   docker build -t ru.fastdelivery:latest .
+   ```
 
-Запуск контейнера:
+3. Запуск контейнера:
 
-```shell
-docker run -p 8081:8080 ru.fastdelivery:latest
-```
+   ```bash
+   docker run -p 8081:8080 ru.fastdelivery:latest
+   ```
 
-### Используя JAR
+---
 
-Соберите проект:
+### Через JAR-файл
 
-```shell
-./mvnw clean package
-```
+1. Сборка:
 
-Запустите Jar файл:
+   ```bash
+   ./mvnw clean package
+   ```
 
-```shell
-java -jar app/target/app-1.0-SNAPSHOT.jar
-```
+2. Запуск:
 
-## Тестирование кода
+   ```bash
+   java -jar app/target/app-1.0-SNAPSHOT.jar
+   ```
 
-### Запуск тестов
+---
 
-Используя встроенный Maven Wrapper запустите
-фазу тестов, при этом будет произведена проверка
-стиля кода (checkstyle). Отчеты по checkstyle
-найдете в файле
-[target/site/checkstyle-aggregate.html](target/site/checkstyle-aggregate.html) 
+## Тестирование
 
-Linux/macOs:
+Запуск тестов с проверкой стиля кода (Checkstyle).
 
-```shell
+**Linux/macOS:**
+
+```bash
 ./mvnw clean test
 ```
 
-Windows:
+**Windows:**
 
-```shell
+```bash
 ./mvnw.cmd clean test
 ```
 
-## Swagger
+ Отчёты:  
+`target/site/checkstyle-aggregate.html`
 
-При запущенном приложение вы можете
-выполнять запросы используя интерфейс Swagger. 
+---
 
-http://localhost:8080/swagger-ui/index.html
+## Swagger / OpenAPI
 
-## Структура приложения
+Интерфейс для тестирования и документации API доступен по адресу:  
+[http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
-Приложения разделено на maven модули, каждый
-модуль отвечает за свою область применения:
+---
 
-- [app](app)
+## Архитектура проекта
 
-Содержит класс запуска приложения, настройки связывания бинов,
-чтение значений из файла [application.yml](app/src/main/resources/application.yml)
+Проект разделён на Maven-модули, каждый отвечает за свою область:
 
-- [domain](domain)
+### `app`
+- Точка входа в приложение
+- Чтение конфигурации из `application.yml`
+- Конфигурация бинов
 
-В модуле находятся все классы участвующие в бизнес логике, такие как Упаковка,
-Вес, Валюта, Стоимость. Класс не должен содержать зависимостей на фреймворк Spring Boot и на другие модули проекта.
+### `persistence`
+- Слой работы с базой данных
+- Содержит реализации интерфейсов репозиториев, использует Spring Data JPA или другие средства хранения.
+- Зависит от domain, может содержать аннотации Spring и работу с EntityManager.
 
-- [useCase](useCase)
+### `domain`
+- Чистые бизнес-объекты: `Pack`, `Weight`, `Currency`, `Price`
+- **Нет зависимостей от Spring и других модулей**
 
-В модуле находится все процессы бизнес логики использующие доменные
-классы. Класс не должен содержать зависимостей на фреймворк Spring Boot, только зависит от модуля `domain`
+### `useCase`
+- Бизнес-логика, использующая доменные объекты
+- Зависит только от `domain`, **не зависит от Spring**
 
-- [web](web)
+### `web`
+- Контроллеры, DTO, API-интерфейс
+- Зависит от: `domain`, `useCase`, Spring Boot
 
-В модуле находится контроллеры, этот модуль единственный общается с
-внешним миром. Содержит зависимости Spring Boot и `domain`, `useCase`.
+> **Важно:**  
+> Структура и зависимости между модулями являются фиксированными и изменению не подлежат.
 
-> [!NOTE]
-> Изменять зависимости между модулями не допускается

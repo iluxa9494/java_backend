@@ -2,38 +2,34 @@ package ru.fastdelivery.domain.common.currency;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import ru.fastdelivery.domain.repository.CurrencyRepository;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import java.math.BigDecimal;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class CurrencyFactoryTest {
-
-    CurrencyPropertiesProvider mockProvider = mock(CurrencyPropertiesProvider.class);
-    CurrencyFactory factory = new CurrencyFactory(mockProvider);
+public class CurrencyFactoryTest {
+    CurrencyRepository repository = mock(CurrencyRepository.class);
+    CurrencyFactory factory = new CurrencyFactory(repository);
 
     @Test
-    @DisplayName("Код валюты NULL -> исключение")
-    void whenCodeIsNull_thenThrowException() {
-        assertThrows(IllegalArgumentException.class,
-                () -> factory.create(null));
+    @DisplayName("Создание валюты — OK")
+    void whenCurrencyExists_thenReturnCurrency() {
+        Currency expected = new Currency("USD", BigDecimal.valueOf(90.5));
+        when(repository.findByCode("USD")).thenReturn(Optional.of(expected));
+        Currency currency = factory.create("USD");
+        assertThat(currency.getCode()).isEqualTo("USD");
+        assertThat(currency.getRateToRub()).isEqualTo(BigDecimal.valueOf(90.5));
     }
 
     @Test
-    @DisplayName("Не доступно создание из указанного кода валюты -> исключение")
-    void whenCodeIsNotAvailable_thenThrowException() {
-        when(mockProvider.isAvailable("USD")).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class,
-                () -> factory.create("USD"));
-    }
-
-    @Test
-    @DisplayName("Код валюты разрешен для создания -> новый объект")
-    void whenCodeIsAvailable_thenObjectCreated() {
-        when(mockProvider.isAvailable("RUB")).thenReturn(true);
-
-        assertThat(factory.create("RUB")).isNotNull();
+    @DisplayName("Валюта не найдена — ошибка")
+    void whenCurrencyNotFound_thenThrowException() {
+        when(repository.findByCode("EUR")).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> factory.create("EUR"));
     }
 }

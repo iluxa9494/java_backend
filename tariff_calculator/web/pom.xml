@@ -3,21 +3,17 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>ru.fastdelivery</groupId>
-        <artifactId>tariff_Calculator</artifactId>
+        <artifactId>tariff_calculator</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>web</artifactId>
     <version>1.0-SNAPSHOT</version>
-
     <properties>
         <hibernate-validator.version>8.0.1.Final</hibernate-validator.version>
         <swagger.version>2.0.0</swagger.version>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>ru.fastdelivery</groupId>
@@ -27,7 +23,6 @@
             <groupId>ru.fastdelivery</groupId>
             <artifactId>useCase</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -59,5 +54,4 @@
             <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
-
 </project>

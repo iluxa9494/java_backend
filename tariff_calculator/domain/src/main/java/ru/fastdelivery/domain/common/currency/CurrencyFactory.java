@@ -1,20 +1,19 @@
 package ru.fastdelivery.domain.common.currency;
 
-import lombok.RequiredArgsConstructor;
+import ru.fastdelivery.domain.repository.CurrencyRepository;
 
 /**
- * Создание валюты с проверками
+ * Фабрика для создания валютных объектов на основе данных из базы.
  */
-@RequiredArgsConstructor
 public class CurrencyFactory {
+    private final CurrencyRepository currencyRepository;
 
-    private final CurrencyPropertiesProvider propertiesProvider;
+    public CurrencyFactory(CurrencyRepository currencyRepository) {
+        this.currencyRepository = currencyRepository;
+    }
 
     public Currency create(String code) {
-        if (code == null || !propertiesProvider.isAvailable(code)) {
-            throw new IllegalArgumentException("Currency code contains not available value");
-        }
-
-        return new Currency(code);
+        return currencyRepository.findByCode(code)
+                .orElseThrow(() -> new IllegalArgumentException("Currency not found: " + code));
     }
 }

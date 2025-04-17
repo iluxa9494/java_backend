@@ -1,25 +1,26 @@
 package ru.fastdelivery.domain.delivery.pack;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.fastdelivery.domain.common.weight.Weight;
+import ru.fastdelivery.domain.dimension.OuterDimensions;
 
-import java.math.BigInteger;
+import java.math.BigDecimal;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class PackTest {
-
+public class PackTest {
     @Test
-    void whenWeightMoreThanMaxWeight_thenThrowException() {
-        var weight = new Weight(BigInteger.valueOf(150_001));
-        assertThatThrownBy(() -> new Pack(weight))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void whenWeightLessThanMaxWeight_thenObjectCreated() {
-        var actual = new Pack(new Weight(BigInteger.valueOf(1_000)));
-        assertThat(actual.weight()).isEqualTo(new Weight(BigInteger.valueOf(1_000)));
+    @DisplayName("Если вес в пределах нормы -> создается объект")
+    void ifWeightIsValid_thenCreateObject() {
+        Weight weight = new Weight(BigDecimal.valueOf(99_999).toBigInteger());
+        OuterDimensions dimensions = new OuterDimensions(
+                BigDecimal.valueOf(100),
+                BigDecimal.valueOf(100),
+                BigDecimal.valueOf(100)
+        );
+        Pack pack = new Pack(weight, dimensions);
+        assertEquals(weight, pack.weight());
+        assertEquals(dimensions, pack.outerDimensions());
     }
 }

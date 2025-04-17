@@ -6,11 +6,8 @@ import java.math.RoundingMode;
 
 /**
  * Общий класс веса
- *
- * @param weightGrams вес в граммах
  */
 public record Weight(BigInteger weightGrams) implements Comparable<Weight> {
-
     public Weight {
         if (isLessThanZero(weightGrams)) {
             throw new IllegalArgumentException("Weight cannot be below Zero!");
@@ -42,7 +39,6 @@ public record Weight(BigInteger weightGrams) implements Comparable<Weight> {
         Weight weight = (Weight) o;
         return weightGrams.compareTo(weight.weightGrams) == 0;
     }
-
 
     @Override
     public int compareTo(Weight w) {

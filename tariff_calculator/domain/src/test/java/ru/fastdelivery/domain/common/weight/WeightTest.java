@@ -11,8 +11,7 @@ import java.math.BigInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class WeightTest {
-
+public class WeightTest {
     @Test
     @DisplayName("Попытка создать отрицательный вес -> исключение")
     void whenGramsBelowZero_thenException() {
@@ -25,7 +24,6 @@ class WeightTest {
     void equalsTypeWidth_same() {
         var weight = new Weight(new BigInteger("1000"));
         var weightSame = new Weight(new BigInteger("1000"));
-
         assertThat(weight)
                 .isEqualTo(weightSame)
                 .hasSameHashCodeAs(weightSame);
@@ -34,7 +32,6 @@ class WeightTest {
     @Test
     void equalsNull_false() {
         var weight = new Weight(new BigInteger("4"));
-
         assertThat(weight).isNotEqualTo(null);
     }
 
@@ -45,7 +42,6 @@ class WeightTest {
     void compareToTest(BigInteger low, BigInteger high, int expected) {
         var weightLow = new Weight(low);
         var weightHigh = new Weight(high);
-
         assertThat(weightLow.compareTo(weightHigh))
                 .isEqualTo(expected);
     }
@@ -55,7 +51,6 @@ class WeightTest {
     void whenAddPositiveWeight_thenWeightIsIncreased() {
         var weightBase = new Weight(new BigInteger("1000"));
         var actual = weightBase.add(new Weight(new BigInteger("1000")));
-
         assertThat(actual)
                 .isEqualTo(new Weight(new BigInteger("2000")));
     }
@@ -65,7 +60,6 @@ class WeightTest {
     void whenFirstWeightGreaterThanSecond_thenTrue() {
         var weightBig = new Weight(new BigInteger("1001"));
         var weightSmall = new Weight(new BigInteger("1000"));
-
         assertThat(weightBig.greaterThan(weightSmall)).isTrue();
     }
 
@@ -73,9 +67,7 @@ class WeightTest {
     @DisplayName("Запрос количество кг -> получено корректное значение")
     void whenGetKilograms_thenReceiveKg() {
         var weight = new Weight(new BigInteger("1001"));
-
         var actual = weight.kilograms();
-
         assertThat(actual).isEqualByComparingTo(new BigDecimal("1.001"));
     }
 }

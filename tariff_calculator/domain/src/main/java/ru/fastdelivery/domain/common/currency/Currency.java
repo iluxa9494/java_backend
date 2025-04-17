@@ -1,14 +1,28 @@
 package ru.fastdelivery.domain.common.currency;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
+
+import java.math.BigDecimal;
 
 /**
- * Валюта для стоимости
+ * Валюта для стоимости.
  */
+@Slf4j
 @Value
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class Currency {
     String code;
+    BigDecimal rateToRub;
+
+    public Currency(String code, BigDecimal rateToRub) {
+        if (code == null || code.isBlank()) {
+            throw new IllegalArgumentException("Currency code must not be null or blank");
+        }
+        this.code = code;
+        this.rateToRub = rateToRub;
+    }
+
+    public Currency(String code) {
+        this(code, BigDecimal.ONE);
+    }
 }

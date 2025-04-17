@@ -3,12 +3,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>ru.fastdelivery</groupId>
-    <artifactId>tariff_Calculator</artifactId>
+    <artifactId>tariff_calculator</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-
     <modules>
         <module>domain</module>
         <module>web</module>
@@ -16,21 +14,17 @@
         <module>useCase</module>
         <module>persistence</module>
     </modules>
-
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!--        versions app modules-->
         <domain.version>1.0-SNAPSHOT</domain.version>
         <useCase.version>1.0-SNAPSHOT</useCase.version>
         <web.version>1.0-SNAPSHOT</web.version>
-        <!--        versions 3rd party libraries-->
         <spring-boot.version>3.1.5</spring-boot.version>
         <junit-jupiter.version>5.9.3</junit-jupiter.version>
         <lombok.version>1.18.28</lombok.version>
     </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -85,11 +79,8 @@
         </plugin>
     </plugins>
     </build>
-
-
     <dependencyManagement>
         <dependencies>
-            <!--            Spring-->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -113,7 +104,12 @@
                 <artifactId>snakeyaml</artifactId>
                 <version>2.0</version>
             </dependency>
-            <!--            Tests-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring-boot.version}</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
@@ -121,18 +117,10 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-test</artifactId>
-                <version>${spring-boot.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <!--            3rdPart-->
-            <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
             </dependency>
-            <!--            Modules-->
             <dependency>
                 <groupId>ru.fastdelivery</groupId>
                 <artifactId>domain</artifactId>
@@ -146,6 +134,11 @@
             <dependency>
                 <groupId>ru.fastdelivery</groupId>
                 <artifactId>web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ru.fastdelivery</groupId>
+                <artifactId>persistence</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

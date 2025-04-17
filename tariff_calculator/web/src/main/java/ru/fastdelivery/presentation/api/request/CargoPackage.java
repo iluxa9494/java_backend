@@ -1,11 +1,24 @@
 package ru.fastdelivery.presentation.api.request;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 
-import java.math.BigInteger;
+import java.math.BigDecimal;
 
+/**
+ * Данные об одной упаковке груза.
+ */
 public record CargoPackage(
-        @Schema(description = "Вес упаковки, граммы", example = "5667.45")
-        BigInteger weight
+        @NotNull @DecimalMin(value = "0.0", inclusive = false)
+        BigDecimal weight,
+
+        @NotNull @DecimalMin(value = "0.0", inclusive = false)
+        BigDecimal length,
+
+        @NotNull @DecimalMin(value = "0.0", inclusive = false)
+        BigDecimal width,
+
+        @NotNull @DecimalMin(value = "0.0", inclusive = false)
+        BigDecimal height
 ) {
 }
