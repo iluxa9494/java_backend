@@ -1,85 +1,80 @@
 package searchengine.services;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.ResponseEntity;
-import searchengine.dto.search.ErrorResponse;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import searchengine.dto.search.SearchResponse;
+import searchengine.exceptions.indexing.SiteNotIndexedException;
+import searchengine.exceptions.validation.InvalidQueryException;
 import searchengine.model.Site;
 import searchengine.model.SiteStatus;
-import searchengine.repositories.IndexRepository;
 import searchengine.repositories.LemmaRepository;
 import searchengine.repositories.PageRepository;
+import searchengine.repositories.SearchIndexRepository;
 import searchengine.repositories.SiteRepository;
 import searchengine.services.lemma.Lemmatizer;
 import searchengine.services.search.SearchServiceImpl;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
 public class SearchServiceTest {
-    private SearchServiceImpl searchService;
-    private Lemmatizer lemmatizer;
+    @Mock
     private LemmaRepository lemmaRepository;
-    private IndexRepository indexRepository;
-    private PageRepository pageRepository;
+    @Mock
     private SiteRepository siteRepository;
-
-    @BeforeEach
-    public void setup() {
-        lemmatizer = mock(Lemmatizer.class);
-        lemmaRepository = mock(LemmaRepository.class);
-        indexRepository = mock(IndexRepository.class);
-        pageRepository = mock(PageRepository.class);
-        siteRepository = mock(SiteRepository.class);
-        searchService = new SearchServiceImpl(
-                lemmatizer,
-                lemmaRepository,
-                indexRepository,
-                pageRepository,
-                siteRepository
-        );
-    }
+    @Mock
+    private SearchIndexRepository searchIndexRepository;
+    @Mock
+    private PageRepository pageRepository;
+    @Mock
+    private Lemmatizer lemmatizer;
+    @InjectMocks
+    private SearchServiceImpl searchService;
 
     @Test
     public void searchReturnBadRequestEmptyQuery() {
-        ResponseEntity<?> response = searchService.search("   ", null, 0, 10);
-        assertEquals(400, response.getStatusCodeValue());
-        assertTrue(response.getBody() instanceof ErrorResponse);
+        String emptyQuery = "   ";
+        InvalidQueryException exception = assertThrows(InvalidQueryException.class, () -> {
+            searchService.search(emptyQuery, "https://test.com", 0, 10);
+        });
+        assertEquals("Задан пустой поисковый запрос", exception.getMessage());
     }
 
     @Test
     public void searchReturnBadRequestSiteNotIndexed() {
-        when(siteRepository.findByUrl("https://test.com")).thenReturn(Optional.of(new Site()));
-        ResponseEntity<?> response = searchService.search("тест", "https://test.com", 0, 10);
-        assertEquals(400, response.getStatusCodeValue());
-    }
-
-    @Test
-    public void searchReturnBadRequestLemmasNotFound() {
         Site site = new Site();
-        site.setStatus(SiteStatus.INDEXED);
+        site.setStatus(SiteStatus.FAILED);
         when(siteRepository.findByUrl("https://test.com")).thenReturn(Optional.of(site));
-        when(lemmatizer.collectLemmas("тест")).thenReturn(Collections.emptyMap());
-        ResponseEntity<?> response = searchService.search("тест", "https://test.com", 0, 10);
-        assertEquals(400, response.getStatusCodeValue());
+        SiteNotIndexedException exception = assertThrows(SiteNotIndexedException.class, () -> {
+            searchService.search("valid query", "https://test.com", 0, 10);
+        });
+        assertEquals("Указанный сайт не проиндексирован", exception.getMessage());
     }
 
     @Test
     public void searchReturnOkMinimalValid() {
         Site site = new Site();
         site.setId(1);
-        site.setName("Test");
+        site.setName("Test Site");
         site.setUrl("https://test.com");
         site.setStatus(SiteStatus.INDEXED);
         when(siteRepository.findByUrl("https://test.com")).thenReturn(Optional.of(site));
         when(lemmatizer.collectLemmas("тест")).thenReturn(Map.of("тест", 1));
         when(lemmaRepository.findBySiteAndLemmaIn(eq(site), anySet())).thenReturn(Collections.emptyList());
-        ResponseEntity<?> response = searchService.search("тест", "https://test.com", 0, 10);
-        assertEquals(200, response.getStatusCodeValue());
-        assertTrue(response.getBody() instanceof SearchResponse);
+        SearchResponse response = searchService.search("тест", "https://test.com", 0, 10);
+        assertTrue(response.isResult());
+        assertInstanceOf(SearchResponse.class, response);
+        assertEquals(0, response.getCount());
+        assertTrue(response.getData().isEmpty());
     }
 }

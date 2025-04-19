@@ -12,12 +12,15 @@ import searchengine.dto.search.SuccessResponse;
 import searchengine.dto.statistics.FinalStatisticsResponse;
 import searchengine.dto.statistics.StatisticsData;
 import searchengine.dto.statistics.TotalStatistics;
+import searchengine.exceptions.validation.InvalidUrlException;
 import searchengine.services.UrlValidationService;
 import searchengine.services.indexing.IndexingService;
 import searchengine.services.search.SearchService;
 import searchengine.services.statistics.StatisticsService;
+
 import java.util.Collections;
-import static org.mockito.Mockito.when;
+
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -54,32 +57,30 @@ public class ApiControllerTest {
     }
 
     @Test
-    @DisplayName("GET /startIndexing should return success")
+    @DisplayName("GET /startIndexing should return success when indexing is started")
     public void startIndexingReturnSuccess() throws Exception {
-        when(indexingService.startIndexing()).thenReturn(successResponse.isResult());
+        doNothing().when(indexingService).startIndexing();
         mockMvc.perform(get("/api/startIndexing"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value(true));
     }
 
     @Test
-    @DisplayName("GET /stopIndexing should return success")
+    @DisplayName("GET /stopIndexing should return success when indexing is stopped")
     public void stopIndexingReturnSuccess() throws Exception {
-        when(indexingService.stopIndexing()).thenReturn(successResponse.isResult());
+        doNothing().when(indexingService).stopIndexing();
         mockMvc.perform(get("/api/stopIndexing"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value(true));
     }
 
     @Test
-    @DisplayName("POST /indexPage with valid URL should return success")
-    public void indexPageReturnSuccess() throws Exception {
-        when(urlValidationService.isValidUrl("https://example.com")).thenReturn(true);
-        when(indexingService.isUrlAllowed("https://example.com")).thenReturn(true);
-        when(indexingService.indexPage("https://example.com")).thenReturn(true);
+    @DisplayName("POST /indexPage with invalid URL should return error")
+    public void indexPageReturnError() throws Exception {
+        doThrow(new InvalidUrlException("Некорректный формат URL")).when(indexingService).indexPage("https://example.com");
         mockMvc.perform(post("/api/indexPage")
                         .param("url", "https://example.com"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").value(true));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Некорректный формат URL"));
     }
 }

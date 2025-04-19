@@ -4,7 +4,9 @@ import org.apache.lucene.morphology.LuceneMorphology;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import searchengine.services.lemma.LemmatizerImpl;
+
 import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
@@ -14,7 +16,7 @@ public class LemmatizerServiceTest {
     private LemmatizerImpl lemmatizer;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         LuceneMorphology mockMorphology = mock(LuceneMorphology.class);
         when(mockMorphology.getNormalForms("тест")).thenReturn(List.of("тест"));
         when(mockMorphology.getMorphInfo("тест")).thenReturn(List.of("СУЩ"));

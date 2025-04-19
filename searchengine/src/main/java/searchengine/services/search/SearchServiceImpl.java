@@ -2,15 +2,15 @@ package searchengine.services.search;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import searchengine.dto.search.ErrorResponse;
 import searchengine.dto.search.SearchResponse;
 import searchengine.dto.search.SearchResult;
+import searchengine.exceptions.indexing.SiteNotIndexedException;
+import searchengine.exceptions.validation.InvalidQueryException;
 import searchengine.model.*;
-import searchengine.repositories.IndexRepository;
 import searchengine.repositories.LemmaRepository;
 import searchengine.repositories.PageRepository;
+import searchengine.repositories.SearchIndexRepository;
 import searchengine.repositories.SiteRepository;
 import searchengine.services.lemma.Lemmatizer;
 
@@ -25,20 +25,20 @@ import java.util.*;
 public class SearchServiceImpl implements SearchService {
     private final Lemmatizer lemmatizer;
     private final LemmaRepository lemmaRepository;
-    private final IndexRepository indexRepository;
+    private final SearchIndexRepository searchIndexRepository;
     private final PageRepository pageRepository;
     private final SiteRepository siteRepository;
 
     @Override
-    public ResponseEntity<?> search(String query, String site, int offset, int limit) {
+    public SearchResponse search(String query, String site, int offset, int limit) {
         if (query == null || query.isBlank()) {
-            return ResponseEntity.badRequest().body(new ErrorResponse(false, "Задан пустой поисковый запрос"));
+            throw new InvalidQueryException("Задан пустой поисковый запрос");
         }
         List<Site> sitesToSearch;
         if (site != null && !site.isBlank()) {
             Optional<Site> optionalSite = siteRepository.findByUrl(site);
             if (optionalSite.isEmpty() || optionalSite.get().getStatus() != SiteStatus.INDEXED) {
-                return ResponseEntity.badRequest().body(new ErrorResponse(false, "Указанный сайт не проиндексирован"));
+                throw new SiteNotIndexedException("Указанный сайт не проиндексирован");
             }
             sitesToSearch = List.of(optionalSite.get());
         } else {
@@ -46,12 +46,12 @@ public class SearchServiceImpl implements SearchService {
                     .filter(s -> s.getStatus() == SiteStatus.INDEXED)
                     .toList();
             if (sitesToSearch.isEmpty()) {
-                return ResponseEntity.badRequest().body(new ErrorResponse(false, "Индексация ещё не завершена"));
+                throw new IllegalStateException("Индексация ещё не завершена");
             }
         }
         Map<String, Integer> lemmas = lemmatizer.collectLemmas(query);
         if (lemmas.isEmpty()) {
-            return ResponseEntity.badRequest().body(new ErrorResponse(false, "По запросу ничего не найдено"));
+            throw new InvalidQueryException("По запросу ничего не найдено");
         }
         List<SearchResult> allResults = new ArrayList<>();
         for (Site s : sitesToSearch) {
@@ -79,7 +79,7 @@ public class SearchServiceImpl implements SearchService {
         int count = allResults.size();
         int toIndex = Math.min(offset + limit, count);
         List<SearchResult> paginated = allResults.subList(Math.min(offset, count), toIndex);
-        return ResponseEntity.ok(new SearchResponse(true, count, paginated));
+        return new SearchResponse(true, count, paginated);
     }
 
     private String makeSnippet(String htmlContent, Set<String> lemmas) {
@@ -113,9 +113,9 @@ public class SearchServiceImpl implements SearchService {
 
     private float calculateRelevance(Page page, List<Lemma> lemmas) {
         return lemmas.stream()
-                .map(lemma -> indexRepository.findByPageAndLemma(page, lemma))
+                .map(lemma -> searchIndexRepository.findByPageAndLemma(page, lemma))
                 .filter(Objects::nonNull)
-                .map(Index::getRank)
+                .map(SearchIndex::getRank)
                 .reduce(0F, Float::sum);
     }
 }

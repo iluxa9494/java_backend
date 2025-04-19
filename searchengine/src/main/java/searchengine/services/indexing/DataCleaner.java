@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import searchengine.model.Page;
 import searchengine.model.Site;
-import searchengine.repositories.IndexRepository;
 import searchengine.repositories.LemmaRepository;
 import searchengine.repositories.PageRepository;
+import searchengine.repositories.SearchIndexRepository;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class DataCleaner {
-    private final IndexRepository indexRepository;
+    private final SearchIndexRepository searchIndexRepository;
     private final PageRepository pageRepository;
     private final LemmaRepository lemmaRepository;
 
@@ -25,7 +25,7 @@ public class DataCleaner {
     public void clearSiteData(Site site) {
         List<Page> pages = pageRepository.findBySite(site);
         if (!pages.isEmpty()) {
-            indexRepository.deleteByPages(pages);
+            searchIndexRepository.deleteByPages(pages);
             pageRepository.deleteAll(pages);
         }
         lemmaRepository.deleteBySite(site);

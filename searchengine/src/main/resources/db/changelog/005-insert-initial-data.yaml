@@ -1,0 +1,81 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-insert-initial-data
+      author: ilya
+      changes:
+        - insert:
+            tableName: site
+            columns:
+              - column: { name: name, value: "Example" }
+              - column: { name: url, value: "https://example.com" }
+              - column: { name: status, value: "INDEXED" }
+
+        - insert:
+            tableName: site
+            columns:
+              - column: { name: name, value: "Playback" }
+              - column: { name: url, value: "https://www.playback.ru" }
+              - column: { name: status, value: "INDEXED" }
+
+        - insert:
+            tableName: site
+            columns:
+              - column: { name: name, value: "Volochek" }
+              - column: { name: url, value: "https://volochek.life" }
+              - column: { name: status, value: "INDEXED" }
+
+        - insert:
+            tableName: site
+            columns:
+              - column: { name: name, value: "RadioMV" }
+              - column: { name: url, value: "http://radiomv.ru" }
+              - column: { name: status, value: "INDEXED" }
+
+        - insert:
+            tableName: site
+            columns:
+              - column: { name: name, value: "IPFRAN" }
+              - column: { name: url, value: "https://ipfran.ru" }
+              - column: { name: status, value: "INDEXED" }
+
+        - insert:
+            tableName: site
+            columns:
+              - column: { name: name, value: "DimonVideo" }
+              - column: { name: url, value: "https://dimonvideo.ru" }
+              - column: { name: status, value: "INDEXED" }
+
+        - insert:
+            tableName: site
+            columns:
+              - column: { name: name, value: "NikoArtGallery" }
+              - column: { name: url, value: "https://nikoartgallery.com" }
+              - column: { name: status, value: "INDEXED" }
+
+        - insert:
+            tableName: site
+            columns:
+              - column: { name: name, value: "EtCetera" }
+              - column: { name: url, value: "https://et-cetera.ru/mobile" }
+              - column: { name: status, value: "INDEXED" }
+
+        - insert:
+            tableName: site
+            columns:
+              - column: { name: name, value: "LutheranCathedral" }
+              - column: { name: url, value: "https://www.lutherancathedral.ru" }
+              - column: { name: status, value: "INDEXED" }
+
+        - insert:
+            tableName: site
+            columns:
+              - column: { name: name, value: "DomBulgakova" }
+              - column: { name: url, value: "https://dombulgakova.ru" }
+              - column: { name: status, value: "INDEXED" }
+
+        - insert:
+            tableName: site
+            columns:
+              - column: { name: name, value: "Svetlovka" }
+              - column: { name: url, value: "https://www.svetlovka.ru" }
+              - column: { name: status, value: "INDEXED" }

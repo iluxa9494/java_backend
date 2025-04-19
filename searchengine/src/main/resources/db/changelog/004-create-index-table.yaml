@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004
+      author: ilia
+      changes:
+        - createTable:
+            tableName: search_index
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: page_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: lemma_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: rank
+                  type: FLOAT
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: search_index
+            baseColumnNames: page_id
+            constraintName: fk_index_page
+            referencedTableName: page
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: search_index
+            baseColumnNames: lemma_id
+            constraintName: fk_index_lemma
+            referencedTableName: lemma
+            referencedColumnNames: id

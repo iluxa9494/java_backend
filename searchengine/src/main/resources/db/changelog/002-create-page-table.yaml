@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002
+      author: ilia
+      changes:
+        - createTable:
+            tableName: page
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: path
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: code
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: site_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title
+                  type: TEXT
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: page
+            baseColumnNames: site_id
+            constraintName: fk_page_site
+            referencedTableName: site
+            referencedColumnNames: id

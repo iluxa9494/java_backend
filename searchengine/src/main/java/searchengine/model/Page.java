@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.persistence.Index;
 
 /**
  * Сущность страницы сайта, содержащая путь, код ответа, заголовок и HTML-контент.
@@ -14,15 +13,8 @@ import javax.persistence.Index;
 @Table(
         name = "page",
         uniqueConstraints = @UniqueConstraint(columnNames = {"site_id", "path"}),
-        indexes = @Index(name = "path_index", columnList = "path")
+        indexes = @javax.persistence.Index(name = "path_index", columnList = "path")
 )
-@org.hibernate.annotations.Table(appliesTo = "page",
-        comment = "Page table",
-        indexes = {
-                @org.hibernate.annotations.Index(name = "path_index", columnNames = {"path"})
-        }
-)
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

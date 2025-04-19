@@ -5,27 +5,30 @@ services:
     build: .
     container_name: searchengine-app
     depends_on:
-      - mysql
+      - postgres
     ports:
-      - "8082:8082"
+      - "8082:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/search_engine
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/search_engine?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf-8&connectionCollation=utf8mb4_general_ci"
+      SPRING_DATASOURCE_USERNAME: "postgres"
+      SPRING_DATASOURCE_PASSWORD: "password"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "none"
+      SPRING_LIQUIBASE_ENABLED: "true"
+      SPRING_LIQUIBASE_CHANGE_LOG: "classpath:db/changelog/db.changelog-master.yaml"
     restart: unless-stopped
 
-  mysql:
-    image: mysql:8.0
-    container_name: searchengine-mysql
+  postgres:
+    image: postgres:13
+    container_name: searchengine-postgres
     ports:
-      - "3306:3306"
+      - "5432:5432"
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: search_engine
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: search_engine
     volumes:
-      - mysql_data:/var/lib/mysql
-    command: --default-authentication-plugin=mysql_native_password
+      - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
 volumes:
-  mysql_data:
+  postgres_data:

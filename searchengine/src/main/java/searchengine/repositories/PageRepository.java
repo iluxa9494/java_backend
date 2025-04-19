@@ -23,7 +23,7 @@ public interface PageRepository extends JpaRepository<Page, Integer> {
     long countBySite(@Param("site") Site site);
 
     @Query("SELECT p FROM Page p " +
-            "JOIN Index i ON i.page = p " +
+            "JOIN SearchIndex i ON i.page = p " +
             "WHERE p.site.id = :siteId AND i.lemma IN :lemmas " +
             "GROUP BY p.id " +
             "HAVING COUNT(DISTINCT i.lemma) = :lemmaCount")

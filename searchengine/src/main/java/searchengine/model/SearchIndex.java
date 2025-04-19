@@ -10,11 +10,11 @@ import javax.persistence.*;
  * Сущность индекса, связывающая страницу и лемму с указанием её веса (rank).
  */
 @Entity
-@Table(name = "`index`")
+@Table(name = "search_index")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Index {
+public class SearchIndex {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

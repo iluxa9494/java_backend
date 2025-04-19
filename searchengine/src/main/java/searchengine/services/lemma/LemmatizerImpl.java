@@ -2,7 +2,7 @@ package searchengine.services.lemma;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.morphology.LuceneMorphology;
-import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -22,12 +22,9 @@ public class LemmatizerImpl implements Lemmatizer {
     );
     private final LuceneMorphology morphology;
 
-    public LemmatizerImpl() throws Exception {
-        this.morphology = new RussianLuceneMorphology();
-    }
-
-    public LemmatizerImpl(LuceneMorphology mockMorphology) throws Exception {
-        this.morphology = new RussianLuceneMorphology();
+    @Autowired
+    public LemmatizerImpl(LuceneMorphology morphology) {
+        this.morphology = morphology;
     }
 
     @Override

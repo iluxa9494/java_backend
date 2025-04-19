@@ -7,11 +7,17 @@ import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import searchengine.exceptions.general.UrlNotAllowedException;
+import searchengine.exceptions.indexing.IndexingAlreadyRunningException;
+import searchengine.exceptions.indexing.IndexingNotRunningException;
+import searchengine.exceptions.indexing.SiteAlreadyExistsException;
+import searchengine.exceptions.validation.InvalidUrlException;
 import searchengine.model.*;
-import searchengine.repositories.IndexRepository;
 import searchengine.repositories.LemmaRepository;
 import searchengine.repositories.PageRepository;
+import searchengine.repositories.SearchIndexRepository;
 import searchengine.repositories.SiteRepository;
+import searchengine.services.UrlValidationService;
 import searchengine.services.lemma.Lemmatizer;
 import searchengine.services.site.SiteStatusService;
 
@@ -39,45 +45,53 @@ import java.util.concurrent.Executors;
 public class IndexingServiceImpl implements IndexingService {
     private final Lemmatizer lemmatizer;
     private final LemmaRepository lemmaRepository;
-    private final IndexRepository indexRepository;
+    private final SearchIndexRepository searchIndexRepository;
     private final SiteRepository siteRepository;
     private final PageRepository pageRepository;
     private final SiteStatusService siteStatusService;
     private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private final DataCleaner dataCleaner;
+    private final UrlValidationService urlValidationService;
     private volatile boolean stopFlag = false;
 
     @Override
-    public boolean addSite(String url, String name) {
-        if (siteRepository.findByUrl(url).isPresent()) return false;
+    public void addSite(String url, String name) {
+        if (siteRepository.findByUrl(url).isPresent()) {
+            throw new SiteAlreadyExistsException("Сайт уже существует.");
+        }
+        Optional<String> availabilityError = getSiteAvailabilityError(url);
+        if (availabilityError.isPresent()) {
+            throw new UrlNotAllowedException("Сайт находится за пределами индексируемых сайтов");
+        }
         Site site = new Site();
         site.setUrl(url);
         site.setName(name);
         site.setStatus(SiteStatus.INDEXED);
         site.setStatusTime(LocalDateTime.now());
         siteRepository.save(site);
-        return true;
+        log.info("Сайт добавлен: {}", url);
     }
 
     @Override
     @Transactional
-    public boolean startIndexing() {
+    public void startIndexing() {
         if (siteRepository.findByStatus(SiteStatus.INDEXING).size() > 0) {
             log.warn("Индексация уже запущена");
-            return false;
+            throw new IndexingAlreadyRunningException("Индексация уже запущена");
         }
         stopFlag = false;
-        List<Site> sitesToIndex = siteRepository.findAll().stream().filter(site -> site.getStatus() == SiteStatus.INDEXED || site.getStatus() == SiteStatus.FAILED).toList();
+        List<Site> sitesToIndex = siteRepository.findAll().stream()
+                .filter(site -> site.getStatus() == SiteStatus.INDEXED || site.getStatus() == SiteStatus.FAILED)
+                .toList();
         if (sitesToIndex.isEmpty()) {
             log.warn("Нет сайтов со статусом INDEXED или FAILED для индексации");
-            return false;
+            throw new IllegalStateException("Нет сайтов со статусом INDEXED или FAILED для индексации");
         }
         siteStatusService.markSitesAsIndexing(sitesToIndex);
         for (Site site : sitesToIndex) {
             executorService.submit(() -> indexSingleSite(site));
         }
         log.info("Отправлено {} задач(и) на индексацию в ExecutorService", sitesToIndex.size());
-        return true;
     }
 
     public void indexSingleSite(Site site) {
@@ -105,19 +119,15 @@ public class IndexingServiceImpl implements IndexingService {
                 log.info("Индексация прервана после очистки данных: {}", site.getUrl());
                 return;
             }
-            boolean success = indexPage(site.getUrl());
+            indexPage(site.getUrl());
             if (stopFlag) {
                 site.setStatus(SiteStatus.FAILED);
                 site.setLastError("Индексация остановлена вручную");
                 log.warn("Индексация прервана в момент парсинга сайта: {}", site.getUrl());
-            } else if (success) {
+            } else {
                 site.setStatus(SiteStatus.INDEXED);
                 site.setLastError(null);
                 log.info("Сайт успешно проиндексирован: {}", site.getUrl());
-            } else {
-                site.setStatus(SiteStatus.FAILED);
-                site.setLastError("Ошибка при индексации");
-                log.warn("Ошибка при индексации сайта: {}", site.getUrl());
             }
         } catch (Exception e) {
             site.setStatus(SiteStatus.FAILED);
@@ -132,11 +142,11 @@ public class IndexingServiceImpl implements IndexingService {
 
     @Override
     @Transactional
-    public boolean stopIndexing() {
+    public void stopIndexing() {
         List<Site> indexingSites = siteRepository.findByStatus(SiteStatus.INDEXING);
         if (indexingSites.isEmpty()) {
             log.warn("Индексация не запущена — нет сайтов со статусом INDEXING.");
-            return false;
+            throw new IndexingNotRunningException("Индексация не запущена");
         }
         stopFlag = true;
         for (Site site : indexingSites) {
@@ -146,11 +156,11 @@ public class IndexingServiceImpl implements IndexingService {
             siteRepository.save(site);
             log.info("Сайт принудительно переведён в FAILED: {}", site.getUrl());
         }
-        return true;
     }
 
     @Override
-    public boolean indexPage(String url) {
+    public void indexPage(String url) {
+        validateUrl(url);
         String siteUrl = normalizeUrl(url);
         String path;
         try {
@@ -159,7 +169,7 @@ public class IndexingServiceImpl implements IndexingService {
             if (!path.startsWith("/")) path = "/" + path;
         } catch (MalformedURLException e) {
             log.error("Некорректный URL: {}", url, e);
-            return false;
+            throw new InvalidUrlException("Некорректный формат URL");
         }
         Optional<Site> optSite = siteRepository.findByUrlIgnoreWww(siteUrl);
         if (optSite.isEmpty() && !siteUrl.contains("www.")) {
@@ -168,8 +178,8 @@ public class IndexingServiceImpl implements IndexingService {
             optSite = siteRepository.findByUrl(altUrl);
         }
         if (optSite.isEmpty()) {
-            log.warn("Сайт не найден: {}", siteUrl);
-            return false;
+            log.warn("Сайт не найден в базе данных: {}", siteUrl);
+            throw new UrlNotAllowedException("Сайт находится за пределами индексируемых сайтов");
         }
         Site site = optSite.get();
         try {
@@ -184,9 +194,10 @@ public class IndexingServiceImpl implements IndexingService {
                     .orElse("(no title)");
             Page existing = pageRepository.findBySiteAndPath(site, path);
             if (existing != null) {
-                indexRepository.deleteAll(indexRepository.findByPage(existing));
+                searchIndexRepository.deleteAll(searchIndexRepository.findByPage(existing));
                 pageRepository.delete(existing);
             }
+            log.info("Создаём страницу для сайта: {}", site.getUrl());
             Page page = new Page();
             page.setSite(site);
             page.setPath(path);
@@ -194,6 +205,7 @@ public class IndexingServiceImpl implements IndexingService {
             page.setTitle(title);
             page.setContent(content);
             page = pageRepository.save(page);
+            log.info("Страница успешно сохранена: {}", page.getId());
             Map<String, Integer> lemmas = lemmatizer.collectLemmas(
                     Jsoup.clean(doc.body().html(), Safelist.none()).trim()
             );
@@ -204,17 +216,16 @@ public class IndexingServiceImpl implements IndexingService {
                 if (lemma == null) lemma = new Lemma(lemmaText, 0, site);
                 lemma.setFrequency(lemma.getFrequency() + 1);
                 lemmaRepository.save(lemma);
-                Index index = new Index();
-                index.setPage(page);
-                index.setLemma(lemma);
-                index.setRank(freq);
-                indexRepository.save(index);
+                SearchIndex searchIndex = new SearchIndex();
+                searchIndex.setPage(page);
+                searchIndex.setLemma(lemma);
+                searchIndex.setRank(freq);
+                searchIndexRepository.save(searchIndex);
             }
             log.info("Страница проиндексирована: {}", url);
-            return true;
         } catch (IOException e) {
             log.error("Ошибка при загрузке страницы {}: {}", url, e.getMessage());
-            return false;
+            throw new RuntimeException("Ошибка при индексации страницы: " + url, e);
         }
     }
 
@@ -265,11 +276,9 @@ public class IndexingServiceImpl implements IndexingService {
         }
     }
 
-    @Override
-    public boolean isUrlAllowed(String url) {
-        return siteRepository.findAll().stream()
-                .anyMatch(site -> url.startsWith(site.getUrl())
-                        || url.startsWith(site.getUrl().replace("://www.", "://"))
-                        || url.startsWith(site.getUrl().replace("://", "://www.")));
+    public void validateUrl(String url) {
+        if (!urlValidationService.isValidUrl(url)) {
+            throw new InvalidUrlException("Некорректный формат URL");
+        }
     }
 }
