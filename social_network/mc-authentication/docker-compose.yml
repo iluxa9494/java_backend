@@ -1,0 +1,49 @@
+services:
+  authentication:
+    container_name: mc-authentication
+    depends_on:
+      - mongodb
+      - redis
+    image: docode97/mc-authentication:latest
+    ports:
+      - "8091:8081"
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE: http://ms-eureka:8761/eureka/
+      SERVER_PORT: 8081
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-broker:9092
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/appdatabase?authSource=admin
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/auth_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    networks:
+      - mongo_and_redis
+      - infrastructure_social-network
+
+  redis:
+    image: redis:7.0.12
+    container_name: redis
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "redis"]
+    ports:
+      - "6381:6379"
+    networks:
+      - mongo_and_redis
+
+  mongodb:
+    image: mongo:4.4.24
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: appdatabase
+    networks:
+      - mongo_and_redis
+
+networks:
+  infrastructure_social-network:
+    external: true
+  mongo_and_redis:
+    driver: bridge

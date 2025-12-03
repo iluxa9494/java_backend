@@ -1,0 +1,53 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="0005-recreate-reaction-if-missing" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="reaction"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="reaction">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="post_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="comment_id" type="UUID"/>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reaction_type" type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="reaction" baseColumnNames="post_id"
+                referencedTableName="posts" referencedColumnNames="id"
+                constraintName="fk_reaction_post" onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="reaction" baseColumnNames="comment_id"
+                referencedTableName="comments" referencedColumnNames="id"
+                constraintName="fk_reaction_comment" onDelete="CASCADE"/>
+
+        <createIndex tableName="reaction" indexName="idx_reaction_post">
+            <column name="post_id"/>
+        </createIndex>
+        <createIndex tableName="reaction" indexName="idx_reaction_comment">
+            <column name="comment_id"/>
+        </createIndex>
+        <createIndex tableName="reaction" indexName="idx_reaction_user">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

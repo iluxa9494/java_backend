@@ -1,0 +1,29 @@
+.profile__info
+  margin-bottom 45px
+
+.profile__tabs
+  display flex
+  margin-bottom 15px
+
+.profile__tab
+  cursor pointer
+  font-family font-exo
+  font-weight 200
+  font-size 30px
+  color ui-cl-color-steel-gray
+  transition unset
+
+  @media (max-width breakpoint-xxl)
+    font-size 24px
+  
+  &+&
+    margin-left 10px
+    padding-left 10px
+    border-left 1px solid ui-cl-color-steel-gray
+  
+  &.active
+    color #000
+    cursor default
+  
+.profile__add
+  margin-bottom 20px

@@ -1,0 +1,60 @@
+image: node:18.13.0
+  
+
+stages:
+  - build
+  - deploy_docker
+  # - deploy_docker_local
+  - deploy_prod
+
+build:
+  stage: build
+  only:
+    # - master
+    - testFrontend
+    # - frontendvue3
+  before_script:
+    - yarn install
+  script:
+    - yarn build
+  when: manual   
+  artifacts:
+    paths:
+      - dist
+
+deploy_docker:
+  image: docker:19.03.12
+  stage: deploy_docker
+  only:
+    # - master
+    - testFrontend
+    # - frontendvue3
+  before_script:
+    - docker logout
+    - docker login -u skillboxgroup40 -p skillboxgroup40!
+  script:
+    - docker build -f dockerfile -t skillboxgroup40/frontend-vue3 .
+    - docker push skillboxgroup40/frontend-vue3
+    - echo "Frontend deploy stage end"
+  when: manual 
+  artifacts:
+    paths:
+      - dist
+
+# deploy_prod:
+#   stage: deploy_prod
+#   only:
+#     - develop
+#   except:
+#     - tags
+#   before_script:
+#     - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
+#     - eval $(ssh-agent -s)
+#     - echo "$SSH_PRIVATE_KEY" | ssh-add -
+#     - mkdir -p ~/.ssh
+#     - chmod 700 ~/.ssh
+#     - ssh-keyscan $PROD_HOST >> ~/.ssh/known_hosts
+#     - chmod 644 ~/.ssh/known_hosts
+#   script:
+#     - ssh $PROD_USER@$PROD_HOST "kubectl rollout restart -n $NAMESPACE deployment $DEPLOYMENT_NAME"
+

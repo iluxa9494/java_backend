@@ -1,0 +1,57 @@
+### JAVA ###
+*.class
+*.jar
+*.war
+*.ear
+
+### MAVEN ###
+target/
+.mvn/
+!**/src/main/**/target/
+!**/src/test/**/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+### IDEA ###
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+.springBeans
+.sts4-cache
+
+### SPRING BOOT ###
+/BOOT-INF/
+/META-INF/
+/module-info.class
+
+### LOGS ###
+logs/
+*.log
+hs_err_pid*
+replay_pid*
+
+### MACOS ###
+.DS_Store
+
+### WINDOWS ###
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+### LINUX ###
+*~
+.nfs*
+
+### ENV VARIABLES ###
+.env
+.env.*
+
+### LOCAL DEV OVERRIDES ###
+docker-compose.override.local.yml
+docker-compose.dev.yml

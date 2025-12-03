@@ -1,0 +1,222 @@
+.form__title
+  font-weight font-weight-medium
+  font-size 40px
+  letter-spacing -0.01em
+  @media (max-width breakpoint-xxl)
+    font-size 28px
+
+.form__block
+  &+&
+    margin-top 70px
+  @media (max-width breakpoint-xxl)
+    &+&
+      margin-top 40px
+
+.form__subtitle
+  font-weight font-weight-medium
+  font-size 40px
+  color ui-cl-color-white-theme
+  margin-bottom 30px
+  @media (max-width breakpoint-xxl) 
+    margin-bottom 25px
+
+.form__code
+  font-weight font-weight-light
+  font-size 30px
+  letter-spacing 0.43em
+  margin-bottom 30px
+  display block
+
+.form__group
+  position relative
+  &:after
+    content ''
+    display block
+    transform rotate(45deg)
+    width 8px
+    height 11px
+    border 1px solid transparent
+    border-bottom-color ui-cl-color-white-theme
+    border-right-color ui-cl-color-white-theme
+    position absolute
+    right 10px
+    bottom 14px
+    opacity 0
+    visibility hidden
+    transition all .2s
+
+  &+&
+    margin-top 50px
+
+  &.fill
+    .form__label_stylus
+      font-size font-size-super-upsmall;
+      line-height 15px;
+      letter-spacing 0.02em;
+      top -20px
+
+  &.checked
+    &:after
+      opacity 1
+      visibility visible
+    .form__password-icon
+      display none
+
+  @media (max-width breakpoint-xxl) 
+    &+&
+      margin-top 35px
+
+.form__input_stylus
+  width 100%
+  font-family inherit
+  border 1px solid #7c7c94
+  font-size font-size-downdefault
+  line-height 22px
+  color ui-cl-color-full-black
+  background-color transparent
+  border-radius border-small
+  padding 10px
+  cursor text
+  transition all .2s
+  overflow hidden
+  &:-webkit-autofill,
+  &:-internal-autofill-previewed,
+  &:-internal-autofill-selected,
+  &:-webkit-autofill:hover, 
+  &:-webkit-autofill:focus
+    background-color transparent !important
+	 font-family inherit
+	 border 1px solid 1px solid #7c7c94
+	 -webkit-text-fill-color ui-cl-color-white-theme
+	 -webkit-box-shadow 0 0 0 30px ui-cl-color-comet inset !important
+  &:focus
+	  border-color ui-cl-color-eucalypt
+  &:active
+	  border-color ui-cl-color-eucalypt
+  &.invalid
+    border-color ui-cl-color-wild-watermelon
+	
+
+.form__label_stylus
+  position absolute
+  top 10px
+  left 10px
+  font-size font-size-downdefault;
+  line-height 22px;
+  color rgba(255, 255, 255, 0.4);
+  transition all .2s
+  cursor text
+
+.form__password-icon
+  position absolute
+  right 10px
+  bottom 21px
+  opacity 0
+  visibility hidden
+  width 19px
+  cursor pointer
+  height 12px
+  transition all .2s
+  &.active
+    opacity 1
+    visibility visible
+  &:hover
+    & + .form__password-info
+      opacity 1
+      visibility visible
+
+.form__password-info
+  font-weight font-weight-medium
+  font-size font-size-super-upsmall
+  border-radius border-super-small
+  position absolute
+  top 100%
+  left 0
+  right 0
+  background-color ui-cl-color-white-bright-second
+  display block
+  padding 10px
+  z-index 100
+  opacity 0
+  visibility hidden
+  transition all .2s
+
+.form__error-block_
+	width 100%
+	overflow hidden
+
+.form__password-helper
+  position absolute
+  bottom -9px
+  border-radius 20px
+  left 10px
+  right 0
+  height 2px
+  background-color transparent
+  &.easy
+    width 33%
+    background-color ui-cl-color-wild-watermelon
+  &.middle
+    width 66%
+    background-color ui-cl-color-bright-sun
+  &.hard
+    width 96%
+    background-color cyan
+
+.form__error
+  display block
+  padding-top 3px
+  font-size font-size-super-upsmall
+  color rgba(255, 255, 255, 0.7);
+
+.form__checkbox
+  visibility hidden
+  opacity 0
+  height 0
+  width 0
+  &:checked
+    & + .form__checkbox-label
+      &:before
+        background #fff
+      &:after
+        opacity 1
+        visibility visible
+  &.invalid
+    & + .form__checkbox-label
+      &:before
+        border-color ui-cl-color-wild-watermelon
+
+.form__checkbox-label
+  cursor pointer
+  font-size font-size-small
+  line-height 19px
+  padding-left 23px
+  display block
+  position relative
+  color rgba(255, 255, 255, 0.4)
+  &:before,&:after
+    content ''
+    display block
+    position absolute
+    transition all .2s
+  &:before
+    width 15px;
+    height 15px;
+    border 1px solid rgba(255, 255, 255, 0.5);
+    left 0
+  &:after
+    width 5px;
+    height 7px;
+    border 1px solid transparent;
+    border-right-color #1d1c2a;
+    border-bottom-color #1d1c2a;
+    left 5px;
+    top 3px;
+    transform rotate(30deg);
+    opacity 0
+    visibility hidden
+  a
+    color rgba(255, 255, 255, 0.7)
+    transition all .2s
+    &:hover
+      color ui-cl-color-white-theme

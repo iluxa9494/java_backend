@@ -1,0 +1,25 @@
+stages:
+    - build
+    - deploy
+
+variables:
+    DOCKER_IMAGE: igorchukarin/dialog-service-image
+
+
+build_image:
+    stage: build
+    script:
+        - mvn clean package -DskipTests
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - docker build -t $DOCKER_IMAGE .
+        - docker push $DOCKER_IMAGE
+    only:
+        - master
+
+
+deploy_to_server:
+    stage: deploy
+    script:
+        - docker stop dialog-service || echo "dialog-service is not running"
+        - docker rm dialog-service || echo "dialog-service doesn't exist"
+        - docker run -d --name dialog-service --network infrastructure_social-network -p 8082:8082 -e SERVER_PORT=8082 -e SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/dialog_db -e SPRING_DATASOURCE_USERNAME=postgres -e SPRING_DATASOURCE_PASSWORD=postgres $DOCKER_IMAGE

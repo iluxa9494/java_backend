@@ -1,0 +1,21 @@
+services:
+  ms-gateway:
+    image: vav396/api-gateway:latest
+    container_name: ms-gateway
+    ports:
+      - "8765:8765"
+    environment:
+      - ALLOWED_ORIGIN=http://79.174.81.229:3131
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://ms-eureka:8761/eureka/
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8765
+    networks:
+      - infrastructure_social-network
+      - frontend_gateway_network
+    restart: unless-stopped
+
+networks:
+  infrastructure_social-network:
+    external: true
+  frontend_gateway_network:
+    external: true

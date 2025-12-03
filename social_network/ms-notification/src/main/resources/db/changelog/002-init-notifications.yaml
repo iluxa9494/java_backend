@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-init-notifications
+      author: ilia
+      changes:
+        - createTable:
+            tableName: notifications
+            columns:
+              - column: { name: id, type: UUID, constraints: { primaryKey: true } }
+              - column: { name: time, type: TIMESTAMPTZ, constraints: { nullable: false } }
+              - column: { name: author_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: user_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: content, type: TEXT, constraints: { nullable: false } }
+              - column: { name: notification_type, type: VARCHAR(32), constraints: { nullable: false } }
+              - column: { name: is_status_sent, type: BOOLEAN, defaultValueBoolean: false }
+              - column: { name: is_read, type: BOOLEAN, defaultValueBoolean: false }
+        - createIndex:
+            indexName: idx_notifications_user_time
+            tableName: notifications
+            columns:
+              - column: { name: user_id }
+              - column: { name: time }
+        - createIndex:
+            indexName: idx_notifications_user_read
+            tableName: notifications
+            columns:
+              - column: { name: user_id }
+              - column: { name: is_read }

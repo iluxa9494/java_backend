@@ -1,0 +1,54 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  DOCKER_IMAGE: vav396/mc-integration:latest
+  SERVER_USER: mvsbx
+  SERVER_HOST: 185.129.146.54
+  SERVER_PORT: 2222
+
+# Build Docker image from source code
+build_image:
+  stage: build
+  image: maven:3.8.6-openjdk-11
+  script:
+    - mvn clean package -DskipTests
+    - docker build -t $DOCKER_IMAGE .
+    - docker login -u vav396 -p $DOCKER_PASSWORD
+    - docker push $DOCKER_IMAGE
+  only:
+    - mc-integration
+
+# Deploy application to server
+deploy_to_server:
+  stage: deploy
+  script:
+    - echo "Starting mc-integration update without stopping old version"
+
+    # Copy docker-compose files to deployment directory
+    - cp docker-compose-service.yaml /home/mvsbx/mc-integration/
+    - cp docker-compose.yaml /home/mvsbx/mc-integration/
+
+    # Navigate to application directory on server
+    - cd /home/mvsbx/mc-integration
+
+    # Download latest Docker image from registry
+    - docker pull $DOCKER_IMAGE
+
+    # Gracefully stop and remove existing container if it exists
+    - docker stop mc-integration || echo "mc-integration is not running"
+    - docker rm mc-integration || echo "mc-integration container does not exist"
+
+    # Start services using docker-compose configuration
+    - docker compose -f docker-compose-service.yaml up -d
+
+    # Wait for application to initialize
+    - sleep 10
+
+    # Verify container is running successfully
+    - docker ps | grep mc-integration
+
+  only:
+    - mc-integration

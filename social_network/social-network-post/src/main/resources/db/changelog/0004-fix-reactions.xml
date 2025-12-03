@@ -1,0 +1,29 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="0004-fix-reactions" author="aslan">
+        <!-- Если таблицы reaction нет — просто пометить changeset как выполненный -->
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="reaction"/>
+        </preConditions>
+
+        <!-- Идемпотентные дропы ограничений -->
+        <sql>ALTER TABLE IF EXISTS public.reaction DROP CONSTRAINT IF EXISTS fk_reaction_post;</sql>
+        <sql>ALTER TABLE IF EXISTS public.reaction DROP CONSTRAINT IF EXISTS fk_reaction_comment;</sql>
+
+        <!-- Здесь при необходимости добавь заново правильные FK/индексы -->
+        <!--
+        <addForeignKeyConstraint
+                baseTableName="reaction" baseColumnNames="post_id"
+                referencedTableName="posts" referencedColumnNames="id"
+                constraintName="fk_reaction_post" onDelete="CASCADE"/>
+        <addForeignKeyConstraint
+                baseTableName="reaction" baseColumnNames="comment_id"
+                referencedTableName="comments" referencedColumnNames="id"
+                constraintName="fk_reaction_comment" onDelete="CASCADE"/>
+        -->
+    </changeSet>
+</databaseChangeLog>

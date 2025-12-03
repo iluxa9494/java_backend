@@ -1,0 +1,83 @@
+.friends__header
+  display flex
+  align-items flex-end
+  justify-content flex-start
+  gap 40px
+  margin-bottom 25px
+  padding-bottom 25px
+  border-bottom 1px solid #cacaca
+
+.friends__title
+  margin-bottom 15px
+  font-family font-exo
+  font-weight font-weight-bold
+  font-size 30px
+  color #000
+
+.friends__search
+  display flex
+  align-items center
+  min-width 350px
+  background ui-cl-color-white-theme
+  border-radius border-small
+  padding 5px 10px
+  box-shadow box-shadow-main
+
+.friends__search-icon
+  .simple-svg-wrapper
+    width 16px
+    height 16px
+  
+  .simple-svg
+    stroke ui-cl-color-comet
+    fill transparent
+  
+.friends__search-input
+  font-size font-size-small
+  color #000
+  background-color transparent
+  cursor inherit
+  padding 10px
+  margin-top 1px
+  display block
+  width 100%
+
+  &::placeholder
+    color ui-cl-color-comet
+  
+.friends__list
+  display flex
+  flex-direction column
+
+.friends
+	&__tabs
+		display flex
+		flex-wrap wrap
+		gap 10px
+
+		li button
+			display block
+			color ui-cl-color-767676;
+			border-radius border-small
+			text-align center
+			background #fff
+			border 1px solid ui-cl-color-ababab
+			font-size font-size-small-medium
+			padding 10px
+			@media (any-hover: hover)
+				&:hover:not(:disabled)
+					color ui-cl-color-white-theme
+					background ui-cl-color-eucalypt
+					border-color ui-cl-color-eucalypt
+				&:disabled
+					color ui-cl-color-white-theme
+					background #b3b3b3
+					border-color ui-cl-color-919191
+					cursor not-allowed
+					opacity 35%
+			&.active
+				color ui-cl-color-white-theme
+				background ui-cl-color-eucalypt
+				border-color ui-cl-color-eucalypt
+
+	

@@ -1,0 +1,26 @@
+.inner-page
+  display flex
+  width 100%
+
+.inner-page__main
+  display flex
+  flex-direction column
+
+.news
+
+	.inner-page__main
+		display grid
+		grid-template-columns 1fr 430px
+		gap 20px
+		width 100%
+	
+	.inner-page__main__container 
+		width 100%
+		margin-right 20px
+
+.inner-page__aside
+  flex none
+  max-width 430px
+  width 100%
+  @media (max-width breakpoint-xxl)
+    max-width 380px

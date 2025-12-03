@@ -1,0 +1,47 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: mc-account-api-docs
+          uri: lb://mc-account
+          predicates:
+            - Path=/api/account/v3/api-docs/**
+          filters:
+            - StripPrefix=3
+
+        - id: mc-account-swagger-ui
+          uri: lb://mc-account
+          predicates:
+            - Path=/api/account/swagger-ui/**
+          filters:
+            - StripPrefix=3
+
+        - id: mc-account-api
+          uri: lb://mc-account
+          predicates:
+            - Path=/api/account/**
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+    # Добавь это для SpringDoc
+    web:
+      resources:
+        static-locations: classpath:/META-INF/resources/webjars/
+
+    # Укажи путь к OpenAPI спецификации
+    swagger:
+      ui:
+        path: /swagger-ui.html
+
+  eureka:
+    client:
+      service-url:
+        defaultZone: http://ms-eureka:8761/eureka/

@@ -1,0 +1,61 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="0008-create-comment-if-missing" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="comment"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="comment">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="post_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="parent_id" type="UUID"/>
+
+            <column name="comment_text" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_blocked" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="like_amount" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="time" type="TIMESTAMPTZ" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time_changed" type="TIMESTAMPTZ" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="comment"
+                baseColumnNames="post_id"
+                referencedTableName="post"
+                referencedColumnNames="id"
+                constraintName="fk_comment_post"/>
+
+        <createIndex tableName="comment" indexName="idx_comment_post_id">
+            <column name="post_id"/>
+        </createIndex>
+        <createIndex tableName="comment" indexName="idx_comment_parent_id">
+            <column name="parent_id"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

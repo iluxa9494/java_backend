@@ -1,0 +1,47 @@
+server:
+  port: ${SERVER_PORT}
+
+spring:
+  application:
+    name: dialog-service
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 30
+    leaseExpirationDurationInSeconds: 90
+  client:
+    service-url:
+      defaultZone: http://ms-eureka:8761/eureka/
+
+authentication:
+  service:
+    validation:
+      url: http://mc-authentication/api/v1/auth/validate
+
+logging:
+  level:
+    root: INFO
+    ru.skillbox.socialnetwork.dialog.utils: DEBUG
+
+websocket:
+  endpoint: /ws
+  allowed-origins: "*"
+  app-destination-prefix: /app
+  broker:
+    simple:
+      prefixes:
+        - /topic
+        - /queue
+  user-destination-prefix: /user

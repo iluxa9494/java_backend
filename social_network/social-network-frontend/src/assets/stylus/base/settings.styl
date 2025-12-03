@@ -1,0 +1,76 @@
+*, *:before, *:after
+	vertical-align baseline
+	font-family inherit
+	font-size 100%
+	border 0 none
+	outline 0 none
+	padding 0
+	margin 0
+	box-sizing border-box
+
+html,body
+	width 100%
+	height 100%
+	font-size font-size-default
+	line-height 1
+
+body
+	background ui-cl-color-white-lilac
+
+
+ul,li
+	list-style-type none
+
+p
+	margin 0
+
+a
+	text-decoration none
+	color black
+
+img
+	max-width 100%
+
+input
+	cursor text
+
+button
+	cursor pointer
+
+button:disabled
+	cursor default
+
+audio,
+canvas,
+iframe,
+img,
+svg,
+video
+	vertical-align middle
+
+
+textarea
+	resize none
+
+.shine
+	background #f6f7f8
+	background-image linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%)
+	background-repeat no-repeat
+	background-size 800px 100%
+	display inline-block
+	position relative
+	-webkit-animation-duration 1s
+	-webkit-animation-fill-mode forwards
+	-webkit-animation-iteration-count infinite
+	-webkit-animation-name placeholderShimmer
+	-webkit-animation-timing-function linear
+
+@keyframes placeholderShimmer
+	0% {
+		background-position: -468px 0;
+	}
+	
+	100% {
+		background-position: 468px 0; 
+	}
+

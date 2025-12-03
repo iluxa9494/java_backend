@@ -1,0 +1,160 @@
+server:
+  port: 8765
+
+spring:
+  application:
+    name: ms-gateway
+
+  cloud:
+    gateway:
+
+      httpclient:
+        websocket:
+          max-frame-payload-length: 65536
+          idle-timeout-millis: 3600000
+        connect-timeout: 10000
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "${ALLOWED_ORIGIN}"
+            allowedMethods:
+              - "*"
+            allowedHeaders: 
+              - "*"
+            allowCredentials: true
+
+      routes:
+        # Во фронтенде есть баг: в блоке рекомендуемых друзей возвращается
+        # список всех пользователей вместо по-настоящему рекомендованных.
+        #
+        # Этот роутинг создан для решения проблемы. Запрос при наличии
+        # параметра showFriends перенаправляется в микросервис ms-friend.
+        - id: recommended-friends-routing
+          uri: lb://ms-friend
+          predicates:
+            - Path=/api/v1/account/search
+            - Query=showFriends
+          filters:
+            - RewritePath=/api/v1/account/search, /api/v1/friends/recommendations/bypass
+
+        # Во фронтенде есть баг: поиск по друзьям отправляет запрос в микросервис аккаунтов.
+        #
+        # Этот роутинг создан для решения проблемы. Запрос перенаправляется в микросервис ms-friend.
+        - id: ms-friend-search-api
+          uri: lb://ms-friend
+          predicates:
+            - Path=/api/v1/account/search/statusCode
+          filters:
+            - RewritePath=/api/v1/account/search/statusCode, /api/v1/friends
+
+        - id: ms-friend-api
+          uri: lb://ms-friend
+          predicates:
+            - Path=/api/v1/friends/**
+
+        - id: mc-account-api-docs-root
+          uri: lb://mc-account
+          predicates:
+            - Path=/v3/api-docs
+          filters:
+            - RewritePath=/v3/api-docs, /api/v1/account/v3/api-docs
+
+        - id: post-service-api
+          uri: lb://mc-post
+          predicates:
+            - Path=/api/v1/post/**
+          filters:
+            - RemoveRequestHeader=Expect
+
+        - id: mc-account-api-docs
+          uri: lb://mc-account
+          predicates:
+            - Path=/api/v1/account/v3/api-docs
+          filters:
+            - StripPrefix=3
+
+        - id: mc-account-swagger-ui
+          uri: lb://mc-account
+          predicates:
+            - Path=/api/v1/account/swagger-ui/**
+          filters:
+            - StripPrefix=3
+
+        - id: mc-account-api
+          uri: lb://mc-account
+          predicates:
+            - Path=/api/v1/account/**
+
+        - id: mc-authentication
+          uri: lb://mc-authentication
+          predicates:
+            - Path=/api/v1/auth/**
+
+        - id: ms-notification
+          uri: lb://ms-notification
+          predicates:
+            - Path=/api/v1/notifications/**
+
+        - id: ms-integration
+          uri: lb://ms-integration
+          predicates:
+            - Path=/api/v1/geo/**,/api/v1/storage/**
+
+        - id: dialog-service-api
+          uri: lb://dialog-service
+          predicates:
+            - Path=/api/v1/dialogs/**
+        - id: dialog-service-chat
+          uri: lb://dialog-service
+          predicates:
+            - Path=/chat.sendMessage
+        - id: dialog-service-ws
+          uri: lb://dialog-service
+          predicates:
+            - Path=/api/v1/streaming/ws
+          filters:
+            - RewritePath=/api/v1/streaming/ws, /ws
+            - name: PreserveHostHeader
+          metadata:
+            websocket: true
+
+
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      web:
+        resources:
+          static-locations: classpath:/META-INF/resources/webjars/
+
+      swagger:
+        ui:
+          path: /swagger-ui.html
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE}
+
+management:
+  endpoint:
+    gateway:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+
+springdoc:
+  swagger-ui:
+    url: /api/v1/account/v3/api-docs
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    ru.skillbox.socialnetwork.apigateway: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

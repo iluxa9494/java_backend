@@ -60,3 +60,16 @@ docker-compose.override.yml
 .env.development.local
 .env.test.local
 .env.production.local
+
+### MACOS ###
+.DS_Store
+
+### WINDOWS ###
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+### LINUX ###
+*~
+.nfs*

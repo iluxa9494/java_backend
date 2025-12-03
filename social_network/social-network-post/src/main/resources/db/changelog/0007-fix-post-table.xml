@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Если есть posts — переименуем в post -->
+    <changeSet id="0007-rename-posts-to-post" author="you">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="posts"/>
+            <not>
+                <tableExists tableName="post"/>
+            </not>
+        </preConditions>
+        <renameTable oldTableName="posts" newTableName="post"/>
+    </changeSet>
+
+    <!-- Если таблиц нет совсем — создадим post -->
+    <changeSet id="0007-create-post-if-missing" author="you">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="post"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="post">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="time" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time_changed" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="author_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="post_text" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_blocked" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="comments_count" type="bigint" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tags" type="text"/>
+            <column name="like_amount" type="bigint" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="post" indexName="idx_post_author">
+            <column name="author_id"/>
+        </createIndex>
+        <createIndex tableName="post" indexName="idx_post_time">
+            <column name="time"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

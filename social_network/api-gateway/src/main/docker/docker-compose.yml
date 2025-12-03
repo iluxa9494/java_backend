@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  gateway:
+    image: vav396/api-gateway:latest
+    container_name: ms-gateway-new
+    ports:
+      - "8765:8765"
+    environment:
+      - SERVER_PORT=8765
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://ms-eureka:8761/eureka/
+    networks:
+      - infrastructure_social-network
+      - frontend_gateway_network
+
+networks:
+  infrastructure_social-network:
+    external: true
+  frontend_gateway_network:
+    external: true

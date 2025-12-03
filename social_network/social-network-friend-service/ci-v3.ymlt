@@ -1,0 +1,42 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  DOCKER_USER_MS_FRIEND: rumyancevivan
+  DOCKER_IMAGE_MS_FRIEND: ms-friend
+  DOCKER_CONTAINER_NAME: ms-friend
+  DOCKER_TAG_FOR_BACKUP: backup
+  SERVER_USER: mvsbx
+  SERVER_HOST: 185.129.146.54
+  SERVER_PORT: 2222
+
+before_script:
+  - export IMAGE_TAG="${CI_COMMIT_TAG:-$CI_COMMIT_SHORT_SHA}"
+  - echo "Using image tag: $IMAGE_TAG"
+
+build_image:
+  stage: build
+  script:
+    - mvn clean package -DskipTest
+    - docker build -t $DOCKER_IMAGE_MS_FRIEND:$IMAGE_TAG .
+    - docker stop $DOCKER_CONTAINER_NAME
+    - docker rm $DOCKER_CONTAINER_NAME
+    - docker compose -f docker-compose-prod.yml
+    - docker login -u $DOCKER_USER_MS_FRIEND -p $DOCKER_PASSWORD_MS_FRIEND
+    - docker push $DOCKER_USER_MS_FRIEND/$DOCKER_IMAGE:$IMAGE_TAG
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
+deploy_to_server:
+  stage: deploy
+  script:
+    - cd /home/mvsbx/ms-friend
+    - docker commit $DOCKER_CONTAINER_NAME $DOCKER_USER_MS_FRIEND/$DOCKER_IMAGE_MS_FRIEND:backup-$(date +%F)
+    - docker stop $DOCKER_CONTAINER_NAME || echo "Контейнер уже остановлен"
+    - docker rm $DOCKER_CONTAINER_NAME || echo "Контейнер уже удален"
+    - docker pull $DOCKER_USER_MS_FRIEND/$DOCKER_IMAGE_MS_FRIEND:$IMAGE_TAG
+    - docker tag $DOCKER_IMAGE:$IMAGE_TAG mc-account:latest
+    - docker compose -f mc-account.yml up -d
+  only:
+    - master
