@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
 
-    <include file="src/main/resources/db/changelog/changelog_init.xml"/>
-
-    <include file="src/main/resources/db/changelog/create-sequence.xml"/>
-
-    <include file="src/main/resources/db/changelog/create-currency-table.xml"/>
-
-    <include file="src/main/resources/db/changelog/insert-currency.xml"/>
+    <include file="db/changelog/001-create-sequence.xml"/>
+    <include file="db/changelog/002-create-currency-table.xml"/>
+    <include file="db/changelog/003-insert-currency.xml"/>
 
 </databaseChangeLog>

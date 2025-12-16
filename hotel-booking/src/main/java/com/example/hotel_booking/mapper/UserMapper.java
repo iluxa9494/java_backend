@@ -6,19 +6,16 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
-import java.time.format.DateTimeFormatter;
-
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-
-    DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Mappings({
             @Mapping(source = "id", target = "id"),
             @Mapping(source = "username", target = "username"),
             @Mapping(source = "email", target = "email"),
             @Mapping(target = "role", source = "role.name"),
-            @Mapping(target = "createdAt", expression = "java(User.getCreatedAt().toString())")})
+            @Mapping(target = "createdAt", ignore = true)
+    })
     UserDto toDto(User user);
 
     @Mappings({

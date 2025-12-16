@@ -1,23 +1,44 @@
-version: "3.8"
-
 services:
-  currency_exchange:
-    build: .
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-
   postgres:
-    image: postgres:latest
+    image: postgres:15
+    container_name: currency_postgres
     environment:
+      POSTGRES_DB: currency
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: currency
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d currency"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  currency_exchange:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: currency_exchange
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "18080:8080"   # 8080 у тебя занят на хосте → выносим наружу на 18080
+    environment:
+      SERVER_PORT: "8080"
+
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/currency
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+      SPRING_LIQUIBASE_ENABLED: "true"
+      SPRING_LIQUIBASE_CHANGE_LOG: classpath:db/changelog/db.changelog-master.xml
+
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+    restart: unless-stopped
 
 volumes:
   postgres_data:

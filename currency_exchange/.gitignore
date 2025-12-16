@@ -13,7 +13,7 @@ gradle-app.setting
 
 ### Maven ###
 .mvn/
-target/
+../../target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 pom.xml.tag
