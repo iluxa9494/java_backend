@@ -1,34 +1,41 @@
-version: '3.8'
-
 services:
+  postgres:
+    image: postgres:16
+    container_name: searchengine-postgres
+    environment:
+      POSTGRES_DB: search_engine
+      POSTGRES_USER: search_engine_user
+      POSTGRES_PASSWORD: search_engine_password
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U search_engine_user -d search_engine"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - searchengine_pgdata:/var/lib/postgresql/data
+
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: searchengine-app
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
-      - "8082:8082"
+      - "18082:8082"
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/search_engine?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf-8&connectionCollation=utf8mb4_general_ci"
-      SPRING_DATASOURCE_USERNAME: "postgres"
-      SPRING_DATASOURCE_PASSWORD: "password"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: "none"
-      SPRING_LIQUIBASE_ENABLED: "true"
-      SPRING_LIQUIBASE_CHANGE_LOG: "classpath:db/changelog/db.changelog-master.yaml"
-    restart: unless-stopped
+      # Переопределяем то, что в application.yml сейчас указывает на localhost  [oai_citation:3‡project_dump.txt](sediment://file_0000000026f071f4aa286c049eabe31e)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/search_engine
+      SPRING_DATASOURCE_USERNAME: search_engine_user
+      SPRING_DATASOURCE_PASSWORD: search_engine_password
 
-  postgres:
-    image: postgres:13
-    container_name: searchengine-postgres
-    ports:
-      - "55432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: search_engine
+      # полезно для контейнера, чтобы Spring корректно биндился
+      SERVER_PORT: "8082"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
+      - ./logs:/app/logs
 
 volumes:
-  postgres_data:
+  searchengine_pgdata:
