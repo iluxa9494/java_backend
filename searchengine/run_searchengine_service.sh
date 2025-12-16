@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROJECT_NAME="searchengine"
 COMPOSE_FILE="docker-compose.yml"
-APP_URL="http://localhost:8082"
+APP_URL="http://localhost:18082"
 
 POSTGRES_CONTAINER="searchengine-postgres"
 APP_CONTAINER="searchengine-app"
