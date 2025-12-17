@@ -73,7 +73,11 @@ $RECYCLE.BIN/
 ### LINUX ###
 *~
 .nfs*
-
 !searchengine/local-repo/
 !searchengine/local-repo/**
 !searchengine/local-repo/**/*.jar
+
+### Allow Gradle Wrapper jar (required for CI Docker build) ###
+!tg_bot/gradle/wrapper/gradle-wrapper.jar
+!tg_bot/gradle/wrapper/gradle-wrapper.properties
+!tg_bot/gradle/wrapper/**
