@@ -1,5 +1,20 @@
-FROM openjdk:17-jdk-slim
+# Dockerfile
+FROM gradle:8.3-jdk17 AS app
+
 WORKDIR /app
-COPY build/libs/cryptoBot-0.0.1-SNAPSHOT.jar app.jar
-EXPOSE 8083
-CMD ["java", "-jar", "app.jar"]
+
+# 1) Копируем только то, что нужно для кеширования зависимостей
+COPY build.gradle settings.gradle gradlew ./
+COPY gradle ./gradle
+
+# 2) Прогреваем зависимости (ускоряет последующие сборки образа)
+RUN ./gradlew --no-daemon -v
+
+# 3) Копируем исходники
+COPY src ./src
+
+EXPOSE 8080
+
+# Важно: не делаем jar, а запускаем bootRun
+# Порт внутри контейнера: 8080 (по умолчанию у Spring Boot)
+CMD ["./gradlew", "--no-daemon", "bootRun"]
