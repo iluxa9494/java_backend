@@ -73,3 +73,7 @@ $RECYCLE.BIN/
 ### LINUX ###
 *~
 .nfs*
+
+!searchengine/local-repo/
+!searchengine/local-repo/**
+!searchengine/local-repo/**/*.jar
