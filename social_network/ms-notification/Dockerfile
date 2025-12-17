@@ -1,19 +1,19 @@
-FROM maven:3.9.9-eclipse-temurin-21 AS build
+FROM maven:3.9.9-eclipse-temurin-21
+
 WORKDIR /app
 
-COPY pom.xml .
-RUN mvn -q -B -DskipTests dependency:go-offline
+# Кеш зависимостей: сначала только pom, потом go-offline
+COPY pom.xml /app/pom.xml
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn -q -DskipTests dependency:go-offline
 
-COPY src ./src
-RUN mvn -q -B -DskipTests package
+# Исходники
+COPY src /app/src
 
-FROM eclipse-temurin:21-jre-alpine
-WORKDIR /app
+# Порт задаём аргументом (для удобства)
+ARG APP_PORT=8080
+EXPOSE ${APP_PORT}
 
-COPY --from=build /app/target/*.jar /app/app.jar
-
-EXPOSE 8083
-HEALTHCHECK --interval=30s --timeout=2s --start-period=30s --retries=5 \
-  CMD wget -qO- http://localhost:8083/actuator/health || exit 1
-
-ENTRYPOINT ["java","-XX:+UseContainerSupport","-XX:MaxRAMPercentage=75.0","-jar","/app/app.jar"]
+# Запуск без jar: прямо через Maven
+ENV MAVEN_OPTS="-XX:MaxRAMPercentage=75.0"
+CMD ["mvn", "-q", "-DskipTests", "spring-boot:run"]

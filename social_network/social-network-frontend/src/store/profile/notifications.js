@@ -173,7 +173,7 @@ export default {
           notifications: nextNotifications,
           totalPages,
           totalElements,
-        });ч
+        });
       }
     },
 

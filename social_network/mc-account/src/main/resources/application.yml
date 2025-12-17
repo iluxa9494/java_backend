@@ -6,63 +6,38 @@ spring:
     name: mc-account
 
   datasource:
-    url: jdbc:postgresql://postgres-db:5432/account_db
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres-db:5432/account_db}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:${DB_ACCOUNT_PASSWORD}}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
       ddl-auto: none
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
 
   kafka:
     consumer:
-      bootstrap-servers: kafka-broker:9092
+      bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
       group-id: mc-account-group
-      # Явно указываем StringDeserializer
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      # Разрешаем доверять всем пакетам (поскольку парсинг будет ручной)
       properties:
         spring.json.trusted.packages: "*"
     listener:
       missing-topics-fatal: false
 
-  cloud:
-    eureka:
-      client:
-        service-url:
-          defaultZone: ${eureka.client.service-url.defaultZone:http://ms-eureka:8761/eureka/}
-      instance:
-        prefer-ip-address: false
-
   data:
     redis:
-      host: ${REDIS_HOST:redis_db}
-      port: 6379
+      host: ${SPRING_DATA_REDIS_HOST:redis_db}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${SPRING_DATA_REDIS_PASSWORD:redis}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE:http://eureka-server:8761/eureka/}
 
 auth:
   service:
-    url: http://mc-authentication:8081
-
-liquibase:
-  change-log: classpath:/db/changelog/db.changelog-master.yaml
-
-logging:
-  level:
-    ru.skillbox.socialnetwork.account: INFO
-    ru.skillbox.socialnetwork.account.service: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.springframework.cache: TRACE
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %highlight(%-5level) - %cyan(%logger{36}) - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} - %-5level - %logger{36} - %msg%n"
-
-springdoc:
-  server-url: http://185.129.146.54:8765/api/v1/account
+    url: ${AUTH_SERVICE_URL:http://mc-authentication:8081}

@@ -1,0 +1,6 @@
+CREATE DATABASE auth_db;
+CREATE DATABASE account_db;
+CREATE DATABASE notification_db;
+CREATE DATABASE friend_db;
+CREATE DATABASE post_db;
+CREATE DATABASE dialog_db;

@@ -1,9 +1,19 @@
-﻿FROM eclipse-temurin:21-jre-alpine
+﻿FROM maven:3.9.9-eclipse-temurin-21
 
-VOLUME /tmp
+WORKDIR /app
 
-COPY target/mc-account-0.0.1-SNAPSHOT.jar app.jar
+# Кеш зависимостей: сначала только pom, потом go-offline
+COPY pom.xml /app/pom.xml
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn -q -DskipTests dependency:go-offline
 
-EXPOSE 8088
+# Исходники
+COPY src /app/src
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Порт задаём аргументом (для удобства)
+ARG APP_PORT=8080
+EXPOSE ${APP_PORT}
+
+# Запуск без jar: прямо через Maven
+ENV MAVEN_OPTS="-XX:MaxRAMPercentage=75.0"
+CMD ["mvn", "-q", "-DskipTests", "spring-boot:run"]

@@ -1,0 +1,119 @@
+name: Build & publish Docker images to GHCR
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ghcr-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  OWNER: ${{ github.repository_owner }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: currency-exchange
+            context: ./currency_exchange
+            dockerfile: ./currency_exchange/Dockerfile
+            image: java_backend-currency-exchange
+
+          - name: hotel-booking
+            context: ./hotel-booking
+            dockerfile: ./hotel-booking/Dockerfile
+            image: java_backend-hotel-booking
+
+          - name: searchengine
+            context: ./searchengine
+            dockerfile: ./searchengine/Dockerfile
+            image: java_backend-searchengine
+
+          - name: tariff-calculator
+            context: ./tariff_calculator
+            dockerfile: ./tariff_calculator/Dockerfile
+            image: java_backend-tariff-calculator
+
+          - name: tg-bot
+            context: ./tg_bot
+            dockerfile: ./tg_bot/Dockerfile
+            image: java_backend-tg-bot
+
+          # social_network microservices
+          - name: sn-api-gateway
+            context: ./social_network/api-gateway
+            dockerfile: ./social_network/api-gateway/Dockerfile
+            image: java_backend-social-network-api-gateway
+
+          - name: sn-auth-service
+            context: ./social_network/auth_service
+            dockerfile: ./social_network/auth_service/Dockerfile
+            image: java_backend-social-network-auth-service
+
+          - name: sn-notification-service
+            context: ./social_network/notification_service
+            dockerfile: ./social_network/notification_service/Dockerfile
+            image: java_backend-social-network-notification-service
+
+          - name: sn-post-service
+            context: ./social_network/post_service
+            dockerfile: ./social_network/post_service/Dockerfile
+            image: java_backend-social-network-post-service
+
+          - name: sn-user-service
+            context: ./social_network/user_service
+            dockerfile: ./social_network/user_service/Dockerfile
+            image: java_backend-social-network-user-service
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ matrix.image }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,format=short
+            type=ref,event=tag
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          platforms: linux/amd64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
