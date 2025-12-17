@@ -60,3 +60,19 @@ docker-compose.override.yml
 .env.development.local
 .env.test.local
 .env.production.local
+
+### Allow committed local deps for searchengine ###
+!searchengine/apache_lucene_morphology/
+!searchengine/apache_lucene_morphology/**
+
+!searchengine/local-repo/
+!searchengine/local-repo/**
+
+# Because *.jar is ignored globally, explicitly unignore jars inside these folders
+!searchengine/apache_lucene_morphology/**/*.jar
+!searchengine/local-repo/**/*.jar
+
+# (на всякий) если там есть pom/metadata
+!searchengine/local-repo/**/*.pom
+!searchengine/local-repo/**/*.xml
+!searchengine/local-repo/**/*.properties

@@ -60,3 +60,14 @@ docker-compose.override.yml
 .env.development.local
 .env.test.local
 .env.production.local
+
+### Allow committing tg_bot build artifacts (EXPLICIT) ###
+!searchengine/tg_bot/.gradle/
+!searchengine/tg_bot/.gradle/**
+
+!searchengine/tg_bot/build/
+!searchengine/tg_bot/build/**
+
+# если нужно коммитить логи (обычно не надо)
+!searchengine/tg_bot/logs/
+!searchengine/tg_bot/logs/**
