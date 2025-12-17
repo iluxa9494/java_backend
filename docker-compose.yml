@@ -1,0 +1,216 @@
+name: java-backend
+
+services:
+  # -----------------------------
+  # INFRA
+  # -----------------------------
+  postgres-sn:
+    image: postgres:16-alpine
+    container_name: jb-postgres-sn
+    environment:
+      POSTGRES_DB: social_network
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - jb_pgdata_sn:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d social_network -h localhost -p 5432"]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+    networks: [jb-net]
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: jb-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks: [jb-net]
+
+  kafka:
+    image: bitnami/kafka:3.7
+    container_name: jb-kafka
+    depends_on:
+      zookeeper:
+        condition: service_started
+    environment:
+      KAFKA_CFG_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093,PLAINTEXT_HOST://:19092"
+      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092"
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
+      KAFKA_CFG_NODE_ID: "1"
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_CFG_LOG_RETENTION_HOURS: "12"
+      KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+    ports:
+      - "9092:9092"
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+    networks: [jb-net]
+
+  akhq:
+    image: tchiotludo/akhq:0.24.0
+    container_name: jb-akhq
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            local:
+              properties:
+                bootstrap.servers: "kafka:9092"
+    ports:
+      - "8082:8080"
+    networks: [jb-net]
+
+  minio:
+    image: minio/minio:latest
+    container_name: jb-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio12345
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - jb_minio:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:9000/minio/health/live >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 3s
+      retries: 30
+    networks: [jb-net]
+
+  # -----------------------------
+  # APPS (GHCR)
+  #   IMPORTANT:
+  #   - GHCR_OWNER defaults to your GitHub username (iluxa9494)
+  #   - TAG defaults to latest
+  # -----------------------------
+
+  sn-api-gateway:
+    image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-social-network-api-gateway:${TAG:-latest}
+    container_name: jb-sn-api-gateway
+    depends_on:
+      postgres-sn:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=UTC"
+    ports:
+      - "8080:8080"
+    networks: [jb-net]
+
+  sn-auth-service:
+    profiles: ["social-network"]
+    image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-social-network-auth-service:${TAG:-latest}
+    container_name: jb-sn-auth
+    depends_on:
+      postgres-sn:
+        condition: service_healthy
+    env_file:
+      - ./social_network/mc-authentication/.env
+    environment:
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=UTC"
+    networks: [jb-net]
+
+  sn-notification-service:
+    profiles: ["social-network"]
+    image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-social-network-notification-service:${TAG:-latest}
+    container_name: jb-sn-notification
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres-sn:
+        condition: service_healthy
+    env_file:
+      - ./social_network/ms-notification/.env
+    environment:
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=UTC"
+    networks: [jb-net]
+
+  sn-post-service:
+    profiles: ["social-network"]
+    image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-social-network-post-service:${TAG:-latest}
+    container_name: jb-sn-post
+    depends_on:
+      postgres-sn:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    env_file:
+      - ./social_network/social-network-integration/.env
+    environment:
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=UTC"
+    networks: [jb-net]
+
+  sn-user-service:
+    profiles: ["social-network"]
+    image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-social-network-user-service:${TAG:-latest}
+    container_name: jb-sn-user
+    depends_on:
+      postgres-sn:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    env_file:
+      - ./social_network/social-network-friend-service/.env
+    environment:
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=UTC"
+    networks: [jb-net]
+
+  # -----------------------------
+  # OTHER PET PROJECTS (GHCR)
+  # -----------------------------
+  currency-exchange:
+    image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-currency-exchange:${TAG:-latest}
+    container_name: jb-currency-exchange
+    env_file:
+      - ./currency_exchange/.env
+    environment:
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=UTC"
+    networks: [jb-net]
+
+  hotel-booking:
+    image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-hotel-booking:${TAG:-latest}
+    container_name: jb-hotel-booking
+    env_file:
+      - ./hotel-booking/.env
+    environment:
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=UTC"
+    networks: [jb-net]
+
+  tg-bot:
+    image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-tg-bot:${TAG:-latest}
+    container_name: jb-tg-bot
+    env_file:
+      - ./tg_bot/.env
+    environment:
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=UTC"
+    networks: [jb-net]
+
+volumes:
+  jb_pgdata_sn:
+  jb_minio:
+
+networks:
+  jb-net:
+    driver: bridge
