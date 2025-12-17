@@ -1,20 +1,21 @@
-# Dockerfile
 FROM gradle:8.3-jdk17 AS app
 
 WORKDIR /app
 
-# 1) Копируем только то, что нужно для кеширования зависимостей
-COPY build.gradle settings.gradle gradlew ./
-COPY gradle ./gradle
+# 1) Копируем wrapper и gradle-скрипты отдельно (для кеша)
+COPY gradlew ./
+COPY gradle/ ./gradle/
+COPY settings.gradle build.gradle ./
 
-# 2) Прогреваем зависимости (ускоряет последующие сборки образа)
+# gradlew должен быть исполняемым в Linux runner
+RUN chmod +x ./gradlew
+
+# 2) Проверяем, что wrapper работает (упадёт, если нет gradle-wrapper.jar)
 RUN ./gradlew --no-daemon -v
 
 # 3) Копируем исходники
-COPY src ./src
+COPY src/ ./src/
 
 EXPOSE 8080
 
-# Важно: не делаем jar, а запускаем bootRun
-# Порт внутри контейнера: 8080 (по умолчанию у Spring Boot)
 CMD ["./gradlew", "--no-daemon", "bootRun"]
