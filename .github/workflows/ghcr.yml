@@ -26,6 +26,7 @@ jobs:
 
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         include:
           - name: currency-exchange
@@ -149,7 +150,9 @@ jobs:
             type=sha,format=short
             type=ref,event=tag
 
-      - name: Build and push
+      - name: Build and push (attempt 1)
+        id: build1
+        continue-on-error: true
         uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.context }}
@@ -160,3 +163,20 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          provenance: false
+          sbom: false
+
+      - name: Build and push (attempt 2)
+        if: steps.build1.outcome == 'failure'
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          platforms: linux/amd64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+          sbom: false
