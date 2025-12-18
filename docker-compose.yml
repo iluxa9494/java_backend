@@ -4,6 +4,8 @@ services:
   # -----------------------------
   # INFRA
   # -----------------------------
+
+  # Social Network DB
   postgres-sn:
     image: postgres:16-alpine
     container_name: jb-postgres-sn
@@ -12,13 +14,47 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - jb_pgdata_sn:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d social_network -h localhost -p 5432"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d social_network -h 127.0.0.1 -p 5432"]
       interval: 10s
       timeout: 3s
+      retries: 20
+    networks: [jb-net]
+
+  # Common DB for other pet projects (currency-exchange / hotel-booking / tg-bot)
+  postgres-apps:
+    image: postgres:16-alpine
+    container_name: jb-postgres-apps
+    environment:
+      POSTGRES_DB: apps
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - jb_pgdata_apps:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d apps -h 127.0.0.1 -p 5432"]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+    networks: [jb-net]
+
+  mongodb:
+    image: mongo:7
+    container_name: jb-mongodb
+    command: ["mongod", "--bind_ip_all"]
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - jb_mongo:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok' | grep 1 >/dev/null"]
+      interval: 10s
+      timeout: 5s
       retries: 20
     networks: [jb-net]
 
@@ -29,34 +65,35 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - "2181:2181"
+      - "127.0.0.1:2181:2181"
     networks: [jb-net]
 
+  # Kafka with Zookeeper (Confluent) — replaces unavailable bitnami/kafka
   kafka:
-    image: bitnami/kafka:3.7
+    image: confluentinc/cp-kafka:7.4.0
     container_name: jb-kafka
     depends_on:
       zookeeper:
         condition: service_started
     environment:
-      KAFKA_CFG_ZOOKEEPER_CONNECT: "zookeeper:2181"
-      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093,PLAINTEXT_HOST://:19092"
-      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092"
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT"
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
-      KAFKA_CFG_NODE_ID: "1"
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
-      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
-      KAFKA_CFG_LOG_RETENTION_HOURS: "12"
-      KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
-      KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
-      KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR: "1"
-      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+
+      # Internal-only (recommended for VPS); keep 9092 bound to localhost on host
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_LOG_RETENTION_HOURS: "12"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
     ports:
-      - "9092:9092"
+      - "127.0.0.1:9092:9092"
     healthcheck:
-      test: ["CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1"]
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server kafka:9092 --list >/dev/null 2>&1"]
       interval: 5s
       timeout: 5s
       retries: 40
@@ -76,7 +113,7 @@ services:
               properties:
                 bootstrap.servers: "kafka:9092"
     ports:
-      - "8082:8080"
+      - "127.0.0.1:8082:8080"
     networks: [jb-net]
 
   minio:
@@ -87,8 +124,8 @@ services:
       MINIO_ROOT_USER: minio
       MINIO_ROOT_PASSWORD: minio12345
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
     volumes:
       - jb_minio:/data
     healthcheck:
@@ -100,7 +137,6 @@ services:
 
   # -----------------------------
   # APPS (GHCR)
-  #   IMPORTANT:
   #   - GHCR_OWNER defaults to your GitHub username (iluxa9494)
   #   - TAG defaults to latest
   # -----------------------------
@@ -180,9 +216,13 @@ services:
   # -----------------------------
   # OTHER PET PROJECTS (GHCR)
   # -----------------------------
+
   currency-exchange:
     image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-currency-exchange:${TAG:-latest}
     container_name: jb-currency-exchange
+    depends_on:
+      postgres-apps:
+        condition: service_healthy
     env_file:
       - ./currency_exchange/.env
     environment:
@@ -192,6 +232,13 @@ services:
   hotel-booking:
     image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-hotel-booking:${TAG:-latest}
     container_name: jb-hotel-booking
+    depends_on:
+      postgres-apps:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     env_file:
       - ./hotel-booking/.env
     environment:
@@ -201,6 +248,9 @@ services:
   tg-bot:
     image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-tg-bot:${TAG:-latest}
     container_name: jb-tg-bot
+    depends_on:
+      postgres-apps:
+        condition: service_healthy
     env_file:
       - ./tg_bot/.env
     environment:
@@ -209,7 +259,9 @@ services:
 
 volumes:
   jb_pgdata_sn:
+  jb_pgdata_apps:
   jb_minio:
+  jb_mongo:
 
 networks:
   jb-net:
