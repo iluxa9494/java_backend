@@ -54,6 +54,11 @@ jobs:
             dockerfile: ./tg_bot/Dockerfile
             image: java_backend-tg-bot
 
+          - name: vk-insight
+            context: ./vk_insight
+            dockerfile: ./vk_insight/Dockerfile
+            image: java_backend-vk-insight
+
           # social_network microservices (REAL PATHS)
           - name: sn-api-gateway
             context: ./social_network/api-gateway
