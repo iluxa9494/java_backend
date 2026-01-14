@@ -64,15 +64,20 @@ telegram:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/cryptobot
-    username: bot_user
-    password: secure_password
+    url: jdbc:postgresql://${DB_HOST:postgres-apps}:${DB_PORT:5432}/${DB_NAME:apps}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
 ```
 
 Добавьте `.env` файл для удобной настройки:
 ```env
 TELEGRAM_BOT_USERNAME=MUR_BTCBot
 TELEGRAM_BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN
+DB_HOST=postgres-apps
+DB_PORT=5432
+DB_NAME=apps
+DB_USER=postgres
+DB_PASSWORD=postgres
 ```
 
 ---
