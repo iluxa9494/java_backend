@@ -357,6 +357,13 @@ services:
       - ./tg_bot/.env
     environment:
       JAVA_TOOL_OPTIONS: "-Duser.timezone=UTC"
+      # Страховка на случай, если в образе старый application.yml с localhost
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-apps:5432/${DB_NAME:-cryptobot}"
+      SPRING_DATASOURCE_USERNAME: "${DB_USER:-cryptobot}"
+      SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD:-cryptobot_password_123}"
+    volumes:
+      # Чтобы gradle/скрипты, которые ищут .env в /app, не ругались
+      - ./tg_bot/.env:/app/.env:ro
     networks: [jb-net]
 
 volumes:

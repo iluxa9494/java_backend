@@ -1,21 +1,28 @@
-FROM gradle:8.3-jdk17 AS app
-
+# ===== Build stage =====
+FROM gradle:8.3-jdk17 AS build
 WORKDIR /app
 
-# 1) Копируем wrapper и gradle-скрипты отдельно (для кеша)
+# Для кеша зависимостей
 COPY gradlew ./
 COPY gradle/ ./gradle/
 COPY settings.gradle build.gradle ./
-
-# gradlew должен быть исполняемым в Linux runner
 RUN chmod +x ./gradlew
-
-# 2) Проверяем, что wrapper работает (упадёт, если нет gradle-wrapper.jar)
 RUN ./gradlew --no-daemon -v
 
-# 3) Копируем исходники
+# Исходники
 COPY src/ ./src/
 
-EXPOSE 8080
+# Собираем jar
+RUN ./gradlew --no-daemon clean bootJar
 
-CMD ["./gradlew", "--no-daemon", "bootRun"]
+# ===== Runtime stage =====
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+
+# Копируем собранный jar
+COPY --from=build /app/build/libs/*.jar /app/app.jar
+
+EXPOSE 8083
+
+# Запуск
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
