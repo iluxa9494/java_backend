@@ -3,7 +3,7 @@
 Этот репозиторий объединяет 6 Java (и Node.js) pet-проектов Ильи в единую инфраструктуру, запускаемую через `docker-compose.full.yml`. Все сервисы работают на отдельных портах и используют свои базы данных.
 
 ---
-## ⚡️ Быстрый старт
+##  Быстрый старт
 
 ### 1. Клонируй репозиторий (если не сделал)
 ```bash
@@ -17,20 +17,48 @@ sudo apt update
 sudo apt install docker.io docker-compose -y
 ```
 
-### 3. Запусти все сервисы
+### 3. Запусти все сервисы локально (скрипт-оркестратор)
 ```bash
-chmod +x start_all.sh stop_all.sh
-./start_all.sh
+chmod +x run_all_services.sh
+./run_all_services.sh
 ```
 
-### 4. Останови все сервисы
+### 4. Останови все сервисы локально
 ```bash
-./stop_all.sh
+docker compose down
 ```
 
 ---
+## VPS запуск (docker-compose.yml)
 
-## 🚀 Запускаемые проекты и порты
+В корне репозитория есть `docker-compose.yml` под VPS-инфру (GHCR-образы).
+
+```bash
+chmod +x start_vps.sh stop_vps.sh
+./start_vps.sh
+```
+
+Остановить:
+```bash
+./stop_vps.sh
+```
+
+Переменные:
+- `GHCR_OWNER` — владелец образов (по умолчанию `iluxa9494`)
+- `TAG` — тег образа (по умолчанию `latest`)
+- `PROFILES` — список профилей (по умолчанию `social-network`)
+
+Порты на VPS (соответствуют конфигу Nginx):
+- currency-exchange: `127.0.0.1:8001`
+- hotel-booking: `127.0.0.1:8002`
+- social-network api-gateway: `127.0.0.1:8003`
+- akhq: `127.0.0.1:8004`
+- minio: `127.0.0.1:8005`
+- minio-console: `127.0.0.1:8006`
+
+---
+
+## Запускаемые проекты и порты
 
 | Проект              | Описание                                        | Порт   |
 |---------------------|-------------------------------------------------|--------|
@@ -44,7 +72,7 @@ chmod +x start_all.sh stop_all.sh
 
 ---
 
-## 🔐 Переменные окружения
+## Переменные окружения
 
 Каждый проект использует **свой `.env` файл**. Примеры:
 
@@ -65,7 +93,7 @@ POSTGRES_PASSWORD=secure_password
 - `tariff calculator/.env`
 ---
 
-## 🔄 Логика
+## Логика
 - Каждый сервис работает в своём контейнере
 - Каждая БД — в отдельном контейнере (PostgreSQL, MySQL, MongoDB, Kafka)
 - Все они объединены в одну виртуальную сеть через Docker Compose
@@ -73,7 +101,7 @@ POSTGRES_PASSWORD=secure_password
 
 ---
 
-## 📈 Мониторинг / Логи
+## Мониторинг / Логи
 - Docker логи можно просматривать командой:
 ```bash
 docker logs <имя_контейнера> -f
