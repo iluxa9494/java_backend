@@ -66,6 +66,25 @@ services:
       retries: 20
     networks: [jb-net]
 
+  mysql:
+    image: mysql:8.4
+    container_name: jb-mysql
+    environment:
+      MYSQL_DATABASE: vk_insight
+      MYSQL_USER: vk_insight
+      MYSQL_PASSWORD: vk_insight_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - jb_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks: [jb-net]
+
   redis_db:
     image: redis:7-alpine
     container_name: jb-redis
@@ -366,11 +385,24 @@ services:
       - ./tg_bot/.env:/app/.env:ro
     networks: [jb-net]
 
+  vk-insight:
+    image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-vk-insight:${TAG:-latest}
+    container_name: jb-vk-insight
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file:
+      - ./vk_insight/.env
+    ports:
+      - "0.0.0.0:8084:8084"
+    networks: [jb-net]
+
 volumes:
   jb_pgdata_sn:
   jb_pgdata_apps:
   jb_minio:
   jb_mongo:
+  jb_mysql:
 
 networks:
   jb-net:
