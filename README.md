@@ -17,31 +17,16 @@ sudo apt update
 sudo apt install docker.io docker-compose -y
 ```
 
-### 3. Запусти все сервисы локально (скрипт-оркестратор)
-```bash
-chmod +x run_all_services.sh
-./run_all_services.sh
-```
-
-### 4. Останови все сервисы локально
+### 3. Останови сервисы локально (если поднимали вручную)
 ```bash
 docker compose down
 ```
 
 ---
-## VPS запуск (docker-compose.yml)
+## VPS запуск
 
-В корне репозитория есть `docker-compose.yml` под VPS-инфру (GHCR-образы).
-
-```bash
-chmod +x start_vps.sh stop_vps.sh
-./start_vps.sh
-```
-
-Остановить:
-```bash
-./stop_vps.sh
-```
+Запуск всех контейнеров происходит в родительском infra-репозитории через `bootstrap.sh`.
+Этот репозиторий содержит только `docker-compose.yml`, который копируется в `/home/pet_projects/java_backend`.
 
 Переменные:
 - `GHCR_OWNER` — владелец образов (по умолчанию `iluxa9494`)
