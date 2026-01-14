@@ -164,7 +164,7 @@ services:
               properties:
                 bootstrap.servers: "kafka:9092"
     ports:
-      - "127.0.0.1:8004:8080"
+      - "127.0.0.1:8080:8080"
     networks: [jb-net]
 
   minio:
@@ -175,8 +175,8 @@ services:
       MINIO_ROOT_USER: minio
       MINIO_ROOT_PASSWORD: minio12345
     ports:
-      - "127.0.0.1:8005:9000"
-      - "127.0.0.1:8006:9001"
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
     volumes:
       - jb_minio:/data
     healthcheck:
@@ -429,7 +429,7 @@ services:
       SPRING_DATASOURCE_USERNAME: "${SEARCHENGINE_DB_USER:-search_engine_user}"
       SPRING_DATASOURCE_PASSWORD: "${SEARCHENGINE_DB_PASSWORD:-postgres}"
     ports:
-      - "0.0.0.0:${SEARCHENGINE_APP_PORT:-18082}:8082"
+      - "127.0.0.1:8004:8082"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8082/api/statistics >/dev/null"]
       interval: 10s
