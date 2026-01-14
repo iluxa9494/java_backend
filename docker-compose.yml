@@ -93,6 +93,25 @@ services:
       - "127.0.0.1:6379:6379"
     networks: [jb-net]
 
+  # Searchengine DB
+  postgres-searchengine:
+    image: postgres:16-alpine
+    container_name: jb-postgres-searchengine
+    environment:
+      POSTGRES_DB: ${SEARCHENGINE_DB_NAME:-search_engine}
+      POSTGRES_USER: ${SEARCHENGINE_DB_USER:-search_engine_user}
+      POSTGRES_PASSWORD: ${SEARCHENGINE_DB_PASSWORD:-postgres}
+    ports:
+      - "127.0.0.1:${SEARCHENGINE_DB_PORT:-5434}:5432"
+    volumes:
+      - jb_pgdata_searchengine:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${SEARCHENGINE_DB_USER:-search_engine_user} -d ${SEARCHENGINE_DB_NAME:-search_engine} -h 127.0.0.1 -p 5432"]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+    networks: [jb-net]
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
     container_name: jb-zookeeper
@@ -394,12 +413,34 @@ services:
     env_file:
       - ./vk_insight/.env
     ports:
-      - "0.0.0.0:8084:8084"
+      - "0.0.0.0:8005:8084"
+    networks: [jb-net]
+
+  searchengine:
+    profiles: ["searchengine"]
+    image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-searchengine:${TAG:-latest}
+    container_name: jb-searchengine
+    depends_on:
+      postgres-searchengine:
+        condition: service_healthy
+    environment:
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=UTC"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-searchengine:5432/${SEARCHENGINE_DB_NAME:-search_engine}"
+      SPRING_DATASOURCE_USERNAME: "${SEARCHENGINE_DB_USER:-search_engine_user}"
+      SPRING_DATASOURCE_PASSWORD: "${SEARCHENGINE_DB_PASSWORD:-postgres}"
+    ports:
+      - "0.0.0.0:${SEARCHENGINE_APP_PORT:-18082}:8082"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8082/api/statistics >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
     networks: [jb-net]
 
 volumes:
   jb_pgdata_sn:
   jb_pgdata_apps:
+  jb_pgdata_searchengine:
   jb_minio:
   jb_mongo:
   jb_mysql:

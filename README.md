@@ -45,14 +45,14 @@ docker compose down
 
 ## Запускаемые проекты и порты
 
-| Проект              | Описание                                        | Порт   |
-|---------------------|-------------------------------------------------|--------|
-| `currency_exchange` | Обмен валют с PostgreSQL                        | `8080` |
-| `hotel-booking`     | Бронирование отелей, Kafka + Mongo + PostgreSQL | `8081` |
-| `searchengine`      | Индексация сайтов, MySQL                        | `8082` |
-| `tg_bot`            | Telegram-бот криптоаналитики                    | `8083` |
-| `vk_insight`        | Аналитика VK, Node.js + MySQL                   | `8084` |
-| `tariff calculator` | Расчёт стоимости доставки                       | `8085` |
+| Проект              | Описание                                        | Порт |
+|---------------------|-------------------------------------------------|------|
+| `currency_exchange` | Обмен валют с PostgreSQL                        | ` `  |
+| `hotel-booking`     | Бронирование отелей, Kafka + Mongo + PostgreSQL | ` `  |
+| `searchengine`      | Индексация сайтов, MySQL                        | ` `  |
+| `tg_bot`            | Telegram-бот криптоаналитики                    | ` `  |
+| `vk_insight`        | Аналитика VK, Node.js + MySQL                   | ` `  |
+| `tariff calculator` | Расчёт стоимости доставки                       | ` `  |
 
 
 ---
