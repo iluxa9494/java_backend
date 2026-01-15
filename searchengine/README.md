@@ -69,11 +69,11 @@ server:
 ```bash
 # Из корня репозитория
 # Параметры можно переопределить в .env (SEARCHENGINE_* переменные)
-docker compose --profile searchengine pull
-docker compose --profile searchengine up -d
+docker compose -p java-backend --profile searchengine pull
+docker compose -p java-backend --profile searchengine up -d
 ```
 
-Порт по умолчанию: `http://localhost:18082`
+Порт по умолчанию: `http://localhost:8004`
 
 ---
 

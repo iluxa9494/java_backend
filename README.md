@@ -1,6 +1,6 @@
 # java_backend (Monorepo Docker Compose Setup)
 
-Этот репозиторий объединяет 6 Java (и Node.js) pet-проектов Ильи в единую инфраструктуру, запускаемую через `docker-compose.full.yml`. Все сервисы работают на отдельных портах и используют свои базы данных.
+Этот репозиторий объединяет 6 Java (и Node.js) pet-проектов Ильи в единую инфраструктуру, запускаемую через `docker-compose.yml`. Все сервисы работают на отдельных портах и используют свои базы данных.
 
 ---
 ##  Быстрый старт
@@ -19,7 +19,7 @@ sudo apt install docker.io docker-compose -y
 
 ### 3. Останови сервисы локально (если поднимали вручную)
 ```bash
-docker compose down
+docker compose -p java-backend down
 ```
 
 ---
@@ -27,6 +27,7 @@ docker compose down
 
 Запуск всех контейнеров происходит в родительском infra-репозитории через `bootstrap.sh`.
 Этот репозиторий содержит только `docker-compose.yml`, который копируется в `/home/pet_projects/java_backend`.
+Для избежания конфликтов имён используем единый проект: `COMPOSE_PROJECT_NAME=java-backend` или `docker compose -p java-backend ...`.
 
 Переменные:
 - `GHCR_OWNER` — владелец образов (по умолчанию `iluxa9494`)
@@ -34,12 +35,16 @@ docker compose down
 - `PROFILES` — список профилей (по умолчанию `social-network`)
 
 Порты на VPS (соответствуют конфигу Nginx):
+- portfolio: `127.0.0.1:8000`
 - currency-exchange: `127.0.0.1:8001`
 - hotel-booking: `127.0.0.1:8002`
 - social-network api-gateway: `127.0.0.1:8003`
-- akhq: `127.0.0.1:8004`
-- minio: `127.0.0.1:8005`
-- minio-console: `127.0.0.1:8006`
+- searchengine: `127.0.0.1:8004`
+- tariff-calculator: `127.0.0.1:8006`
+- vk-insight: `127.0.0.1:8007`
+- akhq: `127.0.0.1:8080`
+- minio: `127.0.0.1:9000`
+- minio-console: `127.0.0.1:9001`
 
 ---
 
@@ -47,12 +52,12 @@ docker compose down
 
 | Проект              | Описание                                        | Порт |
 |---------------------|-------------------------------------------------|------|
-| `currency_exchange` | Обмен валют с PostgreSQL                        | ` `  |
-| `hotel-booking`     | Бронирование отелей, Kafka + Mongo + PostgreSQL | ` `  |
-| `searchengine`      | Индексация сайтов, MySQL                        | ` `  |
-| `tg_bot`            | Telegram-бот криптоаналитики                    | ` `  |
-| `vk_insight`        | Аналитика VK, Node.js + MySQL                   | ` `  |
-| `tariff calculator` | Расчёт стоимости доставки                       | ` `  |
+| `currency_exchange` | Обмен валют с PostgreSQL                        | `8001`  |
+| `hotel-booking`     | Бронирование отелей, Kafka + Mongo + PostgreSQL | `8002`  |
+| `searchengine`      | Индексация сайтов, PostgreSQL                   | `8004`  |
+| `tg_bot`            | Telegram-бот криптоаналитики                    | `—`  |
+| `vk_insight`        | Аналитика VK, Node.js + MySQL                   | `8007`  |
+| `tariff calculator` | Расчёт стоимости доставки                       | `8006`  |
 
 
 ---
@@ -89,9 +94,9 @@ POSTGRES_PASSWORD=secure_password
 ## Мониторинг / Логи
 - Docker логи можно просматривать командой:
 ```bash
-docker logs <имя_контейнера> -f
+docker compose -p java-backend logs -f <service>
 ```
-- Все контейнеры именованы: `currency_exchange`, `hotel_booking`, `searchengine`, `tg_bot`, `vk_insight`, и т.д.
+- Имена контейнеров генерирует Docker Compose, обращаемся к сервисам по имени.
 
 ---
 **Автор:** Ilia Murashkin

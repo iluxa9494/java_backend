@@ -49,7 +49,7 @@ cd tg_bot
 
 #### ✅ Запуск через Docker
 ```bash
-docker-compose up --build
+docker compose -p java-backend up -d tg-bot
 ```
 
 ---
