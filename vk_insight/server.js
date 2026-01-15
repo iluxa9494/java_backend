@@ -6,6 +6,7 @@ const path = require('path');
 const { VK } = require('vk-io');
 
 const app = express();
+app.disable('x-powered-by');
 const PORT = Number(process.env.PORT || 3000);
 const BASE_PATH = (process.env.BASE_PATH || '').trim();
 const normalizedBasePath = BASE_PATH
@@ -44,8 +45,8 @@ const dbConfig = {
 
 const db = mysql.createPool(dbConfig);
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: '1mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '1mb' }));
 
 if (normalizedBasePath) {
   app.use((req, res, next) => {
@@ -106,16 +107,31 @@ async function get_interest_by_group(user_id, group_count = 100) {
 
 /** Отправка сообщений */
 app.post('/send-message', async (req, res) => {
-  const data = req.body; // data[0] = сообщение, далее массивы строк
+  if (!global.vk) {
+    return res.status(400).send('VK API не инициализирован.');
+  }
+
+  const data = Array.isArray(req.body) ? req.body : [];
+  const messageTemplate = data[0];
+  const rows = data.slice(1).filter(row => Array.isArray(row) && row.length >= 2);
+
+  if (typeof messageTemplate !== 'string' || messageTemplate.trim() === '') {
+    return res.status(400).send('Сообщение не задано.');
+  }
+
+  if (rows.length === 0) {
+    return res.status(400).send('Нет получателей.');
+  }
+
   try {
-    const promises = data.map(async ([text, id, ...userInfo], index) => {
+    const promises = rows.map(async ([text, id, ...userInfo], index) => {
       // Каждые 4 сообщения — пауза, чтобы не упираться в ограничения
       if (index % 4 === 0) {
         await new Promise(resolve => setTimeout(resolve, 1020));
       }
       await global.vk.api.messages.send({
         user_id: parseInt(id, 10),
-        message: data[0].split("Имя Фамилия").join(`${userInfo[0]} ${userInfo[1]}`),
+        message: messageTemplate.split("Имя Фамилия").join(`${userInfo[0]} ${userInfo[1]}`),
         random_id: Date.now()
       });
       // Удаляем запись из БД (если хотите), чтобы не отправлять повторно
@@ -130,12 +146,29 @@ app.post('/send-message', async (req, res) => {
 });
 
 /** Поиск пользователей */
+function getGroupId(groupUrl) {
+  if (!groupUrl || typeof groupUrl !== 'string') return null;
+  const parts = groupUrl.split('/').filter(Boolean);
+  return parts.length ? parts[parts.length - 1] : null;
+}
+
 app.post('/search', async (req, res) => {
   const { apiVk, groupUrl, age, sex, city } = req.body;
+  const groupId = getGroupId(groupUrl);
+  const parsedAge = parseInt(age, 10);
+
+  if (!apiVk || typeof apiVk !== 'string') {
+    return res.status(400).send('API токен не задан.');
+  }
+  if (!groupId) {
+    return res.status(400).send('Некорректная ссылка на группу.');
+  }
+  if (Number.isNaN(parsedAge) || parsedAge <= 0) {
+    return res.status(400).send('Некорректный возраст.');
+  }
+
   global.apiVk = apiVk;
   global.vk = new VK({ token: global.apiVk });
-
-  const groupId = groupUrl.split('/').pop();
   try {
     let offset = 0;
     const members = [];
