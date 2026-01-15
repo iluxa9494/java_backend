@@ -34,12 +34,15 @@ app.get('/progress', (req, res) => {
   });
 });
 
-const db = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'root',
-  database: 'vk_users'
-});
+const dbConfig = {
+  host: process.env.DB_HOST || 'localhost',
+  port: Number(process.env.DB_PORT || 3306),
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || 'root',
+  database: process.env.DB_NAME || 'vk_insight'
+};
+
+const db = mysql.createPool(dbConfig);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -59,6 +62,15 @@ if (normalizedBasePath) {
 }
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/health', async (req, res) => {
+  try {
+    await db.query('SELECT 1');
+    res.status(200).send('ok');
+  } catch (err) {
+    res.status(500).send('db error');
+  }
+});
 
 /** Вспомогательная функция, получающая группы, где состоит userId */
 async function getUserGroups(userId, count, offset = 0) {
