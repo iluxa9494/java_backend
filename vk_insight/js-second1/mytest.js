@@ -77,6 +77,24 @@ async function start() {
   await exportInterests(pool);
 
   const server = http.createServer(async (req, res) => {
+    if (req.url === '/') {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.end(`<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VK Insight</title>
+  </head>
+  <body>
+    <h1>VK Insight</h1>
+    <p>Service is running.</p>
+  </body>
+</html>`);
+      return;
+    }
+
     if (req.url && req.url.startsWith('/health')) {
       try {
         await pool.query('SELECT 1');
