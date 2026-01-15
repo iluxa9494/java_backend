@@ -132,6 +132,7 @@
     }
 
     .input-with-tooltip {
+      position: relative;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -151,6 +152,40 @@
       font-weight: 600;
       cursor: help;
       flex: 0 0 auto;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .tooltip-content {
+      position: absolute;
+      left: calc(100% + 8px);
+      top: 50%;
+      transform: translateY(-50%);
+      min-width: 240px;
+      max-width: 320px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.85);
+      color: #fff;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      display: none;
+      z-index: 10;
+    }
+
+    .tooltip-content a {
+      color: #bb86fc;
+      text-decoration: none;
+    }
+
+    .tooltip-content a:hover {
+      text-decoration: underline;
+    }
+
+    .input-with-tooltip.tooltip-open .tooltip-content {
+      display: block;
     }
 
     .form-group input:focus,
@@ -383,9 +418,13 @@
       <form id="search-form">
         <div class="form-group">
           <label for="api-vk">API ВК</label>
-          <div class="input-with-tooltip">
+          <div class="input-with-tooltip" id="api-vk-tooltip">
             <input type="text" id="api-vk" name="apiVk" placeholder="Введите API ВК" required />
-            <span class="inline-tooltip" title="To obtain a token, visit the generator: https://vkserv.ru/api/inst/token">i</span>
+            <button type="button" class="inline-tooltip" aria-label="Token generator help">i</button>
+            <div class="tooltip-content">
+              To obtain a token, visit the generator:
+              <a href="https://vkserv.ru/api/inst/token" target="_blank" rel="noopener">https://vkserv.ru/api/inst/token</a>
+            </div>
           </div>
         </div>
         <div class="form-group">
@@ -915,6 +954,26 @@
 
     // Обработчик на кнопку "Добавить классификацию"
     document.getElementById('add-classification').addEventListener('click', addManualClassification);
+
+    // Tooltip toggle for API token help
+    const apiVkTooltip = document.getElementById('api-vk-tooltip');
+    const apiVkTooltipButton = apiVkTooltip?.querySelector('.inline-tooltip');
+    if (apiVkTooltip && apiVkTooltipButton) {
+      apiVkTooltipButton.addEventListener('click', e => {
+        e.stopPropagation();
+        apiVkTooltip.classList.toggle('tooltip-open');
+      });
+
+      document.addEventListener('click', () => {
+        apiVkTooltip.classList.remove('tooltip-open');
+      });
+
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+          apiVkTooltip.classList.remove('tooltip-open');
+        }
+      });
+    }
   </script>
 </body>
 </html>
