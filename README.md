@@ -46,6 +46,9 @@ docker compose -p java-backend down
 - minio: `127.0.0.1:9000`
 - minio-console: `127.0.0.1:9001`
 
+Маршруты Nginx (важно для health):
+- `/vk-insight/health` -> `http://127.0.0.1:8007/health`
+
 ---
 
 ## Запускаемые проекты и порты
@@ -97,6 +100,19 @@ POSTGRES_PASSWORD=secure_password
 docker compose -p java-backend logs -f <service>
 ```
 - Имена контейнеров генерирует Docker Compose, обращаемся к сервисам по имени.
+- Для БД используем сервисные имена, без хардкода контейнеров:
+```bash
+docker compose -p java-backend exec mysql mysql -uroot -p
+```
+
+---
+## Диагностика vk-insight (с хоста)
+Проверки выполняем с VPS, без `exec` внутрь контейнеров.
+
+```bash
+curl -fsS http://127.0.0.1:8007/health
+curl -i http://127.0.0.1:8007/
+```
 
 ---
 **Автор:** Ilia Murashkin
