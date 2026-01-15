@@ -68,7 +68,6 @@ services:
 
   mysql:
     image: mysql:8.4
-    container_name: jb-mysql
     environment:
       MYSQL_DATABASE: vk_insight
       MYSQL_USER: vk_insight
@@ -78,6 +77,7 @@ services:
       - "127.0.0.1:3306:3306"
     volumes:
       - jb_mysql:/var/lib/mysql
+      - ./vk_insight/db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD >/dev/null"]
       interval: 10s
@@ -353,6 +353,16 @@ services:
   # OTHER PET PROJECTS (GHCR)
   # -----------------------------
 
+  tariff-calculator:
+    image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-tariff-calculator:${TAG:-latest}
+    build: ./tariff_calculator
+    container_name: jb-tariff-calculator
+    environment:
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=UTC"
+    ports:
+      - "127.0.0.1:8006:8080"
+    networks: [jb-net]
+
   currency-exchange:
     image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-currency-exchange:${TAG:-latest}
     container_name: jb-currency-exchange
@@ -406,14 +416,13 @@ services:
 
   vk-insight:
     image: ghcr.io/${GHCR_OWNER:-iluxa9494}/java_backend-vk-insight:${TAG:-latest}
-    container_name: jb-vk-insight
     depends_on:
       mysql:
         condition: service_healthy
     env_file:
       - ./vk_insight/.env
     ports:
-      - "0.0.0.0:8005:8084"
+      - "0.0.0.0:8007:8084"
     networks: [jb-net]
 
   searchengine:
