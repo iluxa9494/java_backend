@@ -1,0 +1,23 @@
+-- Удаление базы данных, если она существует
+DROP DATABASE IF EXISTS vk_users;
+-- Создание базы данных 
+CREATE DATABASE vk_users CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE vk_users;
+
+CREATE TABLE users (
+  id BIGINT NOT NULL,
+  first_name VARCHAR(255) NOT NULL,
+  last_name VARCHAR(255) NOT NULL,
+  age INT,
+  sex INT,
+  city VARCHAR(255),
+  interests TEXT,
+  universities TEXT,
+  schools TEXT,
+  education TEXT,
+  education_level TEXT,
+  is_active BOOLEAN,
+  posts_recent TINYINT,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

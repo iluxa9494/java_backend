@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройки, Анализ и Сообщения</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" type="image/png">
+    <style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    background: linear-gradient(135deg, #cfe2f3, #ffffff);
+    color: #333;
+}
+
+.wrapper {
+    display: flex;
+    width: 300vw;
+    height: 100vh;
+    transition: transform 0.5s ease;
+}
+
+.page {
+    width: 100vw;
+    padding: 20px;
+    box-sizing: border-box;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow-y: auto;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #007BFF;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+h1 {
+    margin-top: 80px;
+    margin-bottom: 20px;
+    color: #0056b3;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+    width: 80%;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #004085;
+    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.form-group button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
+    transition: background 0.3s ease;
+}
+
+.form-group button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 6px 8px rgba(0, 86, 179, 0.3);
+}
+
+.table-container {
+    width: 100%;
+    max-width: 1200px;
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+    color: #333;
+}
+
+th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.users-table-container {
+    max-height: 70vh;
+    overflow-y: auto;
+    width: 100%;
+}
+
+button:focus, input:focus, textarea:focus {
+    outline: none;
+    box-shadow: 0 0 5px #007bff;
+}
+
+</style>
+</head>
+<body>
+    <div class="header" id="header">Настройки приложения</div>
+
+    <div class="wrapper">
+        <div class="page settings-page">
+            <h1>Настройки приложения</h1>
+            <form id="search-form">
+                <div class="form-group">
+                    <label for="api-vk">API ВК</label>
+                    <input type="text" id="api-vk" name="apiVk" placeholder="Введите API ВК" required>
+                </div>
+                <div class="form-group">
+                    <label for="group-url">Ссылка на группу</label>
+                    <input type="text" id="group-url" name="groupUrl" placeholder="Введите ссылку на группу" required>
+                </div>
+                <div class="form-group">
+                    <label for="age">Возраст</label>
+                    <input type="number" id="age" name="age" placeholder="Введите возраст" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit">Поиск</button>
+                </div>
+                <div class="form-group">
+                    <button id="analysis-button">Анализ</button>
+                </div>
+            </form>
+            <div class="form-group">
+                <label>Количество добавленных пользователей в базу:</label>
+                <span id="user-count">0</span>
+            </div>
+        </div>
+
+        <div class="page analysis-page">
+            <h1>Анализ данных</h1>
+            <div class="form-group">
+                <button id="settings-button">Настройки приложения</button>
+            </div>
+            <div class="form-group">
+                <button id="message-button">Отправка сообщений</button>
+            </div>
+            <div class="form-group">
+                <button id="load-users">Загрузить пользователей из БД</button>
+            </div>
+            <div class="form-group">
+                <label for="filter-interests">Фильтр по интересам</label>
+                <input type="text" id="filter-interests" placeholder="Введите интерес">
+            </div>
+            <div class="form-group">
+                <label for="filter-age">Фильтр по возрасту</label>
+                <input type="number" id="filter-age" placeholder="Введите возраст">
+            </div>
+            <div class="users-table-container">
+                <table id="users-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" onclick="toggleAllCheckboxes(this)" /></th>
+                            <th>ID</th>
+                            <th>Имя</th>
+                            <th>Фамилия</th>
+                            <th>Возраст</th>
+                            <th>Интересы</th>
+                            <th>Пол</th>
+                            <th>Город</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="page message-page">
+            <h1>Отправка сообщений</h1>
+            <div class="form-group">
+                <textarea id="message-input" rows="5" placeholder="Введите сообщение"></textarea>
+            </div>
+            <div class="form-group">
+                <button id="send-message">Отправить сообщение</button>
+            </div>
+            <div class="form-group">
+                <button id="back-to-analysis">Вернуться к анализу</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const wrapper = document.querySelector('.wrapper');
+    const header = document.getElementById('header');
+    const analysisButton = document.getElementById('analysis-button');
+    const settingsButton = document.getElementById('settings-button');
+    const messageButton = document.getElementById('message-button');
+    const backToAnalysisButton = document.getElementById('back-to-analysis');
+    const userCountElement = document.getElementById('user-count');
+    const loadUsersButton = document.getElementById('load-users');
+    const filterInterestsInput = document.getElementById('filter-interests');
+    const filterAgeInput = document.getElementById('filter-age');
+    const usersTableBody = document.querySelector('#users-table tbody');
+
+    const pages = ['Настройки приложения', 'Анализ данных', 'Отправка сообщений'];
+
+    analysisButton.addEventListener('click', () => {
+        wrapper.style.transform = 'translateX(-100vw)';
+        header.textContent = pages[1];
+    });
+
+    settingsButton.addEventListener('click', () => {
+        wrapper.style.transform = 'translateX(0)';
+        header.textContent = pages[0];
+    });
+
+    messageButton.addEventListener('click', () => {
+        wrapper.style.transform = 'translateX(-200vw)';
+        header.textContent = pages[2];
+    });
+
+    backToAnalysisButton.addEventListener('click', () => {
+        wrapper.style.transform = 'translateX(-100vw)';
+        header.textContent = pages[1];
+    });
+
+    document.getElementById('search-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const apiVk = document.getElementById('api-vk').value;
+        const groupUrl = document.getElementById('group-url').value;
+        const age = document.getElementById('age').value;
+
+        try {
+            const response = await fetch('/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ apiVk, groupUrl, age }),
+            });
+
+            const data = await response.json();
+            alert(`Добавлено пользователей: ${data.addedCount}`);
+            updateUserCount();
+        } catch (error) {
+            console.error('Ошибка при добавлении пользователей:', error);
+        }
+    });
+
+    document.getElementById('send-message').addEventListener('click', () => {
+        const message = document.getElementById('message-input').value;
+        if (message.trim() === '') {
+            alert('Сообщение не может быть пустым!');
+        } else {
+            const rows = document.querySelectorAll('tbody tr');
+            const data = [];
+            text = document.getElementById('message-input').value;
+            data.push(text);
+            rows.forEach(row => {
+                const cells = row.getElementsByTagName('td');
+                const rowData = [];
+
+
+                const checkbox = row.querySelector('input[type="checkbox"]');
+                if (checkbox && checkbox.checked) {
+                    for (let i = 0; i < cells.length; i++) {
+                        rowData.push(cells[i].textContent);
+                    }
+
+                    data.push(rowData);
+                }
+
+    });
+            
+            fetch('http://localhost:3000/send-message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Server response:', data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            alert(`Сообщение отправлено!`);
+            
+        }
+    });
+
+    loadUsersButton.addEventListener('click', async function () {
+        try {
+            const response = await fetch('/load-users');
+            const users = await response.json();
+            usersTableBody.innerHTML = ''; 
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                const sex = user.sex === 1 ? 'Женский' : user.sex === 2 ? 'Мужской' : 'Не указан';
+                row.innerHTML = `
+                    <td><input type="checkbox" /></td>
+                    <td>${user.id}</td>
+                    <td>${user.first_name}</td>
+                    <td>${user.last_name}</td>
+                    <td>${user.age}</td>
+                    <td>${user.interests || 'Не указано'}</td>
+                    <td>${sex}</td>
+                    <td>${user.city || 'Не указано'}</td>
+                `;
+                usersTableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Ошибка загрузки пользователей из базы данных:', error);
+        }
+    });
+
+    function applyFilters() {
+        const filterAge = parseInt(filterAgeInput.value, 10);
+        const filterInterests = filterInterestsInput.value.toLowerCase();
+
+        Array.from(usersTableBody.children).forEach(row => {
+            const age = parseInt(row.children[4].textContent, 10);
+            const interests = row.children[5].textContent.toLowerCase();
+
+            const matchesAge = isNaN(filterAge) || age === filterAge;
+            const matchesInterests = !filterInterests || interests.includes(filterInterests);
+
+            row.style.display = matchesAge && matchesInterests ? '' : 'none';
+        });
+    }
+
+    filterInterestsInput.addEventListener('input', applyFilters);
+    filterAgeInput.addEventListener('input', applyFilters);
+
+    async function updateUserCount() {
+        try {
+            const response = await fetch('/user-count');
+            const data = await response.json();
+            userCountElement.textContent = data.count || 0;
+        } catch (error) {
+            console.error('Ошибка при получении количества пользователей:', error);
+        }
+    }
+
+    updateUserCount();
+
+    function toggleAllCheckboxes(source) {
+        const checkboxes = document.querySelectorAll('#users-table tbody input[type="checkbox"]');
+        checkboxes.forEach(checkbox => checkbox.checked = source.checked);
+    }
+</script>
+</body>
+</html>
+
