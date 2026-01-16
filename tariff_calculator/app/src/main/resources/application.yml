@@ -33,3 +33,9 @@ geo:
   max-latitude: 65
   min-longitude: 30
   max-longitude: 96
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
