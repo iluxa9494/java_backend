@@ -10,7 +10,14 @@ RUN mvn -q -DskipTests dependency:go-offline || true
 COPY src ./src
 
 RUN mvn -q -DskipTests package \
-  && mv target/*-SNAPSHOT.jar /workspace/app.jar
+  && set -e; \
+  jar_path="$(ls -1 target/*.jar | grep -v 'original' | head -n 1)"; \
+  if [ -z "${jar_path}" ]; then \
+    echo "No runnable jar found in target"; \
+    ls -la target; \
+    exit 1; \
+  fi; \
+  mv "${jar_path}" /workspace/app.jar
 
 FROM eclipse-temurin:17-jre
 
