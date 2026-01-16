@@ -1,4 +1,4 @@
-package com.example.hotel_booking.repository;
+package com.example.hotel_booking.repository.jpa;
 
 import com.example.hotel_booking.model.Role;
 import com.example.hotel_booking.model.RoleType;

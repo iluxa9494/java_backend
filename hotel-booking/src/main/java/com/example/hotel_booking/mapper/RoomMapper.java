@@ -4,7 +4,7 @@ import com.example.hotel_booking.dto.Room.RoomCreateRequest;
 import com.example.hotel_booking.dto.Room.RoomDto;
 import com.example.hotel_booking.dto.Room.RoomUpdateRequest;
 import com.example.hotel_booking.model.Room;
-import com.example.hotel_booking.repository.HotelRepository;
+import com.example.hotel_booking.repository.jpa.HotelRepository;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", uses = {HotelRepository.class})

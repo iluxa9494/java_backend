@@ -4,7 +4,7 @@ import com.example.hotel_booking.dto.Role.RoleDto;
 import com.example.hotel_booking.mapper.RoleMapper;
 import com.example.hotel_booking.model.Role;
 import com.example.hotel_booking.model.RoleType;
-import com.example.hotel_booking.repository.RoleRepository;
+import com.example.hotel_booking.repository.jpa.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

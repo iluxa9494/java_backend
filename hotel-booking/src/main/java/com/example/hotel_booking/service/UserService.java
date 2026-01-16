@@ -3,7 +3,7 @@ package com.example.hotel_booking.service;
 import com.example.hotel_booking.dto.User.UserDto;
 import com.example.hotel_booking.mapper.UserMapper;
 import com.example.hotel_booking.model.User;
-import com.example.hotel_booking.repository.UserRepository;
+import com.example.hotel_booking.repository.jpa.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

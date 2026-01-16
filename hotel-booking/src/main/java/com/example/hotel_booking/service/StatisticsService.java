@@ -6,7 +6,7 @@ import com.example.hotel_booking.kafka.KafkaProducerService;
 import com.example.hotel_booking.mapper.StatisticsMapper;
 import com.example.hotel_booking.model.BookingDetails;
 import com.example.hotel_booking.model.Statistics;
-import com.example.hotel_booking.repository.StatisticsRepository;
+import com.example.hotel_booking.repository.mongo.StatisticsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

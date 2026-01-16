@@ -1,4 +1,4 @@
-package com.example.hotel_booking.repository;
+package com.example.hotel_booking.repository.mongo;
 
 import com.example.hotel_booking.model.Statistics;
 import org.springframework.data.mongodb.repository.MongoRepository;

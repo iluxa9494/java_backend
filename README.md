@@ -73,9 +73,11 @@ docker compose -p java-backend down
 ```
 TELEGRAM_BOT_USERNAME=MUR_BTCBot
 TELEGRAM_BOT_TOKEN=your_bot_token
-POSTGRES_DB=cryptobot
-POSTGRES_USER=bot_user
-POSTGRES_PASSWORD=secure_password
+DB_HOST=postgres-apps
+DB_PORT=5432
+DB_NAME=cryptobot
+DB_USER=cryptobot
+DB_PASSWORD=cryptobot_password_123
 ```
 
 Аналогично есть `.env` файлы в:
@@ -104,6 +106,11 @@ docker compose -p java-backend logs -f <service>
 ```bash
 docker compose -p java-backend exec mysql mysql -uroot -p
 ```
+
+---
+## Важно про init SQL
+- Файлы в `docker-entrypoint-initdb.d` выполняются только при первом создании volume контейнера БД.
+- Если volume уже существует, init-скрипты больше не применяются; используйте bootstrap-скрипты для идемпотентного создания БД/ролей.
 
 ---
 ## Диагностика vk-insight (с хоста)
