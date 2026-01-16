@@ -3,7 +3,7 @@ package com.example.hotel_booking.service;
 import com.example.hotel_booking.dto.User.UserDto;
 import com.example.hotel_booking.mapper.UserMapper;
 import com.example.hotel_booking.model.User;
-import com.example.hotel_booking.repository.UserRepository;
+import com.example.hotel_booking.repository.jpa.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
