@@ -78,6 +78,14 @@ $RECYCLE.BIN/
 !searchengine/local-repo/**
 !searchengine/local-repo/**/*.jar
 
+### Local bootstrap scripts ###
+bootstrap.sh
+bootstrap_java_backend.sh
+init_java_backend_envs.sh
+
+### Local nginx ###
+nginx/
+
 ### Allow Gradle Wrapper jar (required for CI Docker build) ###
 !tg_bot/gradle/wrapper/gradle-wrapper.jar
 !tg_bot/gradle/wrapper/gradle-wrapper.properties

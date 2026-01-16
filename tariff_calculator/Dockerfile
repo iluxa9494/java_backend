@@ -1,22 +1,3 @@
-FROM maven:3.9-eclipse-temurin-17 AS build
-
-WORKDIR /workspace
-
-# Чтобы зависимости кешировались
-COPY pom.xml ./
-COPY app/pom.xml app/pom.xml
-COPY domain/pom.xml domain/pom.xml
-COPY useCase/pom.xml useCase/pom.xml
-COPY persistence/pom.xml persistence/pom.xml
-COPY web/pom.xml web/pom.xml
-RUN mvn -q -DskipTests dependency:go-offline
-
-# Остальной код
-COPY . .
-
-RUN mvn -q -DskipTests package \
-  && mv app/target/app-1.0-SNAPSHOT.jar /workspace/app.jar
-
 FROM eclipse-temurin:17-jre
 
 WORKDIR /app
@@ -25,7 +6,8 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends curl \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=build /workspace/app.jar /app/app.jar
+ARG JAR_FILE=app/target/app-1.0-SNAPSHOT.jar
+COPY ${JAR_FILE} /app/app.jar
 
 EXPOSE 8080
 

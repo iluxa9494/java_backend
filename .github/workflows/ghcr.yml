@@ -114,6 +114,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up JDK 17 (tariff-calculator)
+        if: matrix.name == 'tariff-calculator'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Build jar (tariff-calculator)
+        if: matrix.name == 'tariff-calculator'
+        working-directory: ./tariff_calculator
+        run: |
+          mvn -q -DskipTests package
+          test -f app/target/app-1.0-SNAPSHOT.jar
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
