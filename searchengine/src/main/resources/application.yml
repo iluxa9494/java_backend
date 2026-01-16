@@ -64,7 +64,7 @@ indexing-settings:
 server:
   port: 8082
   servlet:
-    context-path: /search-engine
+    context-path: /projects/search-engine
 
 management:
   endpoints:
