@@ -148,7 +148,8 @@ start_service "mc-account" "/app/mc-account.jar" "8088" "" \
   "SPRING_DATA_REDIS_PASSWORD=redis" \
   "SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092"
 
-start_service "social-network-friend-service" "/app/social-network-friend-service.jar" "8084" "" \
+start_service "social-network-friend-service" "/app/social-network-friend-service.jar" "8084" \
+  "${SN_CONFIG_DIR}/social-network-friend-service/.env" \
   "SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/friend_db" \
   "SPRING_DATASOURCE_USERNAME=postgres" \
   "SPRING_DATASOURCE_PASSWORD=postgres" \
