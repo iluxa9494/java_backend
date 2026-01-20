@@ -110,6 +110,11 @@ jobs:
             dockerfile: ./social_network/social-network-frontend/Dockerfile
             image: java_backend-social-network-frontend
 
+          - name: sn-social-network-monolith
+            context: ./social_network
+            dockerfile: ./social_network/Dockerfile
+            image: java_backend-social-network
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
