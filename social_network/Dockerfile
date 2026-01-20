@@ -57,7 +57,10 @@ RUN --mount=type=cache,target=/root/.m2 \
       dir="${entry%%:*}"; \
       name="${entry##*:}"; \
       (cd "/build/${dir}" && mvn -q -DskipTests package); \
-      jar="$(ls -1 "/build/${dir}/target/"*.jar | grep -vE '(-sources|-javadoc)\\.jar$' | head -n1)"; \
+      jar="$(ls -1 "/build/${dir}/target/"*.jar | grep -vE '(-sources|-javadoc|\\.original|plain)\\.jar$' | head -n1)"; \
+      if [[ -z "${jar}" ]]; then \
+        jar="$(ls -1 "/build/${dir}/target/"*.jar | grep -vE '(-sources|-javadoc)\\.jar$' | head -n1)"; \
+      fi; \
       test -n "${jar}"; \
       cp "${jar}" "/out/${name}.jar"; \
     done
