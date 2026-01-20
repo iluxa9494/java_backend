@@ -145,13 +145,15 @@ start_java "ms-notification" "/app/ms-notification.jar" "8083" \
   "SPRING_DATASOURCE_PASSWORD=postgres" \
   "SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092"
 
-start_java "social-network-post" "/app/social-network-post.jar" "8085" "" \
+start_java "social-network-post" "/app/social-network-post.jar" "8085" \
+  "${JB_CONFIG_DIR}/social_network/social-network-post/.env" \
   "SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/post_db" \
   "SPRING_DATASOURCE_USERNAME=postgres" \
   "SPRING_DATASOURCE_PASSWORD=postgres" \
   "SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092"
 
-start_java "dialog-service" "/app/dialog-service.jar" "8082" "" \
+start_java "dialog-service" "/app/dialog-service.jar" "8082" \
+  "${JB_CONFIG_DIR}/social_network/dialog_service/.env" \
   "SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/dialog_db" \
   "SPRING_DATASOURCE_USERNAME=postgres" \
   "SPRING_DATASOURCE_PASSWORD=postgres"
@@ -165,7 +167,8 @@ start_java "mc-account" "/app/mc-account.jar" "8088" "" \
   "SPRING_DATA_REDIS_PASSWORD=redis" \
   "SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092"
 
-start_java "social-network-friend-service" "/app/social-network-friend-service.jar" "8084" "" \
+start_java "social-network-friend-service" "/app/social-network-friend-service.jar" "8084" \
+  "${JB_CONFIG_DIR}/social_network/social-network-friend-service/.env" \
   "SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/friend_db" \
   "SPRING_DATASOURCE_USERNAME=postgres" \
   "SPRING_DATASOURCE_PASSWORD=postgres" \
