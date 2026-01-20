@@ -10,6 +10,10 @@ COPY searchengine/apache_lucene_morphology/ searchengine/apache_lucene_morpholog
 COPY searchengine/local-repo/ searchengine/local-repo/
 COPY tariff_calculator/pom.xml tariff_calculator/pom.xml
 COPY tariff_calculator/app/pom.xml tariff_calculator/app/pom.xml
+COPY tariff_calculator/domain/pom.xml tariff_calculator/domain/pom.xml
+COPY tariff_calculator/web/pom.xml tariff_calculator/web/pom.xml
+COPY tariff_calculator/useCase/pom.xml tariff_calculator/useCase/pom.xml
+COPY tariff_calculator/persistence/pom.xml tariff_calculator/persistence/pom.xml
 COPY tg_bot/build.gradle tg_bot/build.gradle
 COPY tg_bot/settings.gradle tg_bot/settings.gradle
 COPY tg_bot/gradlew tg_bot/gradlew
@@ -32,7 +36,7 @@ RUN --mount=type=cache,target=/root/.m2 \
       currency_exchange \
       hotel-booking \
       searchengine \
-      tariff_calculator/app \
+      tariff_calculator \
       social_network/api-gateway \
       social_network/eureka-server \
       social_network/mc-authentication \
@@ -60,7 +64,7 @@ RUN --mount=type=cache,target=/root/.m2 \
     (cd /build/currency_exchange && mvn -q -DskipTests package); \
     (cd /build/hotel-booking && mvn -q -DskipTests package); \
     (cd /build/searchengine && mvn -q -DskipTests package); \
-    (cd /build/tariff_calculator/app && mvn -q -DskipTests package); \
+    (cd /build/tariff_calculator && mvn -q -DskipTests -pl app -am package); \
     (cd /build/tg_bot && chmod +x ./gradlew && ./gradlew --no-daemon clean bootJar); \
     (cd /build/social_network/api-gateway && mvn -q -DskipTests package); \
     (cd /build/social_network/eureka-server && mvn -q -DskipTests package); \
