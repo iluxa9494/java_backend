@@ -81,8 +81,5 @@ logging:
     searchengine: INFO
     org.postgresql: DEBUG
 
-  file:
-    name: logs/searchengine.log
-
   pattern:
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
