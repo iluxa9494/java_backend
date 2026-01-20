@@ -26,7 +26,7 @@ COPY social_network/social-network-friend-service/pom.xml social_network/social-
 COPY social_network/social-network-integration/pom.xml social_network/social-network-integration/pom.xml
 
 RUN --mount=type=cache,target=/root/.m2 \
-    set -euo pipefail; \
+    set -eu; \
     chmod +x /build/searchengine/install-local-deps.sh; \
     for module in \
       currency_exchange \
@@ -53,7 +53,7 @@ COPY tg_bot tg_bot
 COPY social_network social_network
 
 RUN --mount=type=cache,target=/root/.m2 \
-    set -euo pipefail; \
+    set -eu; \
     mkdir -p /out; \
     chmod +x /build/searchengine/install-local-deps.sh; \
     (cd /build/searchengine && ./install-local-deps.sh); \
