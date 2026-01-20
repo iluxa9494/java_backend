@@ -32,7 +32,7 @@ RUN --mount=type=cache,target=/root/.m2 \
       currency_exchange \
       hotel-booking \
       searchengine \
-      tariff_calculator \
+      tariff_calculator/app \
       social_network/api-gateway \
       social_network/eureka-server \
       social_network/mc-authentication \
@@ -60,7 +60,7 @@ RUN --mount=type=cache,target=/root/.m2 \
     (cd /build/currency_exchange && mvn -q -DskipTests package); \
     (cd /build/hotel-booking && mvn -q -DskipTests package); \
     (cd /build/searchengine && mvn -q -DskipTests package); \
-    (cd /build/tariff_calculator && mvn -q -DskipTests package); \
+    (cd /build/tariff_calculator/app && mvn -q -DskipTests package); \
     (cd /build/tg_bot && chmod +x ./gradlew && ./gradlew --no-daemon clean bootJar); \
     (cd /build/social_network/api-gateway && mvn -q -DskipTests package); \
     (cd /build/social_network/eureka-server && mvn -q -DskipTests package); \
