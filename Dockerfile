@@ -48,29 +48,6 @@ COPY searchengine searchengine
 COPY tg_bot tg_bot
 COPY social_network social_network
 
-FROM maven:3.9.9-eclipse-temurin-17 AS build-tariff
-
-WORKDIR /build/tariff_calculator
-
-COPY tariff_calculator/pom.xml ./pom.xml
-COPY tariff_calculator/app/pom.xml ./app/pom.xml
-COPY tariff_calculator/domain/pom.xml ./domain/pom.xml
-COPY tariff_calculator/web/pom.xml ./web/pom.xml
-COPY tariff_calculator/useCase/pom.xml ./useCase/pom.xml
-COPY tariff_calculator/persistence/pom.xml ./persistence/pom.xml
-
-RUN --mount=type=cache,target=/root/.m2 \
-    set -eu; \
-    mvn -q -DskipTests dependency:go-offline
-
-COPY tariff_calculator ./ 
-
-RUN --mount=type=cache,target=/root/.m2 \
-    set -eu; \
-    mvn -q -DskipTests -pl app -am package; \
-    mkdir -p /out; \
-    cp "$(ls -1 /build/tariff_calculator/app/target/*.jar | head -n1)" /out/tariff-calculator.jar
-
 RUN --mount=type=cache,target=/root/.m2 \
     set -eu; \
     mkdir -p /out; \
@@ -103,6 +80,29 @@ RUN --mount=type=cache,target=/root/.m2 \
     cp "$(ls -1 /build/social_network/dialog_service/target/*.jar | grep -v 'original' | head -n1)" /out/dialog-service.jar; \
     cp "$(ls -1 /build/social_network/social-network-friend-service/target/*.jar | grep -v 'original' | head -n1)" /out/social-network-friend-service.jar; \
     cp "$(ls -1 /build/social_network/social-network-integration/target/*.jar | grep -v 'original' | head -n1)" /out/social-network-integration.jar
+
+FROM maven:3.9.9-eclipse-temurin-17 AS build-tariff
+
+WORKDIR /build/tariff_calculator
+
+COPY tariff_calculator/pom.xml ./pom.xml
+COPY tariff_calculator/app/pom.xml ./app/pom.xml
+COPY tariff_calculator/domain/pom.xml ./domain/pom.xml
+COPY tariff_calculator/web/pom.xml ./web/pom.xml
+COPY tariff_calculator/useCase/pom.xml ./useCase/pom.xml
+COPY tariff_calculator/persistence/pom.xml ./persistence/pom.xml
+
+RUN --mount=type=cache,target=/root/.m2 \
+    set -eu; \
+    mvn -q -DskipTests dependency:go-offline
+
+COPY tariff_calculator ./ 
+
+RUN --mount=type=cache,target=/root/.m2 \
+    set -eu; \
+    mvn -q -DskipTests -pl app -am package; \
+    mkdir -p /out; \
+    cp "$(ls -1 /build/tariff_calculator/app/target/*.jar | head -n1)" /out/tariff-calculator.jar
 
 FROM node:20-bullseye-slim AS build-vk
 
