@@ -1,5 +1,7 @@
 FROM maven:3.9.9-eclipse-temurin-21 AS build
 
+SHELL ["/bin/bash", "-c"]
+
 WORKDIR /build
 
 COPY api-gateway/pom.xml api-gateway/pom.xml

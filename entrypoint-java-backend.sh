@@ -209,7 +209,7 @@ start_java "tariff-calculator" "/app/tariff-calculator.jar" "8006" \
   "SPRING_DATASOURCE_USERNAME=tariff_calculator" \
   "SPRING_DATASOURCE_PASSWORD=tariff_calculator_password"
 
-start_java "tg-bot" "/app/tg-bot.jar" "8083" \
+start_java "tg-bot" "/app/tg-bot.jar" "8087" \
   "${JB_CONFIG_DIR}/tg_bot/.env" \
   "DB_HOST=postgres" \
   "DB_PORT=5432" \
