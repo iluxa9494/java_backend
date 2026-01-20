@@ -127,7 +127,8 @@ start_service "ms-notification" "/app/ms-notification.jar" "8083" \
   "SPRING_DATASOURCE_PASSWORD=postgres" \
   "SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092"
 
-start_service "social-network-post" "/app/social-network-post.jar" "8085" "" \
+start_service "social-network-post" "/app/social-network-post.jar" "8085" \
+  "${SN_CONFIG_DIR}/social-network-post/.env" \
   "SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/post_db" \
   "SPRING_DATASOURCE_USERNAME=postgres" \
   "SPRING_DATASOURCE_PASSWORD=postgres" \
