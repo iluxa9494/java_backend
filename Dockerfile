@@ -8,12 +8,6 @@ COPY searchengine/pom.xml searchengine/pom.xml
 COPY searchengine/install-local-deps.sh searchengine/install-local-deps.sh
 COPY searchengine/apache_lucene_morphology/ searchengine/apache_lucene_morphology/
 COPY searchengine/local-repo/ searchengine/local-repo/
-COPY tariff_calculator/pom.xml tariff_calculator/pom.xml
-COPY tariff_calculator/app/pom.xml tariff_calculator/app/pom.xml
-COPY tariff_calculator/domain/pom.xml tariff_calculator/domain/pom.xml
-COPY tariff_calculator/web/pom.xml tariff_calculator/web/pom.xml
-COPY tariff_calculator/useCase/pom.xml tariff_calculator/useCase/pom.xml
-COPY tariff_calculator/persistence/pom.xml tariff_calculator/persistence/pom.xml
 COPY tg_bot/build.gradle tg_bot/build.gradle
 COPY tg_bot/settings.gradle tg_bot/settings.gradle
 COPY tg_bot/gradlew tg_bot/gradlew
@@ -36,7 +30,6 @@ RUN --mount=type=cache,target=/root/.m2 \
       currency_exchange \
       hotel-booking \
       searchengine \
-      tariff_calculator \
       social_network/api-gateway \
       social_network/eureka-server \
       social_network/mc-authentication \
@@ -52,9 +45,31 @@ RUN --mount=type=cache,target=/root/.m2 \
 COPY currency_exchange currency_exchange
 COPY hotel-booking hotel-booking
 COPY searchengine searchengine
-COPY tariff_calculator tariff_calculator
 COPY tg_bot tg_bot
 COPY social_network social_network
+
+FROM maven:3.9.9-eclipse-temurin-17 AS build-tariff
+
+WORKDIR /build/tariff_calculator
+
+COPY tariff_calculator/pom.xml ./pom.xml
+COPY tariff_calculator/app/pom.xml ./app/pom.xml
+COPY tariff_calculator/domain/pom.xml ./domain/pom.xml
+COPY tariff_calculator/web/pom.xml ./web/pom.xml
+COPY tariff_calculator/useCase/pom.xml ./useCase/pom.xml
+COPY tariff_calculator/persistence/pom.xml ./persistence/pom.xml
+
+RUN --mount=type=cache,target=/root/.m2 \
+    set -eu; \
+    mvn -q -DskipTests dependency:go-offline
+
+COPY tariff_calculator ./ 
+
+RUN --mount=type=cache,target=/root/.m2 \
+    set -eu; \
+    mvn -q -DskipTests -pl app -am package; \
+    mkdir -p /out; \
+    cp "$(ls -1 /build/tariff_calculator/app/target/*.jar | head -n1)" /out/tariff-calculator.jar
 
 RUN --mount=type=cache,target=/root/.m2 \
     set -eu; \
@@ -64,7 +79,6 @@ RUN --mount=type=cache,target=/root/.m2 \
     (cd /build/currency_exchange && mvn -q -DskipTests package); \
     (cd /build/hotel-booking && mvn -q -DskipTests package); \
     (cd /build/searchengine && mvn -q -DskipTests package); \
-    (cd /build/tariff_calculator && mvn -q -DskipTests -pl app -am package); \
     (cd /build/tg_bot && chmod +x ./gradlew && ./gradlew --no-daemon clean bootJar); \
     (cd /build/social_network/api-gateway && mvn -q -DskipTests package); \
     (cd /build/social_network/eureka-server && mvn -q -DskipTests package); \
@@ -79,7 +93,6 @@ RUN --mount=type=cache,target=/root/.m2 \
     cp "$(ls -1 /build/currency_exchange/target/*.jar | grep -v 'original' | head -n1)" /out/currency-exchange.jar; \
     cp "$(ls -1 /build/hotel-booking/target/*.jar | grep -v 'original' | head -n1)" /out/hotel-booking.jar; \
     cp "$(ls -1 /build/searchengine/target/*.jar | grep -v 'original' | head -n1)" /out/searchengine.jar; \
-    cp "$(ls -1 /build/tariff_calculator/app/target/*.jar | head -n1)" /out/tariff-calculator.jar; \
     cp "$(ls -1 /build/tg_bot/build/libs/*.jar | head -n1)" /out/tg-bot.jar; \
     cp "$(ls -1 /build/social_network/api-gateway/target/*.jar | grep -v 'original' | head -n1)" /out/api-gateway.jar; \
     cp "$(ls -1 /build/social_network/eureka-server/target/*.jar | grep -v 'original' | head -n1)" /out/eureka-server.jar; \
@@ -108,6 +121,7 @@ RUN set -eux; \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build-java /out/*.jar /app/
+COPY --from=build-tariff /out/tariff-calculator.jar /app/tariff-calculator.jar
 COPY --from=build-vk /vk_insight /app/vk_insight
 COPY entrypoint-java-backend.sh /entrypoint-java-backend.sh
 
