@@ -26,7 +26,7 @@ public class KafkaConfig {
         configs.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, "2000");
         configs.put(AdminClientConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, "3000");
         KafkaAdmin admin = new KafkaAdmin(configs);
-        admin.setFatalIfBrokerNotAvailable(false);
+        admin.setFatalIfBrokerNotAvailable(true);
         return admin;
     }
 
