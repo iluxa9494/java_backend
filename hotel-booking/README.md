@@ -103,10 +103,17 @@ spring.datasource.url=jdbc:postgresql://localhost:5432/hotel_booking
 spring.datasource.username=hotel_admin
 spring.datasource.password=postgres
 spring.data.mongodb.uri=mongodb://localhost:27017/hotel_booking
-spring.data.mongodb.database=hotel_booking
 logging.file.name=logs/app.log
 logging.level.root=INFO
 ```
+
+### MongoDB env (приоритет)
+
+- **Приоритет:** `SPRING_DATA_MONGODB_URI` (если задан) → игнорируются HOST/PORT/DATABASE.
+- Если URI не задан, он собирается из:
+  - `SPRING_DATA_MONGODB_HOST` (по умолчанию `mongodb`)
+  - `SPRING_DATA_MONGODB_PORT` (по умолчанию `27017`)
+  - `SPRING_DATA_MONGODB_DATABASE` (по умолчанию `hotel_booking`)
 
 ## 6. Базы данных
 
@@ -192,4 +199,3 @@ mvn test
 INFO  [BookingService] Creating booking for user: 1
 WARN  [AuthController] Invalid login attempt
 ```
-
