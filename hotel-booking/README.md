@@ -80,6 +80,14 @@ SELECT * FROM roles;
 docker run -d --name mongodb -p 27017:27017 mongo
 ```
 
+Для docker-compose окружения:
+- .env лежит в `java_backend/hotel-booking/.env`
+- По умолчанию используются:
+  - `SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/hotel_booking`
+  - `SPRING_DATA_MONGODB_HOST=mongodb`
+  - `SPRING_DATA_MONGODB_PORT=27017`
+  - `SPRING_DATA_MONGODB_DATABASE=hotel_booking`
+
 ```js
 mongosh
 use hotel_booking
@@ -114,6 +122,7 @@ logging.level.root=INFO
   - `SPRING_DATA_MONGODB_HOST` (по умолчанию `mongodb`)
   - `SPRING_DATA_MONGODB_PORT` (по умолчанию `27017`)
   - `SPRING_DATA_MONGODB_DATABASE` (по умолчанию `hotel_booking`)
+- Имя базы не должно содержать: `/ .` пробел `' " $`
 
 ## 6. Базы данных
 
