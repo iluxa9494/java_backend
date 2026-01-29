@@ -8,7 +8,7 @@ RUN mvn -q -DskipTests package
 FROM eclipse-temurin:17-jre
 
 WORKDIR /app
-ENV SERVER_PORT=8081
+ENV SERVER_PORT=8002
 
 COPY --from=build /workspace/target/*.jar /app/
 RUN set -e; \
@@ -21,5 +21,5 @@ RUN set -e; \
   mv "${jar_path}" /app/app.jar; \
   find /app -maxdepth 1 -name "*.jar" ! -name "app.jar" -delete
 
-EXPOSE 8081
+EXPOSE 8002
 CMD ["java","-jar","/app/app.jar"]
