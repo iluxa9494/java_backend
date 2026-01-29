@@ -12,9 +12,9 @@ import java.math.BigDecimal;
 public class RoomDto {
     private Long id;
     private Long hotelId;
-    private String title;
+    private String name;
     private String description;
-    private String number;
+    private String roomNumber;
     private BigDecimal price;
     private Integer maxGuests;
 }

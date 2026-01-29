@@ -55,8 +55,8 @@ public class RoomService {
         Hotel hotel = hotelRepository.findById(request.getHotelId())
                 .orElseThrow(() -> new ResourceNotFoundException("Отель с id " + request.getHotelId() + " не найден"));
 
-        if (roomRepository.findByHotelIdAndNumber(request.getHotelId(), request.getNumber()).isPresent()) {
-            throw new IllegalArgumentException("Комната с номером " + request.getNumber() + " уже существует в отеле");
+        if (roomRepository.findByHotelIdAndRoomNumber(request.getHotelId(), request.getRoomNumber()).isPresent()) {
+            throw new IllegalArgumentException("Комната с номером " + request.getRoomNumber() + " уже существует в отеле");
         }
 
         Room room = roomMapper.toEntity(request);
@@ -96,7 +96,7 @@ public class RoomService {
         log.info("Комната с ID {} успешно удалена", id);
     }
 
-    public Page<RoomDto> getFilteredRooms(Long hotelId, Double minPrice, Double maxPrice, Integer minGuests, Integer maxGuests,
+    public Page<RoomDto> getFilteredRooms(Long hotelId, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, Integer minGuests, Integer maxGuests,
                                           LocalDate checkIn, LocalDate checkOut, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Specification<Room> spec = Specification.where(RoomSpecification.byHotel(hotelId))

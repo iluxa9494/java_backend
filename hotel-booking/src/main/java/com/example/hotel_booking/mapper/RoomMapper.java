@@ -13,9 +13,9 @@ public interface RoomMapper {
     @Mappings({
             @Mapping(target = "id", ignore = true),
             @Mapping(target = "hotel", ignore = true),
-            @Mapping(source = "title", target = "title"),
+            @Mapping(source = "name", target = "name"),
             @Mapping(source = "description", target = "description"),
-            @Mapping(source = "number", target = "number"),
+            @Mapping(source = "roomNumber", target = "roomNumber"),
             @Mapping(source = "price", target = "price"),
             @Mapping(source = "maxGuests", target = "maxGuests")
     })
