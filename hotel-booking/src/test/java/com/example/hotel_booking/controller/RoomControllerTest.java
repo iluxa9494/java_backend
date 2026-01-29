@@ -39,7 +39,7 @@ public class RoomControllerTest {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Deluxe Room", result.get(0).getTitle());
+        assertEquals("Deluxe Room", result.get(0).getName());
         verify(roomService, times(1)).getAllRooms();
     }
 
@@ -51,7 +51,7 @@ public class RoomControllerTest {
         RoomDto result = roomController.getRoomById(1L);
 
         assertNotNull(result);
-        assertEquals("Deluxe Room", result.getTitle());
+        assertEquals("Deluxe Room", result.getName());
         verify(roomService, times(1)).getRoomById(1L);
     }
 
@@ -64,7 +64,7 @@ public class RoomControllerTest {
         RoomDto result = roomController.createRoom(request);
 
         assertNotNull(result);
-        assertEquals("Deluxe Room", result.getTitle());
+        assertEquals("Deluxe Room", result.getName());
         verify(roomService, times(1)).createRoom(request);
     }
 
@@ -77,7 +77,7 @@ public class RoomControllerTest {
         RoomDto result = roomController.updateRoom(1L, request);
 
         assertNotNull(result);
-        assertEquals("Updated Room", result.getTitle());
+        assertEquals("Updated Room", result.getName());
         verify(roomService, times(1)).updateRoom(1L, request);
     }
 
