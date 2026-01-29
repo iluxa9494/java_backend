@@ -147,6 +147,20 @@ docker compose -p java-backend exec mysql mysql -uroot -p
 - Если volume уже существует, init-скрипты больше не применяются; используйте bootstrap-скрипты для идемпотентного создания БД/ролей.
 
 ---
+## Миграции (hotel-booking)
+Flyway миграции лежат в `hotel-booking/src/main/resources/db/migration`.
+Для локального запуска через compose:
+```bash
+docker compose up --build
+docker compose logs -f java_backend
+```
+Для чистого старта БД:
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+---
 ## Диагностика vk-insight (с хоста)
 Проверки выполняем с VPS, без `exec` внутрь контейнеров.
 
