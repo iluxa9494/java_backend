@@ -88,6 +88,40 @@ DB_PASSWORD=cryptobot_password_123
 - `tariff calculator/.env`
 ---
 
+### hotel-booking: обязательные env и приоритеты
+
+Обязательные переменные для PostgreSQL:
+- `SPRING_DATASOURCE_URL`
+- `SPRING_DATASOURCE_USERNAME`
+- `SPRING_DATASOURCE_PASSWORD`
+
+MongoDB (приоритеты):
+1. Если задан `SPRING_DATA_MONGODB_URI`, он имеет приоритет.
+2. Иначе используются `SPRING_DATA_MONGODB_HOST` + `SPRING_DATA_MONGODB_PORT` + `SPRING_DATA_MONGODB_DATABASE`.
+
+Важно:
+- Если `SPRING_DATASOURCE_URL` пустой или содержит `${...}`, запуск будет остановлен с ошибкой (защита от неинициализированных env).
+- Имя MongoDB БД не должно содержать `/`, `.`, пробелы, `'`, `"` или `$`.
+
+### Как дебажить env и старт hotel-booking (на VPS)
+
+Проверить, что `.env` смонтирован и читается:
+```bash
+docker exec -it java_backend ls -l /config/hotel-booking/.env
+docker exec -it java_backend sed -n '1,120p' /config/hotel-booking/.env
+```
+
+Проверить реальные env у процесса Java:
+```bash
+docker exec -it java_backend bash -lc 'pid=$(pgrep -f "hotel-booking.jar" | head -n1); tr "\0" "\n" </proc/$pid/environ | rg "SPRING_DATASOURCE|SPRING_DATA_MONGODB"'
+```
+
+Логи и health-check:
+```bash
+docker logs -f java_backend
+curl -fsS http://127.0.0.1:8002/actuator/health
+```
+
 ## Логика
 - Каждый сервис работает в своём контейнере
 - Каждая БД — в отдельном контейнере (PostgreSQL, MySQL, MongoDB, Kafka)
