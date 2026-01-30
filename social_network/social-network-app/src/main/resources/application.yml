@@ -162,10 +162,10 @@ geo:
   base-country-url: ${SOCIAL_GEO_BASE_COUNTRY_URL:https://api.hh.ru/areas}
   redis:
     all-country-key: ${SOCIAL_GEO_REDIS_ALL_COUNTRY_KEY:geo:all-countries}
-  schedule:
-    delay:
-      initial-delay-seconds: ${SOCIAL_GEO_SCHEDULE_INITIAL_DELAY_SECONDS:5}
-      update-delay-months: ${SOCIAL_GEO_SCHEDULE_UPDATE_DELAY_MONTHS:3}
+  update:
+    initial-delay-ms: ${SOCIAL_GEO_UPDATE_INITIAL_DELAY_MS:10000}
+    interval-ms: ${SOCIAL_GEO_UPDATE_INTERVAL_MS:43200000}
+    min-interval-ms: ${SOCIAL_GEO_UPDATE_MIN_INTERVAL_MS:3600000}
 
 storage:
   access-key-id: ${SOCIAL_INTEGRATION_ACCESS_KEY_ID:minioadmin}

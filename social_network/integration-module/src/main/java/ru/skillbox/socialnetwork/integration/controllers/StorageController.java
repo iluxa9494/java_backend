@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @Slf4j
 @RestController
-@RequestMapping("api/v1/storage")
+@RequestMapping("/api/v1/storage")
 @RequiredArgsConstructor
 public class StorageController {
 

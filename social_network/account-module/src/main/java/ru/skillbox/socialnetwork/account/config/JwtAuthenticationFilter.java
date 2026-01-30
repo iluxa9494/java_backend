@@ -35,44 +35,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
 
-        log.info("🔐 [1] JwtAuthenticationFilter: Начало обработки запроса: {}", request.getRequestURI());
-
         String token = extractToken(request);
 
         if (token != null) {
-            log.info("🔐 [2] Токен извлечен (длина: {})", token.length());
-
             try {
-                log.info("🔐 [3] Проверяем токен через auth module...");
                 boolean isValid = authTokenService.validateToken(token);
-                log.info("🔐 [4] Результат валидации токена: {}", isValid);
 
                 if (isValid) {
-                    log.info("🔐 [5] Токен валиден, извлекаем userId...");
                     UUID userId = authTokenService.extractUserId(token);
-                    log.info("✅ [6] Token validated. User ID: {}", userId);
                     userActivityService.recordUserActivity(userId);
                     var authentication = new UsernamePasswordAuthenticationToken(
                             userId.toString(), token, Collections.emptyList()
                     );
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    log.info("✅ [7] Аутентификация установлена в SecurityContext");
                 } else {
-                    log.error("❌ [ERROR] Токен не прошел валидацию в auth module");
+                    log.debug("Token validation failed for request {}", request.getRequestURI());
                 }
             } catch (Exception e) {
-                log.error("❌ [ERROR] Ошибка валидации токена: {}", e.getMessage());
-                log.error("❌ Stack trace:", e);
+                log.warn("Token validation error for request {}: {}", request.getRequestURI(), e.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Invalid or expired token");
                 return;
             }
         } else {
-            log.warn("⚠️ [WARN] Токен не найден в запросе");
+            log.debug("Token not found for request {}", request.getRequestURI());
         }
 
-        log.info("🔐 [8] Продолжаем цепочку фильтров");
         chain.doFilter(request, response);
     }
 

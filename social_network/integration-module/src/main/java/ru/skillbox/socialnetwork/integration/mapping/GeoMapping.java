@@ -5,12 +5,24 @@ import ru.skillbox.socialnetwork.integration.dto.geo.AreaResponse;
 import ru.skillbox.socialnetwork.integration.dto.geo.City;
 import ru.skillbox.socialnetwork.integration.dto.geo.Country;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
 
 @Component
 public class GeoMapping {
+
+    public List<Country> areasToCountries(List<AreaResponse> areas) {
+        if (areas == null || areas.isEmpty()) {
+            return List.of();
+        }
+        List<Country> countries = new ArrayList<>();
+        for (AreaResponse area : areas) {
+            areaResponseToCountry(area).ifPresent(countries::add);
+        }
+        return countries;
+    }
 
     public Optional<Country> areaResponseToCountry(AreaResponse areaResponse) {
         return Optional.ofNullable(areaResponse)

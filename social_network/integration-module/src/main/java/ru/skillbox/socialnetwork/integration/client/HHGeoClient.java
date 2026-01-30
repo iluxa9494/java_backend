@@ -1,21 +1,23 @@
 package ru.skillbox.socialnetwork.integration.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import ru.skillbox.socialnetwork.integration.dto.geo.AreaResponse;
 import ru.skillbox.socialnetwork.integration.dto.geo.Country;
-import ru.skillbox.socialnetwork.integration.dto.geo.CountryResponse;
 import ru.skillbox.socialnetwork.integration.exception.GeoException;
 import ru.skillbox.socialnetwork.integration.mapping.GeoMapping;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -24,6 +26,7 @@ public class HHGeoClient implements GeoClient {
 
     private final RestTemplate restTemplate;
     private final GeoMapping mapping;
+    private final ObjectMapper objectMapper;
 
     @Value("${geo.base-country-url}")
     private String baseUrl;
@@ -33,68 +36,62 @@ public class HHGeoClient implements GeoClient {
         log.info("Starting to fetch all countries with cities from external geo service");
 
         try {
-            ResponseEntity<CountryResponse[]> response = restTemplate.getForEntity(baseUrl, CountryResponse[].class);
-
+            ResponseEntity<String> response = restTemplate.getForEntity(baseUrl, String.class);
             if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new GeoException("Failed to fetch countries from geo service. Response status: " + response.getStatusCode());
+                logBadResponse("Geo service returned non-2xx", baseUrl, response);
+                throw new GeoException("Failed to fetch areas from geo service. Response status: " + response.getStatusCode());
             }
 
-            if (response.getBody() == null) {
+            String body = response.getBody();
+            if (body == null || body.isBlank()) {
+                log.warn("Geo service returned empty body. url={}", baseUrl);
                 throw new GeoException("Received empty response body from geo service");
             }
 
-            List<CountryResponse> countryResponses = Arrays.asList(response.getBody());
-            log.debug("Successfully fetched {} countries from geo service", countryResponses.size());
-
-            List<Country> countries = countryResponses.stream()
-                    .map(this::fetchAreaDataForCountry)
-                    .filter(Objects::nonNull)
-                    .map(areaResponse -> mapping.areaResponseToCountry(areaResponse)
-                            .orElseThrow(() -> new GeoException("Failed to map area response to country")))
-                    .toList();
+            AreaResponse[] areaResponses = parseAreas(body, baseUrl, response.getHeaders().getContentType());
+            List<Country> countries = mapping.areasToCountries(Arrays.asList(areaResponses));
             log.info("Successfully processed {} countries with cities", countries.size());
-
             return countries;
-
+        } catch (HttpStatusCodeException e) {
+            logBadResponse("Geo service HTTP error", baseUrl, e.getStatusCode().value(),
+                    e.getResponseHeaders() != null ? e.getResponseHeaders().getContentType() : null,
+                    e.getResponseBodyAsString());
+            throw new GeoException("Failed to fetch areas from geo service. HTTP status: " + e.getStatusCode(), e);
         } catch (RestClientException e) {
             throw new GeoException("Network error while communicating with geo service: " + e.getMessage(), e);
+        } catch (JsonProcessingException e) {
+            throw new GeoException("Failed to parse geo service response: " + e.getMessage(), e);
         }
     }
 
-    private AreaResponse fetchAreaDataForCountry(CountryResponse countryResponse) {
-        String areaUrl = countryResponse.getUrl();
-
-        if (areaUrl == null || areaUrl.isBlank()) {
-            log.warn("Skipping country with null or empty area URL: {}", countryResponse.getName());
-            return null;
-        }
-
+    private AreaResponse[] parseAreas(String body, String url, MediaType contentType) throws JsonProcessingException {
         try {
-            log.debug("Fetching area data from URL: {}", areaUrl);
-            ResponseEntity<AreaResponse> areaResponse = restTemplate.getForEntity(areaUrl, AreaResponse.class);
-
-            if (!areaResponse.getStatusCode().is2xxSuccessful()) {
-                log.warn("Failed to fetch area data for country {}. Response status: {}",
-                        countryResponse.getName(), areaResponse.getStatusCode());
-                return null;
-            }
-
-            if (areaResponse.getBody() == null) {
-                log.warn("Received empty area data for country: {}", countryResponse.getName());
-                return null;
-            }
-
-            log.debug("Successfully fetched area data for country: {}", countryResponse.getName());
-            return areaResponse.getBody();
-
-        } catch (RestClientException e) {
-            log.warn("Network error while fetching area data for country {}: {}",
-                    countryResponse.getName(), e.getMessage());
-            return null;
-        } catch (Exception e) {
-            log.warn("Unexpected error while processing area data for country {}: {}",
-                    countryResponse.getName(), e.getMessage());
-            return null;
+            return objectMapper.readValue(body, AreaResponse[].class);
+        } catch (JsonProcessingException e) {
+            logBadResponse("Failed to parse geo response JSON", url, 200, contentType, body);
+            throw e;
         }
+    }
+
+    private void logBadResponse(String message, String url, ResponseEntity<String> response) {
+        logBadResponse(message, url, response.getStatusCode().value(),
+                response.getHeaders().getContentType(), response.getBody());
+    }
+
+    private void logBadResponse(String message, String url, int status, MediaType contentType, String body) {
+        String snippet = snippet(body, 500);
+        String ct = contentType != null ? contentType.toString() : "unknown";
+        log.warn("{}: url={} status={} contentType={} bodySnippet={}", message, url, status, ct, snippet);
+    }
+
+    private String snippet(String body, int maxLen) {
+        if (body == null) {
+            return "";
+        }
+        String trimmed = body.replaceAll("[\\r\\n\\t]+", " ").trim();
+        if (trimmed.length() <= maxLen) {
+            return trimmed;
+        }
+        return trimmed.substring(0, maxLen) + "...";
     }
 }
