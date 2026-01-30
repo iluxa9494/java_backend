@@ -28,7 +28,7 @@ public class AccountCreationEventListener {
      * Принимаем сырое JSON-сообщение как строку
      */
     @KafkaListener(
-            topics = "user-topic",
+            topics = "${app.kafka.kafkaUserTopic}",
             groupId = "mc-account-group"
     )
     public void handleNewUserRegistration(String eventJson) {
