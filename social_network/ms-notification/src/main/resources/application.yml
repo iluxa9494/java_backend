@@ -6,7 +6,7 @@ spring:
     name: ms-notification
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres-db:5432/notification_db}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/notification_db}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver

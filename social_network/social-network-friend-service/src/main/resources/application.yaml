@@ -14,7 +14,7 @@ spring:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres-db:5432/friend_db}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/friend_db}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:postgres}
 
