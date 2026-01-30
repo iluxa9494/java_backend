@@ -1,18 +1,28 @@
 version: '3.8'
 services:
-  gateway:
-    image: vav396/api-gateway:latest
+  social-network:
+    image: social-network:latest
     ports:
-      - "8765:8765"
+      - "8080:8080"
     environment:
-      - SERVER_PORT=8765
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://ms-eureka:8761/eureka/
+      - SERVER_PORT=8080
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - SPRING_DATA_REDIS_HOST=redis_db
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_DATA_REDIS_PASSWORD=redis
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/appdatabase
+      - SOCIAL_AUTH_JWT_SECRET=change_me
+      - SOCIAL_INTEGRATION_S3_ENDPOINT=http://minio:9000
+      - SOCIAL_INTEGRATION_ACCESS_KEY_ID=minioadmin
+      - SOCIAL_INTEGRATION_SECRET_KEY=minioadmin
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       - infrastructure_social-network
-      - frontend_gateway_network
 
 networks:
   infrastructure_social-network:
-    external: true
-  frontend_gateway_network:
     external: true
