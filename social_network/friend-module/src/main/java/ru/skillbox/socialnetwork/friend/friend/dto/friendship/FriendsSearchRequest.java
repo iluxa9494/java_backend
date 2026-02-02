@@ -2,6 +2,7 @@ package ru.skillbox.socialnetwork.friend.friend.dto.friendship;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
 public class FriendsSearchRequest {
     
     private List<UUID> ids;
