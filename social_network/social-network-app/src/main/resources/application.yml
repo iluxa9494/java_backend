@@ -22,6 +22,7 @@ spring:
       ddl-auto: none
   liquibase:
     enabled: false
+    change-log: classpath:db/changelog/db.changelog-master.yaml
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
     consumer:
@@ -88,7 +89,11 @@ social:
       url: ${SOCIAL_ACCOUNT_DB_URL:jdbc:postgresql://postgres:5432/account_db}
       username: ${SOCIAL_ACCOUNT_DB_USERNAME:postgres}
       password: ${SOCIAL_ACCOUNT_DB_PASSWORD:postgres}
+      schema: ${SOCIAL_ACCOUNT_DB_SCHEMA:public}
       driver-class-name: org.postgresql.Driver
+    liquibase:
+      enabled: ${SOCIAL_ACCOUNT_LIQUIBASE_ENABLED:true}
+      change-log: ${SOCIAL_ACCOUNT_LIQUIBASE_CHANGELOG:classpath:db/changelog/account/db.changelog-master.yaml}
     redis:
       host: ${SOCIAL_ACCOUNT_REDIS_HOST:redis_db}
       port: ${SOCIAL_ACCOUNT_REDIS_PORT:6379}
@@ -138,7 +143,11 @@ social:
       url: ${SOCIAL_NOTIFICATION_DB_URL:jdbc:postgresql://postgres:5432/notification_db}
       username: ${SOCIAL_NOTIFICATION_DB_USERNAME:postgres}
       password: ${SOCIAL_NOTIFICATION_DB_PASSWORD:postgres}
+      schema: ${SOCIAL_NOTIFICATION_DB_SCHEMA:public}
       driver-class-name: org.postgresql.Driver
+    liquibase:
+      enabled: ${SOCIAL_NOTIFICATION_LIQUIBASE_ENABLED:true}
+      change-log: ${SOCIAL_NOTIFICATION_LIQUIBASE_CHANGELOG:classpath:db/changelog/notification/db.changelog-master.yaml}
     kafka:
       bootstrap-servers: ${SOCIAL_NOTIFICATION_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
 

@@ -24,7 +24,7 @@
         <build-helper.version>3.5.0</build-helper.version>
     </properties>
 
-    <dependencies>
+  <dependencies>
         <dependency>
             <groupId>ru.skillbox.socialnetwork</groupId>
             <artifactId>auth-module</artifactId>
@@ -114,7 +114,18 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
         </dependency>
-    </dependencies>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>db/changelog/db.changelog-master.yaml</exclude>
+        </excludes>
+      </resource>
+    </resources>
+  </build>
 
     <build>
         <plugins>
