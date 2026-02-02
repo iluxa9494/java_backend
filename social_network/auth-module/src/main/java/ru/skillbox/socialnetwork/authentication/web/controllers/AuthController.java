@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 import ru.skillbox.socialnetwork.authentication.events.ChangedEmailEvent;
 import ru.skillbox.socialnetwork.authentication.events.ChangedPasswordEvent;
 import ru.skillbox.socialnetwork.authentication.exceptions.AlreadyExitsException;
@@ -25,13 +26,10 @@ public class AuthController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/register")
-    public Response registerUser(@RequestBody CreateUserRequest request,
+    public Response registerUser(@Valid @RequestBody CreateUserRequest request,
                                       @CookieValue(value = "CAPTCHA_SECRET", required = false) String secret) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AlreadyExitsException("Email already exists");
-        }
-        if (!request.getPassword1().equals(request.getPassword2())) {
-            throw new RuntimeException("Passwords do not match");
         }
         if (!captchaService.validateCaptcha(secret, request.getCaptchaCode())) {
             throw new RuntimeException("Invalid captcha");

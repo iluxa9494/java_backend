@@ -6,7 +6,7 @@ export default {
   },
 
   readed() {
-    return axios.put('/notifications/readed');
+    return axios.put('notifications/readed');
   },
 
   getLength() {

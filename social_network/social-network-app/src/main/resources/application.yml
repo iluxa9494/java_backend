@@ -101,7 +101,11 @@ social:
       url: ${SOCIAL_FRIEND_DB_URL:jdbc:postgresql://postgres:5432/friend_db}
       username: ${SOCIAL_FRIEND_DB_USERNAME:postgres}
       password: ${SOCIAL_FRIEND_DB_PASSWORD:postgres}
+      schema: ${SOCIAL_FRIEND_DB_SCHEMA:public}
       driver-class-name: org.postgresql.Driver
+    liquibase:
+      enabled: ${SOCIAL_FRIEND_LIQUIBASE_ENABLED:true}
+      change-log: ${SOCIAL_FRIEND_LIQUIBASE_CHANGELOG:classpath:db/changelog/changelog-master.yaml}
     kafka:
       bootstrap-servers: ${SOCIAL_FRIEND_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
 
@@ -110,7 +114,11 @@ social:
       url: ${SOCIAL_POST_DB_URL:jdbc:postgresql://postgres:5432/post_db}
       username: ${SOCIAL_POST_DB_USERNAME:postgres}
       password: ${SOCIAL_POST_DB_PASSWORD:postgres}
+      schema: ${SOCIAL_POST_DB_SCHEMA:public}
       driver-class-name: org.postgresql.Driver
+    liquibase:
+      enabled: ${SOCIAL_POST_LIQUIBASE_ENABLED:true}
+      change-log: ${SOCIAL_POST_LIQUIBASE_CHANGELOG:classpath:db/changelog/db.changelog-master.xml}
     kafka:
       bootstrap-servers: ${SOCIAL_POST_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
 
@@ -119,7 +127,11 @@ social:
       url: ${SOCIAL_DIALOG_DB_URL:jdbc:postgresql://postgres:5432/dialog_db}
       username: ${SOCIAL_DIALOG_DB_USERNAME:postgres}
       password: ${SOCIAL_DIALOG_DB_PASSWORD:postgres}
+      schema: ${SOCIAL_DIALOG_DB_SCHEMA:public}
       driver-class-name: org.postgresql.Driver
+    liquibase:
+      enabled: ${SOCIAL_DIALOG_LIQUIBASE_ENABLED:true}
+      change-log: ${SOCIAL_DIALOG_LIQUIBASE_CHANGELOG:classpath:db/changelog/db.changelog-master.yaml}
 
   notification:
     datasource:

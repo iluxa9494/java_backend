@@ -24,4 +24,10 @@ public class AuthServiceControllerAdvice {
     public SecurityMessage jwtTokenInvalidExceptionHandler(JwtTokenInvalidException e) {
         return new SecurityMessage("Токен не валиден.");
     }
+
+    @ExceptionHandler(SecurityException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public SecurityMessage securityExceptionHandler(SecurityException e) {
+        return new SecurityMessage(e.getMessage());
+    }
 }

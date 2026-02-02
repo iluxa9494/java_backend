@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -36,11 +37,13 @@ public class PostDataSourceConfig {
     @Bean
     public LocalContainerEntityManagerFactoryBean postEntityManagerFactory(
             EntityManagerFactoryBuilder builder,
-            @Qualifier("postDataSource") DataSource dataSource) {
+            @Qualifier("postDataSource") DataSource dataSource,
+            @Value("${social.post.datasource.schema:public}") String schema) {
         return builder
                 .dataSource(dataSource)
                 .packages("ru.skillbox.socialnetwork.post")
                 .persistenceUnit("post")
+                .properties(java.util.Map.of("hibernate.default_schema", schema))
                 .build();
     }
 

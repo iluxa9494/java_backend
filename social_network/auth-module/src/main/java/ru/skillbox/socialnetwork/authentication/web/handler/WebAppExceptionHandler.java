@@ -2,6 +2,7 @@ package ru.skillbox.socialnetwork.authentication.web.handler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -37,6 +38,21 @@ public class WebAppExceptionHandler {
     public ResponseEntity<ErrorResponseBody> runtimeExceptionHandler(RuntimeException ex, WebRequest webRequest) {
         log.error("RuntimeException: {}", ex.getMessage(), ex);
         return buildResponse(HttpStatus.BAD_REQUEST, ex, webRequest);
+    }
+
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponseBody> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException ex,
+                                                                                   WebRequest webRequest) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .reduce((a, b) -> a + "; " + b)
+                .orElse("Validation failed");
+        log.warn("Validation failed: {}", message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponseBody.builder()
+                        .message(message)
+                        .description(webRequest.getDescription(false))
+                        .build());
     }
 
     @ExceptionHandler(value = Exception.class)

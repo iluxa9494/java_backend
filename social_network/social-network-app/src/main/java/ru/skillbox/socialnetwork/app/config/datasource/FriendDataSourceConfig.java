@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -36,11 +37,13 @@ public class FriendDataSourceConfig {
     @Bean
     public LocalContainerEntityManagerFactoryBean friendEntityManagerFactory(
             EntityManagerFactoryBuilder builder,
-            @Qualifier("friendDataSource") DataSource dataSource) {
+            @Qualifier("friendDataSource") DataSource dataSource,
+            @Value("${social.friend.datasource.schema:public}") String schema) {
         return builder
                 .dataSource(dataSource)
                 .packages("ru.skillbox.socialnetwork.friend")
                 .persistenceUnit("friend")
+                .properties(java.util.Map.of("hibernate.default_schema", schema))
                 .build();
     }
 

@@ -2,6 +2,8 @@ package ru.skillbox.socialnetwork.integration.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.socialnetwork.integration.dto.geo.City;
 import ru.skillbox.socialnetwork.integration.dto.geo.Country;
@@ -29,10 +31,14 @@ public class GeoController {
         return geoService.getCountriesWithCities();
     }
 
+    @GetMapping("/country/{countryId}/city")
+    public ResponseEntity<Set<City>> getCitiesByCountryIdAlias(@PathVariable Integer countryId) {
+        return getCitiesByCountryId(countryId);
+    }
+
     @GetMapping("/{countryId}/city")
-    public Set<City> getCitiesByCountryId(@PathVariable Integer countryId) {
+    public ResponseEntity<Set<City>> getCitiesByCountryId(@PathVariable Integer countryId) {
         log.info("Received request to get cities for country ID: {}", countryId);
-        Country country = geoService.getCountryWithCitiesById(countryId);
         if (countryId == null) {
             throw new IllegalArgumentException("Country ID cannot be null");
         }
@@ -41,11 +47,17 @@ public class GeoController {
             throw new IllegalArgumentException("Country ID must be a positive integer");
         }
 
+        Country country = geoService.getCountryWithCitiesById(countryId);
+        if (country == null) {
+            log.debug("Country not found for ID {}", countryId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
         if (country.getCities() == null || country.getCities().isEmpty()) {
             log.debug("Country found but no cities available for country ID: {}", countryId);
-            return Set.of();
+            return ResponseEntity.ok(Set.of());
         }
-        return country.getCities();
+        return ResponseEntity.ok(country.getCities());
     }
 
 }

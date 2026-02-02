@@ -1,18 +1,22 @@
 package ru.skillbox.socialnetwork.authentication.web.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateUserRequest {
 
     @Email
+    @NotBlank
     private String email;
 
     @Size(min = 8, max = 20)
@@ -35,4 +39,9 @@ public class CreateUserRequest {
 
     @NotBlank
     private String captchaCode;
+
+    @AssertTrue(message = "Passwords do not match")
+    public boolean isEqualPassword() {
+        return Objects.equals(password1, password2);
+    }
 }

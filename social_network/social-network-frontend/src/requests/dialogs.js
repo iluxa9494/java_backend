@@ -10,11 +10,11 @@ export default {
   },
 
   getDialogs() {
-    return axios.get('/dialogs?page=0&sort=unreadCount,desc');
+    return axios.get('dialogs?page=0&sort=unreadCount,desc');
   },
 
   unreadedMessages() {
-    return axios.get('/dialogs/unread');
+    return axios.get('dialogs/unread');
   },
 
   markReaded(id) {
