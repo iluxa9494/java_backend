@@ -8,6 +8,7 @@ import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -39,11 +40,13 @@ public class AccountDataSourceConfig {
     @Bean
     public LocalContainerEntityManagerFactoryBean accountEntityManagerFactory(
             EntityManagerFactoryBuilder builder,
-            @Qualifier("accountDataSource") DataSource dataSource) {
+            @Qualifier("accountDataSource") DataSource dataSource,
+            @Value("${social.account.datasource.schema:public}") String schema) {
         return builder
                 .dataSource(dataSource)
                 .packages("ru.skillbox.socialnetwork.account")
                 .persistenceUnit("account")
+                .properties(java.util.Map.of("hibernate.default_schema", schema))
                 .build();
     }
 

@@ -101,18 +101,15 @@
 
   </dependencies>
 
-  <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <excludes>
-          <exclude>db/changelog/db.changelog-master.yaml</exclude>
-        </excludes>
-      </resource>
-    </resources>
-  </build>
-
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>db/changelog/db.changelog-master.yaml</exclude>
+				</excludes>
+			</resource>
+		</resources>
 		<plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
