@@ -29,6 +29,12 @@ java -jar social-network-app/target/social-network-app-*.jar
 
 The app listens on port `8080` by default (override with `SERVER_PORT`).
 
+## Swagger/OpenAPI smoke test
+```bash
+curl -i http://127.0.0.1:${SERVER_PORT:-8080}/v3/api-docs
+curl -i http://127.0.0.1:${SERVER_PORT:-8080}/swagger-ui/index.html
+```
+
 ## Run with Docker Compose
 ```bash
 docker compose up --build
