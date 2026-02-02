@@ -10,14 +10,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.socialnetwork.account.dto.*;
 import ru.skillbox.socialnetwork.account.dto.AccountStatus;
 import ru.skillbox.socialnetwork.account.service.AccountService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 @Slf4j
@@ -267,12 +268,12 @@ public class AccountController {
         // Проверяем, что пользователь аутентифицирован
         if (authentication == null) {
             log.error("❌ [CONTROLLER] SecurityContext не содержит аутентификации");
-            throw new AccessDeniedException("User not authenticated - no authentication found");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
         }
 
         if (!authentication.isAuthenticated()) {
             log.error("❌ [CONTROLLER] Пользователь не аутентифицирован");
-            throw new AccessDeniedException("User not authenticated");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
         }
 
         // Логируем информацию для отладки
@@ -281,13 +282,13 @@ public class AccountController {
         log.info("🔐 [CONTROLLER] Authorities: {}", authentication.getAuthorities());
 
         try {
-            // Извлекаем userId из authentication
-            String userIdStr = authentication.getName();
+            Object principal = authentication.getPrincipal();
+            String userIdStr = extractUserIdCandidate(principal, authentication.getName());
 
             // Проверяем, что userId не пустой
             if (userIdStr == null || userIdStr.trim().isEmpty()) {
                 log.error("❌ [CONTROLLER] UserId is null or empty in authentication");
-                throw new AccessDeniedException("User ID not found in security context");
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User ID not found in security context");
             }
 
             // Конвертируем в UUID
@@ -298,11 +299,34 @@ public class AccountController {
 
         } catch (IllegalArgumentException e) {
             log.error("❌ [CONTROLLER] Неверный формат UserId в SecurityContext: {}", e.getMessage());
-            throw new AccessDeniedException("Invalid user ID format in security context");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid user ID format in security context");
         } catch (Exception e) {
             log.error("❌ [CONTROLLER] Неожиданная ошибка при извлечении UserId: {}", e.getMessage());
-            throw new AccessDeniedException("Cannot extract user ID from security context: " + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "Cannot extract user ID from security context: " + e.getMessage());
         }
+    }
+
+    private String extractUserIdCandidate(Object principal, String authenticationName) {
+        if (principal instanceof UUID uuid) {
+            return uuid.toString();
+        }
+        if (principal instanceof String s) {
+            return s;
+        }
+        if (principal != null && principal.getClass().getName().equals("org.springframework.security.oauth2.jwt.Jwt")) {
+            try {
+                Method getClaim = principal.getClass().getMethod("getClaim", String.class);
+                Method getSubject = principal.getClass().getMethod("getSubject");
+                Object claimUserId = getClaim.invoke(principal, "userId");
+                Object claimId = getClaim.invoke(principal, "id");
+                return claimUserId != null ? claimUserId.toString()
+                        : (claimId != null ? claimId.toString() : String.valueOf(getSubject.invoke(principal)));
+            } catch (Exception ex) {
+                log.warn("⚠️ [CONTROLLER] Failed to read Jwt principal claims: {}", ex.getMessage());
+            }
+        }
+        return authenticationName;
     }
 
     /**

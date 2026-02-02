@@ -2,6 +2,7 @@ package ru.skillbox.socialnetwork.post.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.*;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,11 +51,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiError> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex,
+                                                             HttpServletRequest req) {
+        var body = new ApiError(
+                OffsetDateTime.now(),
+                HttpStatus.METHOD_NOT_ALLOWED.value(),
+                "Request method '" + ex.getMethod() + "' is not supported for this endpoint.",
+                req.getRequestURI(),
+                Map.of()
+        );
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(body);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleOther(Exception ex,
                                                 HttpServletRequest req) {
         var body = new ApiError(
-                OffsetDateTime.now(),
+            OffsetDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Internal error",
                 req.getRequestURI(),

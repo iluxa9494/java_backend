@@ -3,11 +3,13 @@ package ru.skillbox.socialnetwork.authentication.security.jwt;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,6 +38,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String path = request.getServletPath();
         if (isPublicEndpoint(path)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        if (isAlreadyAuthenticated()) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -70,6 +76,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
             return headerAuth.substring(7);
         }
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
         return null;
     }
 
@@ -87,5 +101,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 path.startsWith("/api/v1/auth/change-email-link") ||
                 path.startsWith("/api/v1/auth/logout") ||
                 path.startsWith("/api/v1/auth/password/recovery/");
+    }
+
+    private boolean isAlreadyAuthenticated() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken);
     }
 }

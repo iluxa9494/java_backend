@@ -4,7 +4,10 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -35,6 +38,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
 
+        if (isAlreadyAuthenticated()) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String token = extractToken(request);
 
         if (token != null) {
@@ -45,21 +53,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     UUID userId = authTokenService.extractUserId(token);
                     userActivityService.recordUserActivity(userId);
                     var authentication = new UsernamePasswordAuthenticationToken(
-                            userId.toString(), token, Collections.emptyList()
+                            userId, token, Collections.emptyList()
                     );
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } else {
-                    log.debug("Token validation failed for request {}", request.getRequestURI());
+                    log.warn("[account] Token validation failed for request {}", request.getRequestURI());
                 }
             } catch (Exception e) {
-                log.warn("Token validation error for request {}: {}", request.getRequestURI(), e.getMessage());
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Invalid or expired token");
-                return;
+                log.warn("[account] Token validation error for request {}: {}", request.getRequestURI(), e.getMessage());
+                SecurityContextHolder.clearContext();
             }
         } else {
-            log.debug("Token not found for request {}", request.getRequestURI());
+            log.debug("[account] Token not found for request {}", request.getRequestURI());
         }
 
         chain.doFilter(request, response);
@@ -67,10 +73,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
     private String extractToken(HttpServletRequest request) {
-        String bearer = request.getHeader("Authorization");
+        String bearer = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (bearer != null && bearer.startsWith("Bearer ")) {
             return bearer.substring(7); // Удаляем "Bearer "
         }
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("jwt".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
         return null;
+    }
+
+    private boolean isAlreadyAuthenticated() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken);
     }
 }

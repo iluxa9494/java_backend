@@ -4,8 +4,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.socialnetwork.post.dto.filter.PostFilter;
 import ru.skillbox.socialnetwork.post.dto.post.CreatePostRequest;
@@ -13,6 +11,7 @@ import ru.skillbox.socialnetwork.post.dto.post.PagePostDto;
 import ru.skillbox.socialnetwork.post.dto.post.PostDto;
 import ru.skillbox.socialnetwork.post.dto.post.UpdatePostRequest;
 import ru.skillbox.socialnetwork.post.service.PostService;
+import ru.skillbox.socialnetwork.post.util.CurrentUserProvider;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
@@ -26,18 +25,11 @@ import java.util.stream.Collectors;
 public class PostController {
 
     private final PostService service;
+    private final CurrentUserProvider currentUserProvider;
 
     @PostMapping
     public PostDto create(@RequestBody @Valid CreatePostRequest req) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return null;
-        }
-        Object principal = authentication.getPrincipal();
-        if (!(principal instanceof UUID authorId)) {
-            return null;
-        }
+        UUID authorId = currentUserProvider.getCurrentUserId();
         return service.create(authorId, req);
     }
 
@@ -62,6 +54,35 @@ public class PostController {
     @PostMapping("/{id}/restore")
     public void restore(@PathVariable UUID id) {
         service.restore(id);
+    }
+
+    // --------- лента ----------
+    @GetMapping
+    public PagePostDto feed(
+            @RequestParam(name = "withFriends", required = false) Boolean withFriends,
+            @RequestParam(name = "sort", defaultValue = "time,desc") String sort,
+            @RequestParam(name = "isDeleted", required = false) Boolean isDeleted,
+            @RequestParam(name = "isBlocked", required = false) Boolean isBlocked,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        String[] parts = sort.split(",", 2);
+        Sort.Direction dir = (parts.length == 2 && parts[1].equalsIgnoreCase("asc"))
+                ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sortSpec = Sort.by(dir, parts[0]);
+        PageRequest pr = PageRequest.of(page, size, sortSpec);
+
+        PostFilter filter = new PostFilter(
+                null,
+                null,
+                null,
+                null,
+                null,
+                isDeleted,
+                isBlocked
+        );
+
+        return service.search(filter, pr);
     }
 
     // --------- поиск/листинг ----------
