@@ -131,7 +131,7 @@ social:
       driver-class-name: org.postgresql.Driver
     liquibase:
       enabled: ${SOCIAL_DIALOG_LIQUIBASE_ENABLED:true}
-      change-log: ${SOCIAL_DIALOG_LIQUIBASE_CHANGELOG:classpath:db/changelog/db.changelog-master.yaml}
+      change-log: ${SOCIAL_DIALOG_LIQUIBASE_CHANGELOG:classpath:db/changelog/dialog/db.changelog-master.yaml}
 
   notification:
     datasource:

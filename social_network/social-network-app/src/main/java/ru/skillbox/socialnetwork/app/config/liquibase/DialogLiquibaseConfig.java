@@ -14,7 +14,7 @@ public class DialogLiquibaseConfig {
     @Bean
     public SpringLiquibase dialogLiquibase(
             @Qualifier("dialogDataSource") DataSource dialogDataSource,
-            @Value("${social.dialog.liquibase.change-log:classpath:db/changelog/db.changelog-master.yaml}")
+            @Value("${social.dialog.liquibase.change-log:classpath:db/changelog/dialog/db.changelog-master.yaml}")
             String changeLog,
             @Value("${social.dialog.liquibase.enabled:true}") boolean enabled,
             @Value("${social.dialog.datasource.schema:public}") String schema) {
