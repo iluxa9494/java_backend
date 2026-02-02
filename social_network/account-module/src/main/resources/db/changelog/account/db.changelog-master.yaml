@@ -3,8 +3,8 @@ databaseChangeLog:
       id: 1
       author: you
       preConditions:
-        onFail: MARK_RAN
-        onError: HALT
+        - onFail: MARK_RAN
+        - onError: HALT
         - not:
             - tableExists:
                 tableName: accounts
@@ -81,8 +81,8 @@ databaseChangeLog:
       id: 2
       author: ivan
       preConditions:
-        onFail: MARK_RAN
-        onError: HALT
+        - onFail: MARK_RAN
+        - onError: HALT
         - not:
             - columnExists:
                 tableName: accounts
