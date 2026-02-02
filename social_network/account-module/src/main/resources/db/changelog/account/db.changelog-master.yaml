@@ -6,8 +6,8 @@ databaseChangeLog:
         onFail: MARK_RAN
         onError: HALT
         - not:
-            tableExists:
-              tableName: accounts
+            - tableExists:
+                tableName: accounts
       changes:
         - createTable:
             tableName: accounts
@@ -84,9 +84,9 @@ databaseChangeLog:
         onFail: MARK_RAN
         onError: HALT
         - not:
-            columnExists:
-              tableName: accounts
-              columnName: profile_cover
+            - columnExists:
+                tableName: accounts
+                columnName: profile_cover
       changes:
         - addColumn:
             tableName: accounts
