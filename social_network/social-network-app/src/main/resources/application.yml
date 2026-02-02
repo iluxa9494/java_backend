@@ -123,7 +123,7 @@ social:
       driver-class-name: org.postgresql.Driver
     liquibase:
       enabled: ${SOCIAL_POST_LIQUIBASE_ENABLED:true}
-      change-log: ${SOCIAL_POST_LIQUIBASE_CHANGELOG:classpath:db/changelog/db.changelog-master.xml}
+      change-log: ${SOCIAL_POST_LIQUIBASE_CHANGELOG:classpath:db/changelog/post/db.changelog-master.xml}
     kafka:
       bootstrap-servers: ${SOCIAL_POST_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
 

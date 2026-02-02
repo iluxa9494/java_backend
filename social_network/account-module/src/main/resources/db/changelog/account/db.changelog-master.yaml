@@ -2,6 +2,12 @@ databaseChangeLog:
   - changeSet:
       id: 1
       author: you
+      preConditions:
+        onFail: MARK_RAN
+        onError: HALT
+        - not:
+            tableExists:
+              tableName: accounts
       changes:
         - createTable:
             tableName: accounts
@@ -74,6 +80,13 @@ databaseChangeLog:
   - changeSet:
       id: 2
       author: ivan
+      preConditions:
+        onFail: MARK_RAN
+        onError: HALT
+        - not:
+            columnExists:
+              tableName: accounts
+              columnName: profile_cover
       changes:
         - addColumn:
             tableName: accounts

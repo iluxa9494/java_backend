@@ -14,7 +14,7 @@ public class PostLiquibaseConfig {
     @Bean
     public SpringLiquibase postLiquibase(
             @Qualifier("postDataSource") DataSource postDataSource,
-            @Value("${social.post.liquibase.change-log:classpath:db/changelog/db.changelog-master.xml}")
+            @Value("${social.post.liquibase.change-log:classpath:db/changelog/post/db.changelog-master.xml}")
             String changeLog,
             @Value("${social.post.liquibase.enabled:true}") boolean enabled,
             @Value("${social.post.datasource.schema:public}") String schema) {
