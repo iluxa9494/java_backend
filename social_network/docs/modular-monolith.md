@@ -64,7 +64,11 @@ Each module has its own datasource settings:
 `auth_db`, `account_db`, `friend_db`, `post_db`, `dialog_db`, `notification_db` (or override the URLs).
 
 Liquibase auto-run is disabled in the monolith to avoid running migrations only on the primary datasource.
-Apply module migrations explicitly if needed.
+Auth module migrations are executed via a dedicated Liquibase bean bound to `social.auth.datasource`.
+Control it with:
+- `SOCIAL_AUTH_LIQUIBASE_ENABLED` (default `true`)
+- `SOCIAL_AUTH_LIQUIBASE_CHANGELOG` (default `classpath:db/changelog/auth/db.changelog-master.xml`)
+- `SOCIAL_AUTH_DB_SCHEMA` (default `public`)
 ### Shared infrastructure
 - Kafka: `SPRING_KAFKA_BOOTSTRAP_SERVERS` (default `kafka:29092`)
 - Redis: `SPRING_DATA_REDIS_*` (default `redis_db:6379` / password `redis`)

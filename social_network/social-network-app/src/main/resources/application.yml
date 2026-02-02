@@ -60,7 +60,11 @@ social:
       url: ${SOCIAL_AUTH_DB_URL:jdbc:postgresql://postgres:5432/auth_db}
       username: ${SOCIAL_AUTH_DB_USERNAME:postgres}
       password: ${SOCIAL_AUTH_DB_PASSWORD:postgres}
+      schema: ${SOCIAL_AUTH_DB_SCHEMA:public}
       driver-class-name: org.postgresql.Driver
+    liquibase:
+      enabled: ${SOCIAL_AUTH_LIQUIBASE_ENABLED:true}
+      change-log: ${SOCIAL_AUTH_LIQUIBASE_CHANGELOG:classpath:db/changelog/auth/db.changelog-master.xml}
     redis:
       host: ${SOCIAL_AUTH_REDIS_HOST:redis_db}
       port: ${SOCIAL_AUTH_REDIS_PORT:6379}
