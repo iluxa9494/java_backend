@@ -13,6 +13,9 @@ COPY post-module/pom.xml post-module/pom.xml
 COPY dialog-module/pom.xml dialog-module/pom.xml
 COPY notification-module/pom.xml notification-module/pom.xml
 COPY integration-module/pom.xml integration-module/pom.xml
+COPY social-network-frontend/package.json social-network-frontend/package.json
+COPY social-network-frontend/package-lock.json social-network-frontend/package-lock.json
+COPY social-network-frontend/vue.config.js social-network-frontend/vue.config.js
 
 RUN --mount=type=cache,target=/root/.m2 \
     set -euo pipefail; \
@@ -26,6 +29,7 @@ COPY post-module post-module
 COPY dialog-module dialog-module
 COPY notification-module notification-module
 COPY integration-module integration-module
+COPY social-network-frontend social-network-frontend
 
 RUN --mount=type=cache,target=/root/.m2 \
     set -euo pipefail; \

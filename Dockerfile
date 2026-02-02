@@ -22,6 +22,9 @@ COPY social_network/post-module/pom.xml social_network/post-module/pom.xml
 COPY social_network/dialog-module/pom.xml social_network/dialog-module/pom.xml
 COPY social_network/notification-module/pom.xml social_network/notification-module/pom.xml
 COPY social_network/integration-module/pom.xml social_network/integration-module/pom.xml
+COPY social_network/social-network-frontend/package.json social_network/social-network-frontend/package.json
+COPY social_network/social-network-frontend/package-lock.json social_network/social-network-frontend/package-lock.json
+COPY social_network/social-network-frontend/vue.config.js social_network/social-network-frontend/vue.config.js
 
 RUN --mount=type=cache,target=/root/.m2 \
     set -eu; \
