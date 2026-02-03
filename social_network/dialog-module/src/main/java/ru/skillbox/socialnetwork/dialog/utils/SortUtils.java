@@ -12,7 +12,7 @@ public class SortUtils {
 
     public static Sort parseSort(List<String> sort) {
         if (sort == null || sort.isEmpty()) {
-            return Sort.by("id").ascending();
+            return Sort.by("time").ascending();
         }
 
         List<String> cleaned = sort.stream()
@@ -20,7 +20,7 @@ public class SortUtils {
                 .toList();
 
         if (cleaned.isEmpty()) {
-            return Sort.by("id").ascending();
+            return Sort.by("time").ascending();
         }
 
         if (cleaned.size() == 2 && !cleaned.get(0).contains(",") && !cleaned.get(1).contains(",")) {

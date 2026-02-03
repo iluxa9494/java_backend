@@ -119,11 +119,16 @@ export default {
         requestSettings.deleteDefaultHeader('Authorization');
         commit('setToken', '');
         commit('setJwt');
+        throw error;
       }
     },
 
     async logout({ commit, dispatch, state }) {
-      await auth.logout();
+      try {
+        await auth.logout();
+      } catch (error) {
+        console.warn('Logout failed, clearing local state anyway', error?.response?.status);
+      }
 
       commit('setToken', '');
       commit('setStatus', 'logout');
@@ -137,7 +142,7 @@ export default {
       localStorage.removeItem('user-token');
       localStorage.removeItem('refresh-token');
 
-      document.cookie = 'jwt=';
+      document.cookie = 'jwt=; Path=/; Max-Age=0';
       clearInterval(state.pollingToken);
       commit('setJwt');
       requestSettings.deleteDefaultHeader('Authorization');

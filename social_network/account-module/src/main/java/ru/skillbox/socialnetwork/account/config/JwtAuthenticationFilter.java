@@ -75,13 +75,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String extractToken(HttpServletRequest request) {
         String bearer = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (bearer != null && bearer.startsWith("Bearer ")) {
-            return bearer.substring(7); // Удаляем "Bearer "
+            String token = bearer.substring(7);
+            return (token == null || token.isBlank()) ? null : token;
         }
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if ("jwt".equals(cookie.getName())) {
-                    return cookie.getValue();
+                    String token = cookie.getValue();
+                    return (token == null || token.isBlank()) ? null : token;
                 }
             }
         }

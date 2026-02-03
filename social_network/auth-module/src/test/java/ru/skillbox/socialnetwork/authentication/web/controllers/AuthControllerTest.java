@@ -78,4 +78,23 @@ class AuthControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("password1")));
     }
+
+    @Test
+    void register_acceptsFormUrlEncodedPayload() throws Exception {
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+        when(captchaService.validateCaptcha("secret", "1234")).thenReturn(true);
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v1/auth/register")
+                                .cookie(new jakarta.servlet.http.Cookie("CAPTCHA_SECRET", "secret"))
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                                .param("email", "user@example.com")
+                                .param("password1", "password123")
+                                .param("password2", "password123")
+                                .param("firstName", "Ivan")
+                                .param("lastName", "Petrov")
+                                .param("captchaCode", "1234")
+                )
+                .andExpect(status().isCreated());
+    }
 }

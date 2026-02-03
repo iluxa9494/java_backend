@@ -36,6 +36,12 @@ public class AppJwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path == null || !path.startsWith("/api/");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
@@ -83,7 +89,8 @@ public class AppJwtAuthenticationFilter extends OncePerRequestFilter {
     private String resolveToken(HttpServletRequest request) {
         String bearer = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (bearer != null && bearer.startsWith("Bearer ")) {
-            return bearer.substring(7);
+            String token = bearer.substring(7);
+            return token.isBlank() ? null : token;
         }
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
@@ -91,7 +98,8 @@ public class AppJwtAuthenticationFilter extends OncePerRequestFilter {
         }
         for (Cookie cookie : cookies) {
             if ("jwt".equals(cookie.getName())) {
-                return cookie.getValue();
+                String token = cookie.getValue();
+                return (token == null || token.isBlank()) ? null : token;
             }
         }
         return null;

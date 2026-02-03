@@ -25,9 +25,20 @@ public class AuthController {
     private final CaptchaService captchaService;
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/register")
-    public Response registerUser(@Valid @RequestBody CreateUserRequest request,
-                                      @CookieValue(value = "CAPTCHA_SECRET", required = false) String secret) {
+    @PostMapping(value = "/register", consumes = "application/json")
+    public Response registerUserJson(@Valid @RequestBody CreateUserRequest request,
+                                     @CookieValue(value = "CAPTCHA_SECRET", required = false) String secret) {
+        return registerUser(request, secret);
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(value = "/register", consumes = "application/x-www-form-urlencoded")
+    public Response registerUserForm(@Valid @org.springframework.web.bind.annotation.ModelAttribute CreateUserRequest request,
+                                     @CookieValue(value = "CAPTCHA_SECRET", required = false) String secret) {
+        return registerUser(request, secret);
+    }
+
+    private Response registerUser(CreateUserRequest request, String secret) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AlreadyExitsException("Email already exists");
         }
@@ -70,8 +81,14 @@ public class AuthController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/login")
-    public LoginResponse authUser(@RequestBody LoginRequest loginRequest) {
+    @PostMapping(value = "/login", consumes = "application/json")
+    public LoginResponse authUserJson(@RequestBody LoginRequest loginRequest) {
+        return securityService.authenticateUser(loginRequest);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(value = "/login", consumes = "application/x-www-form-urlencoded")
+    public LoginResponse authUserForm(@org.springframework.web.bind.annotation.ModelAttribute LoginRequest loginRequest) {
         return securityService.authenticateUser(loginRequest);
     }
 

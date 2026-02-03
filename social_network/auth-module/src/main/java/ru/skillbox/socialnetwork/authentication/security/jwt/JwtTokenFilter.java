@@ -34,6 +34,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path == null || !path.startsWith("/api/");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String path = request.getServletPath();
@@ -74,13 +80,15 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private String getToken(HttpServletRequest request) {
         String headerAuth = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7);
+            String token = headerAuth.substring(7);
+            return StringUtils.hasText(token) ? token : null;
         }
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if ("jwt".equals(cookie.getName())) {
-                    return cookie.getValue();
+                    String token = cookie.getValue();
+                    return StringUtils.hasText(token) ? token : null;
                 }
             }
         }

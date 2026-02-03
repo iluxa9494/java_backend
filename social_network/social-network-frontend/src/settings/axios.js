@@ -84,24 +84,16 @@ if (token) axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 // });
 
 axios.interceptors.response.use(null, (error) => {
-  console.error(error.response.status);
+  const response = error?.response;
+  const status = response?.status;
+  const errorMessage = response?.data?.error_description || response?.data?.message || ' ';
 
-  const errorMessage = error.response.data.error_description || ' ';
-
-  if (error.response) {
-    if (error.response.status === 403) {
+  if (response) {
+    if (status === 403) {
       console.log("Have to refresh Token");
       store.dispatch("auth/api/refreshToken");
     }
-    if (error.response.status === 400) {
-      store.dispatch('global/alert/setAlert', {
-        status: 'error',
-        text: `Ошибка ${error.response.status}: ${errorMessage}`,
-      });
-    }
-    if (error.response.status === 401) {
-      console.log('user-token3='+localStorage.getItem('user-token'))
-
+    if (status === 401) {
       localStorage.removeItem('user-token');
       localStorage.removeItem('refresh-token');
       store.commit('auth/api/setToken', null);
@@ -114,22 +106,28 @@ axios.interceptors.response.use(null, (error) => {
         });
       }
     }
-    store.dispatch('global/alert/setAlert', {
-      status: 'error',
-      text: `Ошибка ${error.response.status}: ${errorMessage}`,
-    });
-  } else if (error.request) {
+
+    if (status === 400) {
+      store.dispatch('global/alert/setAlert', {
+        status: 'error',
+        text: `Ошибка ${status}: ${errorMessage}`,
+      });
+    } else if (status && status !== 401) {
+      store.dispatch('global/alert/setAlert', {
+        status: 'error',
+        text: `Ошибка ${status}: ${errorMessage}`,
+      });
+    }
+  } else if (error?.request) {
     store.dispatch('global/alert/setAlert', {
       status: 'error',
       text: 'Нет ответа от сервера',
     });
   } else {
-    console.log('user-token='+localStorage.getItem('user-token'))
     store.dispatch('global/alert/setAlert', {
       status: 'error',
       text: 'Неизвестная ошибка',
     });
-    console.log('user-token2='+localStorage.getItem('user-token'))
   }
 
   console.error('Axios error', { error });

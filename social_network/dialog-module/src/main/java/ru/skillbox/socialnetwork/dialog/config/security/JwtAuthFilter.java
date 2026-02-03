@@ -27,6 +27,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         this.authTokenService = authTokenService;
     }
 
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path == null || !path.startsWith("/api/");
+    }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -60,13 +66,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private String resolveToken(HttpServletRequest request) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
+            String token = authHeader.substring(7);
+            return (token == null || token.isBlank()) ? null : token;
         }
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if ("jwt".equals(cookie.getName())) {
-                    return cookie.getValue();
+                    String token = cookie.getValue();
+                    return (token == null || token.isBlank()) ? null : token;
                 }
             }
         }

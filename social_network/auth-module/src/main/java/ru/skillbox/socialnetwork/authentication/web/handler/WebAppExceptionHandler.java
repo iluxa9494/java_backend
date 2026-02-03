@@ -5,6 +5,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.context.request.WebRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +17,7 @@ import ru.skillbox.socialnetwork.authentication.exceptions.EntityNotFoundExcepti
 import ru.skillbox.socialnetwork.authentication.exceptions.RefreshTokenException;
 
 @RestControllerAdvice
-public class WebAppExceptionHandler {
+public class WebAppExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(WebAppExceptionHandler.class);
 
     @ExceptionHandler(value = RefreshTokenException.class)
@@ -59,6 +63,30 @@ public class WebAppExceptionHandler {
     public ResponseEntity<ErrorResponseBody> exceptionHandler(Exception ex, WebRequest webRequest) {
         log.error("Unhandled exception: {}", ex.getMessage(), ex);
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex, webRequest);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex,
+                                                                          HttpHeaders headers,
+                                                                          HttpStatusCode status,
+                                                                          WebRequest request) {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(ErrorResponseBody.builder()
+                        .message(ex.getMessage())
+                        .description(request.getDescription(false))
+                        .build());
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(org.springframework.http.converter.HttpMessageNotReadableException ex,
+                                                                   HttpHeaders headers,
+                                                                   HttpStatusCode status,
+                                                                   WebRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponseBody.builder()
+                        .message(ex.getMessage())
+                        .description(request.getDescription(false))
+                        .build());
     }
 
     private ResponseEntity<ErrorResponseBody> buildResponse(HttpStatus httpStatus, Exception ex, WebRequest webRequest) {
