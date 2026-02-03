@@ -1,6 +1,10 @@
 import auth from '@/requests/auth';
 import requestSettings from '@/requests/settings';
 
+const buildJwtCookie = (value) => {
+  const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+  return `jwt=${value}; Path=/; SameSite=Lax${secure}`;
+};
 
 export default {
   namespaced: true,
@@ -78,7 +82,7 @@ export default {
         localStorage.setItem('user-token', newAccessToken);
         localStorage.setItem('refresh-token', newRefreshToken);
         
-        document.cookie = `jwt=${newAccessToken}`;
+        document.cookie = buildJwtCookie(newAccessToken);
 
         requestSettings.setDefaultHeader('Authorization', `Bearer ${newAccessToken}`);
 
@@ -98,7 +102,7 @@ export default {
         localStorage.setItem('user-token', accessToken);
         localStorage.setItem('refresh-token', refreshToken);
 
-        document.cookie = `jwt=${accessToken}`;
+        document.cookie = buildJwtCookie(accessToken);
         requestSettings.setDefaultHeader('Authorization', `Bearer ${accessToken}`);
 
         commit('setJwt');
@@ -115,7 +119,7 @@ export default {
         localStorage.removeItem('user-token');
         localStorage.removeItem('refresh-token');
 
-        document.cookie = 'jwt=';
+        document.cookie = `${buildJwtCookie('')}; Max-Age=0`;
         requestSettings.deleteDefaultHeader('Authorization');
         commit('setToken', '');
         commit('setJwt');
@@ -142,7 +146,7 @@ export default {
       localStorage.removeItem('user-token');
       localStorage.removeItem('refresh-token');
 
-      document.cookie = 'jwt=; Path=/; Max-Age=0';
+      document.cookie = `${buildJwtCookie('')}; Max-Age=0`;
       clearInterval(state.pollingToken);
       commit('setJwt');
       requestSettings.deleteDefaultHeader('Authorization');
