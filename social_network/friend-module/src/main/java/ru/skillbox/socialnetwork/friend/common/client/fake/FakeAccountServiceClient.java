@@ -42,7 +42,7 @@ public class FakeAccountServiceClient implements AccountServiceClient {
             accounts.add(generateRandomAccount());
         }
 
-        return Page.empty();
+        return Page.empty(pageable);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class FakeAccountServiceClient implements AccountServiceClient {
         }
 
         log.info("Сгенерирована страница с {} фейковыми аккаунтами по списку ID", accounts.size());
-        return Page.empty();
+        return Page.empty(pageable);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class FakeAccountServiceClient implements AccountServiceClient {
         }
 
         log.info("Сгенерирована страница с {} фейковыми аккаунтами по списку ID", accounts.size());
-        return Page.empty();
+        return Page.empty(pageable);
     }
 
     @Override

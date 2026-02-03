@@ -256,7 +256,7 @@ public class FriendshipServiceImpl implements FriendshipService {
         List<UUID> targetIds = findTargetIds(userId, request.getIds(), statusCode);
 
         if (targetIds == null || targetIds.isEmpty()) {
-            return Page.empty();
+            return Page.empty(pageable);
         }
 
         Page<AccountDto> accountDtoPage;

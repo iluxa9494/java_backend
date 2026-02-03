@@ -1,4 +1,5 @@
 import axios from 'axios';
+import router from '@/router';
 import store from '@/store';
 // import jwtDecode from "jwt-decode";
 
@@ -104,7 +105,14 @@ axios.interceptors.response.use(null, (error) => {
       localStorage.removeItem('user-token');
       localStorage.removeItem('refresh-token');
       store.commit('auth/api/setToken', null);
-      window.location.replace('/login');
+      if (router.currentRoute.value.name !== 'Login') {
+        router.replace({
+          name: 'Login',
+          query: {
+            redirect: router.currentRoute.value.name || 'News',
+          },
+        });
+      }
     }
     store.dispatch('global/alert/setAlert', {
       status: 'error',
