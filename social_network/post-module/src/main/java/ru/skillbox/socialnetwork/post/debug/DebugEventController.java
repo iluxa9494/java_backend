@@ -10,7 +10,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @RestController
-@RequestMapping("/_debug")
+@RequestMapping("/api/_debug")
 @RequiredArgsConstructor
 public class DebugEventController {
 

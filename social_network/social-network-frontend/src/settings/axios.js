@@ -11,7 +11,7 @@ axios.defaults.withCredentials = true;
 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 axios.defaults.baseURL = isLocalhost
   ? `${window.location.protocol}//${window.location.hostname}:8765/api/v1/`
-  : `${window.location.origin}/projects/social-network/api/api/v1/`;
+  : `${window.location.origin}/projects/social-network/api/v1/`;
 
 // const setAuthToken = (token) => {
 //   axios.defaults.headers.common['Authorization'] = `Bearer ${token}`

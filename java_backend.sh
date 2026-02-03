@@ -1,49 +1,37 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ==========================================
-# dump_project.sh
-# Обходит дерево проекта и сохраняет:
-# 1) содержимое текстовых файлов в один .txt
-# 2) список пропущенных файлов/папок с причиной — в отдельный .txt
-#
-# Запуск:
-#   chmod +x dump_project.sh
-#   ./dump_project.sh
-#
-# Результат в корне проекта:
-#   - project_dump.txt
-#   - project_dump_excluded.txt
-# ==========================================
-
 # --- где мы должны быть (корень репо) ---
 ROOT_DIR="$(pwd)"
 
-OUT_DUMP="${ROOT_DIR}/project_dump.txt"
-OUT_EXCL="${ROOT_DIR}/project_dump_excluded.txt"
+OUT_DUMP="${ROOT_DIR}/java_backend_dump.txt"
+OUT_EXCL="${ROOT_DIR}/java_backend_dump_excluded.txt"
 
-# --- служебные счетчики ---
+# временный output (пишем сюда, в конце mv -> OUT_DUMP) чтобы не словить самозацикливание
+TMP_DUMP="${ROOT_DIR}/.java_backend_dump.tmp"
+
+# принудительно включаемые файлы (даже если иначе были бы исключены)
+FORCE_INCLUDE=(
+  "${ROOT_DIR}/.gitignore"
+  "${ROOT_DIR}/Dockerfile"
+  "${ROOT_DIR}/entrypoint-java-backend.sh"
+)
+
 included_count=0
 excluded_count=0
 
-# --- helper: lower-case (bash 3.2 compatible) ---
-lower() {
-  # to lowercase, safe for bash 3.2
-  printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
-}
+lower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
 
-# --- инициализация файлов вывода ---
-: > "$OUT_DUMP"
+: > "$TMP_DUMP"
 : > "$OUT_EXCL"
 
-# Заголовки
 {
-  echo "PROJECT DUMP"
+  echo "JAVA_BACKEND DUMP"
   echo "Root: ${ROOT_DIR}"
   echo "Generated: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
   echo "=========================================="
   echo
-} >> "$OUT_DUMP"
+} >> "$TMP_DUMP"
 
 {
   echo "EXCLUDED PATHS"
@@ -57,67 +45,30 @@ lower() {
   echo
 } >> "$OUT_EXCL"
 
-# --- список исключаемых директорий (по имени) ---
-# Добавляй/убирай по желанию.
 EXCLUDE_DIR_NAMES=(
-  ".git"
-  ".idea"
-  ".vscode"
-  ".settings"
-  ".gradle"
-  ".mvn"          # часто содержит wrapper-бинарники/кеши
-  "target"
-  "build"
-  "out"
-  "node_modules"
-  "dist"
-  "coverage"
-  ".next"
-  ".nuxt"
-  ".cache"
-  ".terraform"
-  ".DS_Store"     # может быть и файлом, и "мусором"
-  "__pycache__"
-  ".pytest_cache"
-  ".mypy_cache"
-  ".idea_modules"
-  "logs"
-  "log"
-  "tmp"
-  "temp"
-  ".tmp"
+  ".git" ".idea" ".vscode" ".settings" ".gradle" ".mvn"
+  "target" "build" "out"
+  "node_modules" "dist" "coverage" ".next" ".nuxt" ".cache"
+  ".terraform" "__pycache__" ".pytest_cache" ".mypy_cache"
+  "logs" "log" "tmp" "temp" ".tmp"
 )
 
-# --- расширения, которые считаем "картинки/медиа/бинарники" ---
 EXCLUDE_EXTS=(
-  # images
-  "png" "jpg" "jpeg" "gif" "bmp" "webp" "tiff" "ico" "svg"
-  # media
-  "mp3" "wav" "flac" "ogg" "mp4" "mov" "avi" "mkv" "webm"
-  # archives
-  "zip" "rar" "7z" "tar" "gz" "bz2" "xz"
-  # binaries/libs
-  "jar" "war" "ear" "class" "exe" "dll" "so" "dylib" "bin"
-  # fonts
-  "ttf" "otf" "woff" "woff2" "eot"
-  # docs/binaries often large
-  "pdf" "psd" "ai"
-  # db
-  "db" "sqlite" "sqlite3"
+  png jpg jpeg gif bmp webp tiff ico svg
+  mp3 wav flac ogg mp4 mov avi mkv webm
+  zip rar 7z tar gz bz2 xz
+  jar war ear class exe dll so dylib bin
+  ttf otf woff woff2 eot
+  pdf psd ai
+  db sqlite sqlite3
 )
 
-# --- файлы, которые часто “мусор”/временные ---
 EXCLUDE_FILE_PATTERNS=(
   "*.swp" "*.swo" "*~"
-  ".DS_Store"
-  "Thumbs.db"
-  "*.iml"
-  "*.lock"
-  "*.log"
-  "*.tmp"
+  ".DS_Store" "Thumbs.db"
+  "*.iml" "*.lock" "*.log" "*.tmp"
 )
 
-# --- helper: записать исключение (путь + причина одним предложением) ---
 log_excluded() {
   local rel="$1"
   local reason="$2"
@@ -126,90 +77,99 @@ log_excluded() {
     echo "$reason"
     echo
   } >> "$OUT_EXCL"
-  ((excluded_count+=1))
+  excluded_count=$((excluded_count + 1))
 }
 
-# --- helper: безопасно получить относительный путь ---
 relpath() {
   local abs="$1"
-  # убрать ведущий ROOT_DIR + /
   local rel="${abs#"$ROOT_DIR"/}"
-  # если файл прямо в корне
-  if [[ "$rel" == "$abs" ]]; then
-    rel="$(basename "$abs")"
-  fi
+  [[ "$rel" == "$abs" ]] && rel="$(basename "$abs")"
   echo "$rel"
 }
 
-# --- helper: проверка, является ли путь внутри исключаемой директории ---
 is_in_excluded_dir() {
   local p="$1"
-  local part
+  local part d
   IFS='/' read -r -a parts <<< "$p"
   for part in "${parts[@]}"; do
     for d in "${EXCLUDE_DIR_NAMES[@]}"; do
-      if [[ "$part" == "$d" ]]; then
-        return 0
-      fi
+      [[ "$part" == "$d" ]] && return 0
     done
   done
   return 1
 }
 
-# --- helper: проверка по шаблонам файлов ---
 matches_exclude_file_pattern() {
   local filename="$1"
   local pat
   for pat in "${EXCLUDE_FILE_PATTERNS[@]}"; do
     # shellcheck disable=SC2053
-    if [[ "$filename" == $pat ]]; then
-      return 0
-    fi
+    [[ "$filename" == $pat ]] && return 0
   done
   return 1
 }
 
-# --- helper: проверка по расширению ---
 has_excluded_ext() {
   local filename="$1"
   local ext="${filename##*.}"
-  # если нет точки/расширения
-  if [[ "$ext" == "$filename" ]]; then
-    return 1
-  fi
+  [[ "$ext" == "$filename" ]] && return 1
   ext="$(lower "$ext")"
-
   local e
   for e in "${EXCLUDE_EXTS[@]}"; do
-    if [[ "$ext" == "$e" ]]; then
-      return 0
-    fi
+    [[ "$ext" == "$e" ]] && return 0
   done
   return 1
 }
 
-# --- helper: является ли файл текстовым (по file(1)) ---
 is_text_file() {
   local f="$1"
   local t
   t="$(file -b "$f" 2>/dev/null || true)"
   t="$(lower "$t")"
-
-  if [[ "$t" == *"text"* ]] || [[ "$t" == *"xml"* ]] || [[ "$t" == *"json"* ]] || [[ "$t" == *"yaml"* ]] || [[ "$t" == *"yml"* ]] || [[ "$t" == *"script"* ]] || [[ "$t" == *"ascii"* ]] || [[ "$t" == *"utf-8"* ]]; then
+  if [[ "$t" == *"text"* ]] || [[ "$t" == *"xml"* ]] || [[ "$t" == *"json"* ]] || \
+     [[ "$t" == *"yaml"* ]] || [[ "$t" == *"yml"* ]] || [[ "$t" == *"script"* ]] || \
+     [[ "$t" == *"ascii"* ]] || [[ "$t" == *"utf-8"* ]]; then
     return 0
   fi
   return 1
 }
 
+is_force_include() {
+  local abs="$1"
+  local fi
+  for fi in "${FORCE_INCLUDE[@]}"; do
+    [[ "$abs" == "$fi" ]] && return 0
+  done
+  return 1
+}
+
 # --- основной обход ---
-# Используем find, но фильтруем сами — так проще и надежнее логировать причины.
 while IFS= read -r -d '' f; do
-  # пропускаем, если это не обычный файл
-  if [[ ! -f "$f" ]]; then
+  [[ -f "$f" ]] || continue
+
+  rel="$(relpath "$f")"
+  base="$(basename "$rel")"
+
+  # 0) анти-зацикливание: никогда не читаем output-файлы (и временный тоже)
+  if [[ "$f" == "$OUT_DUMP" || "$f" == "$OUT_EXCL" || "$f" == "$TMP_DUMP" ]]; then
+    log_excluded "$rel" "Пропущено, потому что это файл результата дампа (защита от самозацикливания)."
     continue
   fi
 
-  rel="$(relpath "$f")"
+  # Если файл в FORCE_INCLUDE — пропускаем проверки исключений (кроме output-ов выше)
+  if is_force_include "$f"; then
+    {
+      echo "------------------------------------------"
+      echo "FILE: $rel"
+      echo "SIZE: $(wc -c < "$f" | tr -d ' ') bytes"
+      echo "------------------------------------------"
+      cat "$f"
+      echo
+      echo
+    } >> "$TMP_DUMP"
+    included_count=$((included_count + 1))
+    continue
+  fi
 
   # 1) исключаем по директориям
   if is_in_excluded_dir "$rel"; then
@@ -218,13 +178,12 @@ while IFS= read -r -d '' f; do
   fi
 
   # 2) исключаем по файловым паттернам
-  base="$(basename "$rel")"
   if matches_exclude_file_pattern "$base"; then
     log_excluded "$rel" "Пропущено, потому что это временный/мусорный файл (swap/lock/log/tmp/системный)."
     continue
   fi
 
-  # 3) исключаем по расширениям (картинки/бинарники/архивы и т.д.)
+  # 3) исключаем по расширениям
   if has_excluded_ext "$base"; then
     ext="$(lower "${base##*.}")"
     case "$ext" in
@@ -244,13 +203,13 @@ while IFS= read -r -d '' f; do
     continue
   fi
 
-  # 4) дополнительно проверяем file(1) чтобы не захватить бинарник без расширения
+  # 4) проверяем file(1)
   if ! is_text_file "$f"; then
     log_excluded "$rel" "Пропущено, потому что файл определяется как не-текстовый (вероятно бинарный)."
     continue
   fi
 
-  # 5) пишем содержимое в общий дамп
+  # 5) пишем содержимое
   {
     echo "------------------------------------------"
     echo "FILE: $rel"
@@ -259,9 +218,9 @@ while IFS= read -r -d '' f; do
     cat "$f"
     echo
     echo
-  } >> "$OUT_DUMP"
+  } >> "$TMP_DUMP"
 
-  ((included_count+=1))
+  included_count=$((included_count + 1))
 done < <(find "$ROOT_DIR" -type f -print0)
 
 # --- финальный итог ---
@@ -273,6 +232,9 @@ done < <(find "$ROOT_DIR" -type f -print0)
   echo "Dump file: $(basename "$OUT_DUMP")"
   echo "Excluded file: $(basename "$OUT_EXCL")"
   echo "=========================================="
-} | tee -a "$OUT_DUMP" >/dev/null
+} | tee -a "$TMP_DUMP" >/dev/null
+
+# атомарно заменяем итоговый файл
+mv -f "$TMP_DUMP" "$OUT_DUMP"
 
 echo "OK: written '$OUT_DUMP' and '$OUT_EXCL'"

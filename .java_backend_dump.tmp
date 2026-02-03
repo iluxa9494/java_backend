@@ -1,0 +1,2760 @@
+JAVA_BACKEND DUMP
+Root: /Users/ilia/IdeaProjects/pet_projects/java_backend
+Generated: 2026-02-03T11:00:56Z
+==========================================
+
+------------------------------------------
+FILE: social_network/post-module/mvnw.cmd
+SIZE: 8481 bytes
+------------------------------------------
+<# : batch portion
+@REM ----------------------------------------------------------------------------
+@REM Licensed to the Apache Software Foundation (ASF) under one
+@REM or more contributor license agreements.  See the NOTICE file
+@REM distributed with this work for additional information
+@REM regarding copyright ownership.  The ASF licenses this file
+@REM to you under the Apache License, Version 2.0 (the
+@REM "License"); you may not use this file except in compliance
+@REM with the License.  You may obtain a copy of the License at
+@REM
+@REM    http://www.apache.org/licenses/LICENSE-2.0
+@REM
+@REM Unless required by applicable law or agreed to in writing,
+@REM software distributed under the License is distributed on an
+@REM "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+@REM KIND, either express or implied.  See the License for the
+@REM specific language governing permissions and limitations
+@REM under the License.
+@REM ----------------------------------------------------------------------------
+
+@REM ----------------------------------------------------------------------------
+@REM Apache Maven Wrapper startup batch script, version 3.3.4
+@REM
+@REM Optional ENV vars
+@REM   MVNW_REPOURL - repo url base for downloading maven distribution
+@REM   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
+@REM   MVNW_VERBOSE - true: enable verbose log; others: silence the output
+@REM ----------------------------------------------------------------------------
+
+@IF "%__MVNW_ARG0_NAME__%"=="" (SET __MVNW_ARG0_NAME__=%~nx0)
+@SET __MVNW_CMD__=
+@SET __MVNW_ERROR__=
+@SET __MVNW_PSMODULEP_SAVE=%PSModulePath%
+@SET PSModulePath=
+@FOR /F "usebackq tokens=1* delims==" %%A IN (`powershell -noprofile "& {$scriptDir='%~dp0'; $script='%__MVNW_ARG0_NAME__%'; icm -ScriptBlock ([Scriptblock]::Create((Get-Content -Raw '%~f0'))) -NoNewScope}"`) DO @(
+  IF "%%A"=="MVN_CMD" (set __MVNW_CMD__=%%B) ELSE IF "%%B"=="" (echo %%A) ELSE (echo %%A=%%B)
+)
+@SET PSModulePath=%__MVNW_PSMODULEP_SAVE%
+@SET __MVNW_PSMODULEP_SAVE=
+@SET __MVNW_ARG0_NAME__=
+@SET MVNW_USERNAME=
+@SET MVNW_PASSWORD=
+@IF NOT "%__MVNW_CMD__%"=="" ("%__MVNW_CMD__%" %*)
+@echo Cannot start maven from wrapper >&2 && exit /b 1
+@GOTO :EOF
+: end batch / begin powershell #>
+
+$ErrorActionPreference = "Stop"
+if ($env:MVNW_VERBOSE -eq "true") {
+  $VerbosePreference = "Continue"
+}
+
+# calculate distributionUrl, requires .mvn/wrapper/maven-wrapper.properties
+$distributionUrl = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionUrl
+if (!$distributionUrl) {
+  Write-Error "cannot read distributionUrl property in $scriptDir/.mvn/wrapper/maven-wrapper.properties"
+}
+
+switch -wildcard -casesensitive ( $($distributionUrl -replace '^.*/','') ) {
+  "maven-mvnd-*" {
+    $USE_MVND = $true
+    $distributionUrl = $distributionUrl -replace '-bin\.[^.]*$',"-windows-amd64.zip"
+    $MVN_CMD = "mvnd.cmd"
+    break
+  }
+  default {
+    $USE_MVND = $false
+    $MVN_CMD = $script -replace '^mvnw','mvn'
+    break
+  }
+}
+
+# apply MVNW_REPOURL and calculate MAVEN_HOME
+# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
+if ($env:MVNW_REPOURL) {
+  $MVNW_REPO_PATTERN = if ($USE_MVND -eq $False) { "/org/apache/maven/" } else { "/maven/mvnd/" }
+  $distributionUrl = "$env:MVNW_REPOURL$MVNW_REPO_PATTERN$($distributionUrl -replace "^.*$MVNW_REPO_PATTERN",'')"
+}
+$distributionUrlName = $distributionUrl -replace '^.*/',''
+$distributionUrlNameMain = $distributionUrlName -replace '\.[^.]*$','' -replace '-bin$',''
+
+$MAVEN_M2_PATH = "$HOME/.m2"
+if ($env:MAVEN_USER_HOME) {
+  $MAVEN_M2_PATH = "$env:MAVEN_USER_HOME"
+}
+
+if (-not (Test-Path -Path $MAVEN_M2_PATH)) {
+    New-Item -Path $MAVEN_M2_PATH -ItemType Directory | Out-Null
+}
+
+$MAVEN_WRAPPER_DISTS = $null
+if ((Get-Item $MAVEN_M2_PATH).Target[0] -eq $null) {
+  $MAVEN_WRAPPER_DISTS = "$MAVEN_M2_PATH/wrapper/dists"
+} else {
+  $MAVEN_WRAPPER_DISTS = (Get-Item $MAVEN_M2_PATH).Target[0] + "/wrapper/dists"
+}
+
+$MAVEN_HOME_PARENT = "$MAVEN_WRAPPER_DISTS/$distributionUrlNameMain"
+$MAVEN_HOME_NAME = ([System.Security.Cryptography.SHA256]::Create().ComputeHash([byte[]][char[]]$distributionUrl) | ForEach-Object {$_.ToString("x2")}) -join ''
+$MAVEN_HOME = "$MAVEN_HOME_PARENT/$MAVEN_HOME_NAME"
+
+if (Test-Path -Path "$MAVEN_HOME" -PathType Container) {
+  Write-Verbose "found existing MAVEN_HOME at $MAVEN_HOME"
+  Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
+  exit $?
+}
+
+if (! $distributionUrlNameMain -or ($distributionUrlName -eq $distributionUrlNameMain)) {
+  Write-Error "distributionUrl is not valid, must end with *-bin.zip, but found $distributionUrl"
+}
+
+# prepare tmp dir
+$TMP_DOWNLOAD_DIR_HOLDER = New-TemporaryFile
+$TMP_DOWNLOAD_DIR = New-Item -Itemtype Directory -Path "$TMP_DOWNLOAD_DIR_HOLDER.dir"
+$TMP_DOWNLOAD_DIR_HOLDER.Delete() | Out-Null
+trap {
+  if ($TMP_DOWNLOAD_DIR.Exists) {
+    try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
+    catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
+  }
+}
+
+New-Item -Itemtype Directory -Path "$MAVEN_HOME_PARENT" -Force | Out-Null
+
+# Download and Install Apache Maven
+Write-Verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
+Write-Verbose "Downloading from: $distributionUrl"
+Write-Verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
+
+$webclient = New-Object System.Net.WebClient
+if ($env:MVNW_USERNAME -and $env:MVNW_PASSWORD) {
+  $webclient.Credentials = New-Object System.Net.NetworkCredential($env:MVNW_USERNAME, $env:MVNW_PASSWORD)
+}
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$webclient.DownloadFile($distributionUrl, "$TMP_DOWNLOAD_DIR/$distributionUrlName") | Out-Null
+
+# If specified, validate the SHA-256 sum of the Maven distribution zip file
+$distributionSha256Sum = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionSha256Sum
+if ($distributionSha256Sum) {
+  if ($USE_MVND) {
+    Write-Error "Checksum validation is not supported for maven-mvnd. `nPlease disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties."
+  }
+  Import-Module $PSHOME\Modules\Microsoft.PowerShell.Utility -Function Get-FileHash
+  if ((Get-FileHash "$TMP_DOWNLOAD_DIR/$distributionUrlName" -Algorithm SHA256).Hash.ToLower() -ne $distributionSha256Sum) {
+    Write-Error "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised. If you updated your Maven version, you need to update the specified distributionSha256Sum property."
+  }
+}
+
+# unzip and move
+Expand-Archive "$TMP_DOWNLOAD_DIR/$distributionUrlName" -DestinationPath "$TMP_DOWNLOAD_DIR" | Out-Null
+
+# Find the actual extracted directory name (handles snapshots where filename != directory name)
+$actualDistributionDir = ""
+
+# First try the expected directory name (for regular distributions)
+$expectedPath = Join-Path "$TMP_DOWNLOAD_DIR" "$distributionUrlNameMain"
+$expectedMvnPath = Join-Path "$expectedPath" "bin/$MVN_CMD"
+if ((Test-Path -Path $expectedPath -PathType Container) -and (Test-Path -Path $expectedMvnPath -PathType Leaf)) {
+  $actualDistributionDir = $distributionUrlNameMain
+}
+
+# If not found, search for any directory with the Maven executable (for snapshots)
+if (!$actualDistributionDir) {
+  Get-ChildItem -Path "$TMP_DOWNLOAD_DIR" -Directory | ForEach-Object {
+    $testPath = Join-Path $_.FullName "bin/$MVN_CMD"
+    if (Test-Path -Path $testPath -PathType Leaf) {
+      $actualDistributionDir = $_.Name
+    }
+  }
+}
+
+if (!$actualDistributionDir) {
+  Write-Error "Could not find Maven distribution directory in extracted archive"
+}
+
+Write-Verbose "Found extracted Maven distribution directory: $actualDistributionDir"
+Rename-Item -Path "$TMP_DOWNLOAD_DIR/$actualDistributionDir" -NewName $MAVEN_HOME_NAME | Out-Null
+try {
+  Move-Item -Path "$TMP_DOWNLOAD_DIR/$MAVEN_HOME_NAME" -Destination $MAVEN_HOME_PARENT | Out-Null
+} catch {
+  if (! (Test-Path -Path "$MAVEN_HOME" -PathType Container)) {
+    Write-Error "fail to move MAVEN_HOME"
+  }
+} finally {
+  try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
+  catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
+}
+
+Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
+
+
+------------------------------------------
+FILE: social_network/post-module/Dockerfile
+SIZE: 236 bytes
+------------------------------------------
+FROM maven:3.9.9-eclipse-temurin-21
+WORKDIR /app
+
+COPY pom.xml /app/pom.xml
+RUN --mount=type=cache,target=/root/.m2 mvn -q -DskipTests dependency:go-offline
+
+COPY src /app/src
+EXPOSE 8085
+CMD ["mvn","-q","-DskipTests","spring-boot:run"]
+
+------------------------------------------
+FILE: social_network/post-module/pom.xml
+SIZE: 8686 bytes
+------------------------------------------
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ru.skillbox.socialnetwork</groupId>
+        <artifactId>social-network</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>ru.skillbox.socialnetwork</groupId>
+    <artifactId>post-module</artifactId>
+    <name>post-module</name>
+    <description>Post module</description>
+
+    <properties>
+        <java.version>21</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- фиксируем версии драйвера и liquibase -->
+        <postgres.version>42.7.7</postgres.version>
+        <liquibase.version>4.31.1</liquibase.version>
+
+        <jacoco.version>0.8.12</jacoco.version>
+        <surefire.version>3.2.5</surefire.version>
+        <failsafe.version>3.2.5</failsafe.version>
+
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>ru.skillbox.socialnetwork</groupId>
+            <artifactId>auth-module</artifactId>
+        </dependency>
+
+        <!-- web + validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- Kafka -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+
+        <!-- data jpa + pg + liquibase -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgres.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
+        </dependency>
+
+        <!-- security -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- actuator -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- swagger (springdoc) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Devtools (опционально, можно убрать) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- TEST -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Testcontainers -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.20.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>1.20.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- AssertJ -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.26.3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Mockito JUnit 5 -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.14.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>db/changelog/db.changelog-master.xml</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <plugins>
+            <!-- Compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.0</version>
+                <configuration>
+                    <release>${java.version}</release>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+            <!-- Unit tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                </configuration>
+            </plugin>
+
+            <!-- Integration tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${failsafe.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- JaCoCo -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.70</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.70</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+
+------------------------------------------
+FILE: social_network/post-module/HELP.md
+SIZE: 1911 bytes
+------------------------------------------
+# Read Me First
+The following was discovered as part of building this project:
+
+* The original package name 'com.example.social-network-post' is invalid and this project uses 'com.example.social_network_post' instead.
+
+# Getting Started
+
+### Reference Documentation
+For further reference, please consider the following sections:
+
+* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
+* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/3.5.5/maven-plugin)
+* [Create an OCI image](https://docs.spring.io/spring-boot/3.5.5/maven-plugin/build-image.html)
+* [Liquibase Migration](https://docs.spring.io/spring-boot/3.5.5/how-to/data-initialization.html#howto.data-initialization.migration-tool.liquibase)
+* [Spring Data JPA](https://docs.spring.io/spring-boot/3.5.5/reference/data/sql.html#data.sql.jpa-and-spring-data)
+* [Spring Security](https://docs.spring.io/spring-boot/3.5.5/reference/web/spring-security.html)
+* [Spring for Apache Kafka](https://docs.spring.io/spring-boot/3.5.5/reference/messaging/kafka.html)
+
+### Guides
+The following guides illustrate how to use some features concretely:
+
+* [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
+* [Securing a Web Application](https://spring.io/guides/gs/securing-web/)
+* [Spring Boot and OAuth2](https://spring.io/guides/tutorials/spring-boot-oauth2/)
+* [Authenticating a User with LDAP](https://spring.io/guides/gs/authenticating-ldap/)
+
+### Maven Parent overrides
+
+Due to Maven's design, elements are inherited from the parent POM to the project POM.
+While most of the inheritance is fine, it also inherits unwanted elements like `<license>` and `<developers>` from the parent.
+To prevent this, the project POM contains empty overrides for these elements.
+If you manually switch to a different parent and actually want the inheritance, you need to remove those overrides.
+
+
+
+------------------------------------------
+FILE: social_network/post-module/README.md
+SIZE: 1229 bytes
+------------------------------------------
+# 📌 Post Service (social-network-post)
+
+Микросервис командного проекта **Social Network**: посты, древовидные комментарии и реакции с подсчётом агрегатов.  
+Стек: **Java 21, Spring Boot 3.5.5, PostgreSQL, Liquibase, Kafka, OpenAPI/Swagger**.
+
+---
+
+## ⚙️ Технологии
+- Spring Web, Spring Data JPA (Hibernate), Validation
+- Spring for Apache Kafka (producer/listener), Kafka Admin & Health
+- Spring Security (базовая dev-настройка через `X-User-Id`)
+- Liquibase (миграции БД), PostgreSQL
+- Actuator (health: DB/Kafka), OpenAPI 3 / Swagger UI
+- Testcontainers, JUnit 5, Maven
+
+---
+
+## 🗄️ Схема данных (кратко)
+- `post` — посты
+- `comment` — комментарии (поддержка parent_id)
+- `reaction` — реакции пользователя к POST/COMMENT (уникальность: entity_type+entity_id+user_id)
+- `reaction_count` — агрегаты по реакциям (entity_type+entity_id+reaction_type)
+
+---
+
+## 🚀 Быстрый старт локально
+
+### 1) Инфраструктура
+```bash
+docker compose up -d postgres kafka akhq
+
+------------------------------------------
+FILE: social_network/post-module/.gitignore
+SIZE: 562 bytes
+------------------------------------------
+### Maven ###
+target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+*.ipr
+*.iws
+
+### Eclipse / STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans/
+.sts4-cache/
+
+### NetBeans ###
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+build/
+
+### VS Code ###
+.vscode/
+
+### Logs ###
+*.log
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### Docker ###
+*.env
+docker-compose.override.yml
+
+------------------------------------------
+FILE: social_network/post-module/.gitattributes
+SIZE: 38 bytes
+------------------------------------------
+/mvnw text eol=lf
+*.cmd text eol=crlf
+
+
+------------------------------------------
+FILE: social_network/post-module/mvnw
+SIZE: 11790 bytes
+------------------------------------------
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Apache Maven Wrapper startup batch script, version 3.3.4
+#
+# Optional ENV vars
+# -----------------
+#   JAVA_HOME - location of a JDK home dir, required when download maven via java source
+#   MVNW_REPOURL - repo url base for downloading maven distribution
+#   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
+#   MVNW_VERBOSE - true: enable verbose log; debug: trace the mvnw script; others: silence the output
+# ----------------------------------------------------------------------------
+
+set -euf
+[ "${MVNW_VERBOSE-}" != debug ] || set -x
+
+# OS specific support.
+native_path() { printf %s\\n "$1"; }
+case "$(uname)" in
+CYGWIN* | MINGW*)
+  [ -z "${JAVA_HOME-}" ] || JAVA_HOME="$(cygpath --unix "$JAVA_HOME")"
+  native_path() { cygpath --path --windows "$1"; }
+  ;;
+esac
+
+# set JAVACMD and JAVACCMD
+set_java_home() {
+  # For Cygwin and MinGW, ensure paths are in Unix format before anything is touched
+  if [ -n "${JAVA_HOME-}" ]; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ]; then
+      # IBM's JDK on AIX uses strange locations for the executables
+      JAVACMD="$JAVA_HOME/jre/sh/java"
+      JAVACCMD="$JAVA_HOME/jre/sh/javac"
+    else
+      JAVACMD="$JAVA_HOME/bin/java"
+      JAVACCMD="$JAVA_HOME/bin/javac"
+
+      if [ ! -x "$JAVACMD" ] || [ ! -x "$JAVACCMD" ]; then
+        echo "The JAVA_HOME environment variable is not defined correctly, so mvnw cannot run." >&2
+        echo "JAVA_HOME is set to \"$JAVA_HOME\", but \"\$JAVA_HOME/bin/java\" or \"\$JAVA_HOME/bin/javac\" does not exist." >&2
+        return 1
+      fi
+    fi
+  else
+    JAVACMD="$(
+      'set' +e
+      'unset' -f command 2>/dev/null
+      'command' -v java
+    )" || :
+    JAVACCMD="$(
+      'set' +e
+      'unset' -f command 2>/dev/null
+      'command' -v javac
+    )" || :
+
+    if [ ! -x "${JAVACMD-}" ] || [ ! -x "${JAVACCMD-}" ]; then
+      echo "The java/javac command does not exist in PATH nor is JAVA_HOME set, so mvnw cannot run." >&2
+      return 1
+    fi
+  fi
+}
+
+# hash string like Java String::hashCode
+hash_string() {
+  str="${1:-}" h=0
+  while [ -n "$str" ]; do
+    char="${str%"${str#?}"}"
+    h=$(((h * 31 + $(LC_CTYPE=C printf %d "'$char")) % 4294967296))
+    str="${str#?}"
+  done
+  printf %x\\n $h
+}
+
+verbose() { :; }
+[ "${MVNW_VERBOSE-}" != true ] || verbose() { printf %s\\n "${1-}"; }
+
+die() {
+  printf %s\\n "$1" >&2
+  exit 1
+}
+
+trim() {
+  # MWRAPPER-139:
+  #   Trims trailing and leading whitespace, carriage returns, tabs, and linefeeds.
+  #   Needed for removing poorly interpreted newline sequences when running in more
+  #   exotic environments such as mingw bash on Windows.
+  printf "%s" "${1}" | tr -d '[:space:]'
+}
+
+scriptDir="$(dirname "$0")"
+scriptName="$(basename "$0")"
+
+# parse distributionUrl and optional distributionSha256Sum, requires .mvn/wrapper/maven-wrapper.properties
+while IFS="=" read -r key value; do
+  case "${key-}" in
+  distributionUrl) distributionUrl=$(trim "${value-}") ;;
+  distributionSha256Sum) distributionSha256Sum=$(trim "${value-}") ;;
+  esac
+done <"$scriptDir/.mvn/wrapper/maven-wrapper.properties"
+[ -n "${distributionUrl-}" ] || die "cannot read distributionUrl property in $scriptDir/.mvn/wrapper/maven-wrapper.properties"
+
+case "${distributionUrl##*/}" in
+maven-mvnd-*bin.*)
+  MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/
+  case "${PROCESSOR_ARCHITECTURE-}${PROCESSOR_ARCHITEW6432-}:$(uname -a)" in
+  *AMD64:CYGWIN* | *AMD64:MINGW*) distributionPlatform=windows-amd64 ;;
+  :Darwin*x86_64) distributionPlatform=darwin-amd64 ;;
+  :Darwin*arm64) distributionPlatform=darwin-aarch64 ;;
+  :Linux*x86_64*) distributionPlatform=linux-amd64 ;;
+  *)
+    echo "Cannot detect native platform for mvnd on $(uname)-$(uname -m), use pure java version" >&2
+    distributionPlatform=linux-amd64
+    ;;
+  esac
+  distributionUrl="${distributionUrl%-bin.*}-$distributionPlatform.zip"
+  ;;
+maven-mvnd-*) MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/ ;;
+*) MVN_CMD="mvn${scriptName#mvnw}" _MVNW_REPO_PATTERN=/org/apache/maven/ ;;
+esac
+
+# apply MVNW_REPOURL and calculate MAVEN_HOME
+# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
+[ -z "${MVNW_REPOURL-}" ] || distributionUrl="$MVNW_REPOURL$_MVNW_REPO_PATTERN${distributionUrl#*"$_MVNW_REPO_PATTERN"}"
+distributionUrlName="${distributionUrl##*/}"
+distributionUrlNameMain="${distributionUrlName%.*}"
+distributionUrlNameMain="${distributionUrlNameMain%-bin}"
+MAVEN_USER_HOME="${MAVEN_USER_HOME:-${HOME}/.m2}"
+MAVEN_HOME="${MAVEN_USER_HOME}/wrapper/dists/${distributionUrlNameMain-}/$(hash_string "$distributionUrl")"
+
+exec_maven() {
+  unset MVNW_VERBOSE MVNW_USERNAME MVNW_PASSWORD MVNW_REPOURL || :
+  exec "$MAVEN_HOME/bin/$MVN_CMD" "$@" || die "cannot exec $MAVEN_HOME/bin/$MVN_CMD"
+}
+
+if [ -d "$MAVEN_HOME" ]; then
+  verbose "found existing MAVEN_HOME at $MAVEN_HOME"
+  exec_maven "$@"
+fi
+
+case "${distributionUrl-}" in
+*?-bin.zip | *?maven-mvnd-?*-?*.zip) ;;
+*) die "distributionUrl is not valid, must match *-bin.zip or maven-mvnd-*.zip, but found '${distributionUrl-}'" ;;
+esac
+
+# prepare tmp dir
+if TMP_DOWNLOAD_DIR="$(mktemp -d)" && [ -d "$TMP_DOWNLOAD_DIR" ]; then
+  clean() { rm -rf -- "$TMP_DOWNLOAD_DIR"; }
+  trap clean HUP INT TERM EXIT
+else
+  die "cannot create temp dir"
+fi
+
+mkdir -p -- "${MAVEN_HOME%/*}"
+
+# Download and Install Apache Maven
+verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
+verbose "Downloading from: $distributionUrl"
+verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
+
+# select .zip or .tar.gz
+if ! command -v unzip >/dev/null; then
+  distributionUrl="${distributionUrl%.zip}.tar.gz"
+  distributionUrlName="${distributionUrl##*/}"
+fi
+
+# verbose opt
+__MVNW_QUIET_WGET=--quiet __MVNW_QUIET_CURL=--silent __MVNW_QUIET_UNZIP=-q __MVNW_QUIET_TAR=''
+[ "${MVNW_VERBOSE-}" != true ] || __MVNW_QUIET_WGET='' __MVNW_QUIET_CURL='' __MVNW_QUIET_UNZIP='' __MVNW_QUIET_TAR=v
+
+# normalize http auth
+case "${MVNW_PASSWORD:+has-password}" in
+'') MVNW_USERNAME='' MVNW_PASSWORD='' ;;
+has-password) [ -n "${MVNW_USERNAME-}" ] || MVNW_USERNAME='' MVNW_PASSWORD='' ;;
+esac
+
+if [ -z "${MVNW_USERNAME-}" ] && command -v wget >/dev/null; then
+  verbose "Found wget ... using wget"
+  wget ${__MVNW_QUIET_WGET:+"$__MVNW_QUIET_WGET"} "$distributionUrl" -O "$TMP_DOWNLOAD_DIR/$distributionUrlName" || die "wget: Failed to fetch $distributionUrl"
+elif [ -z "${MVNW_USERNAME-}" ] && command -v curl >/dev/null; then
+  verbose "Found curl ... using curl"
+  curl ${__MVNW_QUIET_CURL:+"$__MVNW_QUIET_CURL"} -f -L -o "$TMP_DOWNLOAD_DIR/$distributionUrlName" "$distributionUrl" || die "curl: Failed to fetch $distributionUrl"
+elif set_java_home; then
+  verbose "Falling back to use Java to download"
+  javaSource="$TMP_DOWNLOAD_DIR/Downloader.java"
+  targetZip="$TMP_DOWNLOAD_DIR/$distributionUrlName"
+  cat >"$javaSource" <<-END
+	public class Downloader extends java.net.Authenticator
+	{
+	  protected java.net.PasswordAuthentication getPasswordAuthentication()
+	  {
+	    return new java.net.PasswordAuthentication( System.getenv( "MVNW_USERNAME" ), System.getenv( "MVNW_PASSWORD" ).toCharArray() );
+	  }
+	  public static void main( String[] args ) throws Exception
+	  {
+	    setDefault( new Downloader() );
+	    java.nio.file.Files.copy( java.net.URI.create( args[0] ).toURL().openStream(), java.nio.file.Paths.get( args[1] ).toAbsolutePath().normalize() );
+	  }
+	}
+	END
+  # For Cygwin/MinGW, switch paths to Windows format before running javac and java
+  verbose " - Compiling Downloader.java ..."
+  "$(native_path "$JAVACCMD")" "$(native_path "$javaSource")" || die "Failed to compile Downloader.java"
+  verbose " - Running Downloader.java ..."
+  "$(native_path "$JAVACMD")" -cp "$(native_path "$TMP_DOWNLOAD_DIR")" Downloader "$distributionUrl" "$(native_path "$targetZip")"
+fi
+
+# If specified, validate the SHA-256 sum of the Maven distribution zip file
+if [ -n "${distributionSha256Sum-}" ]; then
+  distributionSha256Result=false
+  if [ "$MVN_CMD" = mvnd.sh ]; then
+    echo "Checksum validation is not supported for maven-mvnd." >&2
+    echo "Please disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
+    exit 1
+  elif command -v sha256sum >/dev/null; then
+    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | sha256sum -c - >/dev/null 2>&1; then
+      distributionSha256Result=true
+    fi
+  elif command -v shasum >/dev/null; then
+    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | shasum -a 256 -c >/dev/null 2>&1; then
+      distributionSha256Result=true
+    fi
+  else
+    echo "Checksum validation was requested but neither 'sha256sum' or 'shasum' are available." >&2
+    echo "Please install either command, or disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
+    exit 1
+  fi
+  if [ $distributionSha256Result = false ]; then
+    echo "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised." >&2
+    echo "If you updated your Maven version, you need to update the specified distributionSha256Sum property." >&2
+    exit 1
+  fi
+fi
+
+# unzip and move
+if command -v unzip >/dev/null; then
+  unzip ${__MVNW_QUIET_UNZIP:+"$__MVNW_QUIET_UNZIP"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -d "$TMP_DOWNLOAD_DIR" || die "failed to unzip"
+else
+  tar xzf${__MVNW_QUIET_TAR:+"$__MVNW_QUIET_TAR"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -C "$TMP_DOWNLOAD_DIR" || die "failed to untar"
+fi
+
+# Find the actual extracted directory name (handles snapshots where filename != directory name)
+actualDistributionDir=""
+
+# First try the expected directory name (for regular distributions)
+if [ -d "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain" ]; then
+  if [ -f "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain/bin/$MVN_CMD" ]; then
+    actualDistributionDir="$distributionUrlNameMain"
+  fi
+fi
+
+# If not found, search for any directory with the Maven executable (for snapshots)
+if [ -z "$actualDistributionDir" ]; then
+  # enable globbing to iterate over items
+  set +f
+  for dir in "$TMP_DOWNLOAD_DIR"/*; do
+    if [ -d "$dir" ]; then
+      if [ -f "$dir/bin/$MVN_CMD" ]; then
+        actualDistributionDir="$(basename "$dir")"
+        break
+      fi
+    fi
+  done
+  set -f
+fi
+
+if [ -z "$actualDistributionDir" ]; then
+  verbose "Contents of $TMP_DOWNLOAD_DIR:"
+  verbose "$(ls -la "$TMP_DOWNLOAD_DIR")"
+  die "Could not find Maven distribution directory in extracted archive"
+fi
+
+verbose "Found extracted Maven distribution directory: $actualDistributionDir"
+printf %s\\n "$distributionUrl" >"$TMP_DOWNLOAD_DIR/$actualDistributionDir/mvnw.url"
+mv -- "$TMP_DOWNLOAD_DIR/$actualDistributionDir" "$MAVEN_HOME" || [ -d "$MAVEN_HOME" ] || die "fail to move MAVEN_HOME"
+
+clean || :
+exec_maven "$@"
+
+
+------------------------------------------
+FILE: social_network/post-module/src/test/java/ru/skillbox/socialnetwork/post/infra/LiquibaseIT.java
+SIZE: 2006 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.infra;
+
+import jakarta.annotation.Resource;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.utility.DockerImageName;
+
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
+@ContextConfiguration(initializers = LiquibaseIT.Init.class)
+class LiquibaseIT {
+
+    static final PostgreSQLContainer<?> PG = new PostgreSQLContainer<>(
+            DockerImageName.parse("postgres:15-alpine")
+    ).withDatabaseName("social")
+            .withUsername("postgres")
+            .withPassword("postgres");
+
+    static {
+        PG.start();
+    }
+
+    public static class Init implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+        @Override
+        public void initialize(ConfigurableApplicationContext ctx) {
+            TestPropertyValues.of(
+                    "spring.datasource.url=" + PG.getJdbcUrl(),
+                    "spring.datasource.username=" + PG.getUsername(),
+                    "spring.datasource.password=" + PG.getPassword(),
+                    "spring.jpa.hibernate.ddl-auto=none"
+            ).applyTo(ctx.getEnvironment());
+        }
+    }
+
+    @Resource
+    JdbcTemplate jdbc;
+
+    @Test
+    void liquibase_shouldCreateTables() {
+        jdbc.queryForObject("select 1 from post limit 1", Integer.class);
+        jdbc.queryForObject("select 1 from comment limit 1", Integer.class);
+        jdbc.queryForObject("select 1 from reaction limit 1", Integer.class);
+    }
+}
+
+------------------------------------------
+FILE: social_network/post-module/src/test/java/ru/skillbox/socialnetwork/post/it/PostRepositoryIT.java
+SIZE: 1823 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.it;
+
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.*;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.PostgreSQLContainer;
+import ru.skillbox.socialnetwork.post.entity.PostEntity;
+import ru.skillbox.socialnetwork.post.repository.PostRepository;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
+@Testcontainers
+@SpringBootTest
+@TestPropertySource(properties = {
+        "spring.jpa.hibernate.ddl-auto=none",
+        "spring.liquibase.enabled=true"
+})
+class PostRepositoryIT {
+
+    static PostgreSQLContainer<?> pg = new PostgreSQLContainer<>("postgres:15")
+            .withDatabaseName("social_network")
+            .withUsername("postgres")
+            .withPassword("postgres");
+
+    @DynamicPropertySource
+    static void props(DynamicPropertyRegistry r) {
+        pg.start();
+        r.add("spring.datasource.url", pg::getJdbcUrl);
+        r.add("spring.datasource.username", pg::getUsername);
+        r.add("spring.datasource.password", pg::getPassword);
+    }
+
+    @Autowired PostRepository postRepository;
+
+    @Test
+    void saveAndFind() {
+        var p = new PostEntity();
+        p.setId(UUID.randomUUID());
+        p.setAuthorId(UUID.randomUUID());
+        p.setTitle("t");
+        p.setPostText("x");
+        p.setTime(OffsetDateTime.now());
+        p.setTimeChanged(p.getTime());
+        p.setDeleted(false);
+        p.setBlocked(false);
+        p.setLikeAmount(0L);
+        p.setCommentsCount(0L);
+
+        postRepository.save(p);
+
+        var found = postRepository.findById(p.getId()).orElseThrow();
+        Assertions.assertEquals("t", found.getTitle());
+    }
+}
+
+------------------------------------------
+FILE: social_network/post-module/src/test/java/ru/skillbox/socialnetwork/post/controller/PostControllerWebTest.java
+SIZE: 4870 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+//noinspection removal
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import ru.skillbox.socialnetwork.post.dto.post.CreatePostRequest;
+import ru.skillbox.socialnetwork.post.dto.post.PostDto;
+import ru.skillbox.socialnetwork.post.dto.post.UpdatePostRequest;
+import ru.skillbox.socialnetwork.post.service.PostService;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WebMvcTest(controllers = PostController.class)
+@AutoConfigureMockMvc(addFilters = false)
+class PostControllerWebTest {
+
+    @Autowired MockMvc mvc;
+    @Autowired ObjectMapper om;
+
+    @SuppressWarnings("removal")
+    @MockBean PostService service;
+
+    private static final UUID POST_ID   = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID AUTHOR_ID = UUID.fromString("00000000-0000-0000-0000-000000000010");
+
+    @Test
+    void create_shouldReturn200WithBody() throws Exception {
+        CreatePostRequest rq = new CreatePostRequest("Hello", "World");
+
+        PostDto dto = new PostDto(
+                POST_ID,
+                AUTHOR_ID,
+                "Hello",
+                "World",
+                0L,                      // likeAmount
+                0L,                      // commentsCount
+                OffsetDateTime.parse("2025-09-22T00:00:00Z"),
+                OffsetDateTime.parse("2025-09-22T00:00:00Z"),
+                false,
+                false
+        );
+
+        when(service.create(eq(AUTHOR_ID), any(CreatePostRequest.class))).thenReturn(dto);
+
+        mvc.perform(post("/api/v1/post")
+                        .header("X-Author-Id", AUTHOR_ID.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(rq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(POST_ID.toString()))
+                .andExpect(jsonPath("$.authorId").value(AUTHOR_ID.toString()))
+                .andExpect(jsonPath("$.title").value("Hello"))
+                .andExpect(jsonPath("$.text").value("World"))
+                .andExpect(jsonPath("$.likeAmount").value(0))
+                .andExpect(jsonPath("$.commentsCount").value(0));
+    }
+
+    @Test
+    void get_shouldReturnPost() throws Exception {
+        PostDto dto = new PostDto(
+                POST_ID,
+                AUTHOR_ID,
+                "T",
+                "B",
+                0L,
+                0L,
+                OffsetDateTime.parse("2025-09-22T00:00:00Z"),
+                OffsetDateTime.parse("2025-09-22T00:00:00Z"),
+                false,
+                false
+        );
+        when(service.get(POST_ID)).thenReturn(dto);
+
+        mvc.perform(get("/api/v1/post/{id}", POST_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(POST_ID.toString()))
+                .andExpect(jsonPath("$.authorId").value(AUTHOR_ID.toString()))
+                .andExpect(jsonPath("$.likeAmount").value(0))
+                .andExpect(jsonPath("$.commentsCount").value(0));
+    }
+
+    @Test
+    void update_shouldReturnUpdatedPost() throws Exception {
+        UpdatePostRequest rq = new UpdatePostRequest("new", "body");
+
+        PostDto dto = new PostDto(
+                POST_ID,
+                AUTHOR_ID,
+                "new",
+                "body",
+                0L,
+                0L,
+                OffsetDateTime.parse("2025-09-22T00:00:00Z"),
+                OffsetDateTime.parse("2025-09-22T01:00:00Z"),
+                false,
+                false
+        );
+        when(service.update(eq(POST_ID), any(UpdatePostRequest.class))).thenReturn(dto);
+
+        mvc.perform(put("/api/v1/post/{id}", POST_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(rq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("new"))
+                .andExpect(jsonPath("$.text").value("body"))
+                .andExpect(jsonPath("$.likeAmount").value(0))
+                .andExpect(jsonPath("$.commentsCount").value(0));
+    }
+}
+
+------------------------------------------
+FILE: social_network/post-module/src/test/java/ru/skillbox/socialnetwork/post/SocialNetworkPostApplicationTests.java
+SIZE: 233 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class SocialNetworkPostApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
+
+
+------------------------------------------
+FILE: social_network/post-module/src/test/java/ru/skillbox/socialnetwork/post/service/PostServiceTest.java
+SIZE: 3239 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.service;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import ru.skillbox.socialnetwork.post.dto.post.CreatePostRequest;
+import ru.skillbox.socialnetwork.post.entity.PostEntity;
+import ru.skillbox.socialnetwork.post.events.PostEvent;
+import ru.skillbox.socialnetwork.post.repository.PostRepository;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
+class PostServiceTest {
+
+    @Test
+    void create_ok() {
+        // given
+        var repo = mock(PostRepository.class);
+        var publisher = mock(EventPublisher.class);
+        var svc = new PostService(repo, publisher);
+
+        var author = UUID.randomUUID();
+        var now = OffsetDateTime.parse("2025-09-22T00:00:00Z");
+
+        // имитируем поведение save() — возвращаем ту же сущность
+        when(repo.save(any(PostEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // when
+        var dto = svc.create(author, new CreatePostRequest("title", "text"));
+
+        // then: проверяем, что dto корректный
+        assertThat(dto.authorId()).isEqualTo(author);
+        assertThat(dto.title()).isEqualTo("title");
+        assertThat(dto.text()).isEqualTo("text");
+
+        // проверяем, что в репозиторий попала сущность с правильным текстом
+        var entityCaptor = ArgumentCaptor.forClass(PostEntity.class);
+        verify(repo).save(entityCaptor.capture());
+        var saved = entityCaptor.getValue();
+        assertThat(saved.getPostText()).isEqualTo("text");
+        assertThat(saved.getTitle()).isEqualTo("title");
+        assertThat(saved.getAuthorId()).isEqualTo(author);
+
+        // проверяем, что отправилось событие в Kafka через EventPublisher
+        var eventCaptor = ArgumentCaptor.forClass(PostEvent.class);
+        verify(publisher).publishPost(eventCaptor.capture());
+        var event = eventCaptor.getValue();
+
+        // ВАЖНО: имя геттера совпадает с именем поля в record PostEvent.
+        // В твоём сервисе создаётся: new PostEvent("CREATED", id, authorId, title, text, likeAmount, commentsCount, time, timeChanged)
+        // Значит у record должно быть поле eventType (или type). Используем eventType() как самое вероятное имя.
+        assertThat(event.eventType()).isEqualTo("CREATED");
+        assertThat(event.id()).isEqualTo(saved.getId());
+        assertThat(event.authorId()).isEqualTo(saved.getAuthorId());
+        assertThat(event.title()).isEqualTo(saved.getTitle());
+        assertThat(event.text()).isEqualTo(saved.getPostText());
+        assertThat(event.likeAmount()).isEqualTo(0L);
+        assertThat(event.commentsCount()).isEqualTo(0L);
+        // time/timeChanged выставляются внутри сервиса — просто проверим, что проставлены
+        assertThat(event.time()).isNotNull();
+        assertThat(event.timeChanged()).isNotNull();
+    }
+}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/resources/db/changelog/0008-create-comment-if-missing.xml
+SIZE: 2353 bytes
+------------------------------------------
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="0008-create-comment-if-missing" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="comment"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="comment">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="post_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="parent_id" type="UUID"/>
+
+            <column name="comment_text" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_blocked" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="like_amount" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="time" type="TIMESTAMPTZ" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time_changed" type="TIMESTAMPTZ" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="comment"
+                baseColumnNames="post_id"
+                referencedTableName="post"
+                referencedColumnNames="id"
+                constraintName="fk_comment_post"/>
+
+        <createIndex tableName="comment" indexName="idx_comment_post_id">
+            <column name="post_id"/>
+        </createIndex>
+        <createIndex tableName="comment" indexName="idx_comment_parent_id">
+            <column name="parent_id"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
+
+------------------------------------------
+FILE: social_network/post-module/src/main/resources/db/changelog/post/db.changelog-master.xml
+SIZE: 1188 bytes
+------------------------------------------
+<!-- db/changelog/post/db.changelog-master.xml -->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <include file="db/changelog/0001-create-posts.xml"/>
+    <include file="db/changelog/0002-create-comments.xml"/>
+    <include file="db/changelog/0003-create-reactions.xml"/>
+    <include file="db/changelog/0004-fix-reactions.xml"/>
+    <include file="db/changelog/0005-recreate-reaction.xml"/>
+
+    <!-- Оставляем только НОВУЮ миграцию на entity_type/entity_id -->
+    <include file="db/changelog/0006-upgrade-reaction-to-entity-type.xml"/>
+
+    <include file="db/changelog/0007-fix-post-table.xml"/>
+    <include file="db/changelog/0008-create-comment-if-missing.xml"/>
+    <include file="db/changelog/0009-fix-reaction-table.xml"/>
+    <include file="db/changelog/0010-reaction-guard.xml"/>
+
+    <!-- Счётчики реакций -->
+    <include file="db/changelog/0012-reaction-count.xml"/>
+</databaseChangeLog>
+
+
+------------------------------------------
+FILE: social_network/post-module/src/main/resources/db/changelog/0002-create-comments.xml
+SIZE: 3167 bytes
+------------------------------------------
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="0002-create-comments" author="aslan">
+        <!-- Разрешаем старую checksum из логов -->
+        <validCheckSum>9:1c47e53c9699cc1576409c404f13d2b0</validCheckSum>
+
+        <!-- Убедимся, что таблица posts уже создана (из 0001) -->
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="posts"/>
+        </preConditions>
+
+        <createTable tableName="comment">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="post_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="parent_id" type="UUID"/>
+
+            <column name="comment_text" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_blocked" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="like_amount" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="time" type="TIMESTAMPTZ" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="time_changed" type="TIMESTAMPTZ" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- FK на посты (таблица posts) -->
+        <addForeignKeyConstraint
+                baseTableName="comment"
+                baseColumnNames="post_id"
+                referencedTableName="posts"
+                referencedColumnNames="id"
+                constraintName="fk_comment_post"/>
+
+        <!-- Необязательная self-FK для древовидных комментариев -->
+        <addForeignKeyConstraint
+                baseTableName="comment"
+                baseColumnNames="parent_id"
+                referencedTableName="comment"
+                referencedColumnNames="id"
+                constraintName="fk_comment_parent"
+                deferrable="false"
+                initiallyDeferred="false"/>
+
+        <createIndex tableName="comment" indexName="idx_comment_post_id">
+            <column name="post_id"/>
+        </createIndex>
+
+        <createIndex tableName="comment" indexName="idx_comment_parent_id">
+            <column name="parent_id"/>
+        </createIndex>
+
+        <rollback>
+            <dropTable tableName="comment" cascadeConstraints="true"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
+
+------------------------------------------
+FILE: social_network/post-module/src/main/resources/db/changelog/0006-upgrade-reaction-to-entity-type.xml
+SIZE: 9333 bytes
+------------------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- 1) Добавляем недостающие колонки -->
+    <changeSet id="0006-01-add-entity_type" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="reaction" columnName="entity_type"/></not>
+        </preConditions>
+        <addColumn tableName="reaction">
+            <column name="entity_type" type="varchar(16)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="0006-02-add-entity_id" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="reaction" columnName="entity_id"/></not>
+        </preConditions>
+        <addColumn tableName="reaction">
+            <column name="entity_id" type="uuid"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="0006-03-add-user_id" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="reaction" columnName="user_id"/></not>
+        </preConditions>
+        <addColumn tableName="reaction">
+            <column name="user_id" type="uuid"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="0006-04-add-created_at" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="reaction" columnName="created_at"/></not>
+        </preConditions>
+        <addColumn tableName="reaction">
+            <column name="created_at" type="timestamp with time zone"
+                    defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </addColumn>
+    </changeSet>
+
+    <!-- 2) Миграция post_id/comment_id -> entity_type/entity_id -->
+    <changeSet id="0006-05-migrate-post-to-entity" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <columnExists tableName="reaction" columnName="post_id"/>
+                <columnExists tableName="reaction" columnName="entity_type"/>
+            </and>
+        </preConditions>
+        <sql>
+            UPDATE reaction
+            SET entity_type = 'POST',
+                entity_id   = post_id
+            WHERE entity_type IS NULL AND post_id IS NOT NULL;
+        </sql>
+    </changeSet>
+
+    <changeSet id="0006-06-migrate-comment-to-entity" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <columnExists tableName="reaction" columnName="comment_id"/>
+                <columnExists tableName="reaction" columnName="entity_type"/>
+            </and>
+        </preConditions>
+        <sql>
+            UPDATE reaction
+            SET entity_type = 'COMMENT',
+                entity_id   = comment_id
+            WHERE entity_type IS NULL AND comment_id IS NOT NULL;
+        </sql>
+    </changeSet>
+
+    <!-- 3) Временно заполняем user_id -->
+    <changeSet id="0006-07-fill-user-id" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="reaction" columnName="user_id"/>
+        </preConditions>
+        <sql>
+            UPDATE reaction SET user_id = gen_random_uuid() WHERE user_id IS NULL;
+        </sql>
+    </changeSet>
+
+    <!-- 4) NOT NULL ограничения -->
+    <changeSet id="0006-08-not-null" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <columnExists tableName="reaction" columnName="entity_type"/>
+                <columnExists tableName="reaction" columnName="entity_id"/>
+                <columnExists tableName="reaction" columnName="user_id"/>
+                <columnExists tableName="reaction" columnName="reaction_type"/>
+            </and>
+        </preConditions>
+        <addNotNullConstraint tableName="reaction" columnName="entity_type" columnDataType="varchar(16)"/>
+        <addNotNullConstraint tableName="reaction" columnName="entity_id"   columnDataType="uuid"/>
+        <addNotNullConstraint tableName="reaction" columnName="user_id"     columnDataType="uuid"/>
+        <addNotNullConstraint tableName="reaction" columnName="reaction_type" columnDataType="varchar(32)"/>
+    </changeSet>
+
+    <!-- 5) Дроп старых FK -->
+    <changeSet id="0006-09-drop-fk" author="aslan">
+        <sql>ALTER TABLE IF EXISTS reaction DROP CONSTRAINT IF EXISTS fk_reaction_post;</sql>
+        <sql>ALTER TABLE IF EXISTS reaction DROP CONSTRAINT IF EXISTS fk_reaction_comment;</sql>
+    </changeSet>
+
+    <!-- 5b) Удаляем старые колонки, если ещё есть -->
+    <changeSet id="0006-10-drop-old-columns" author="aslan">
+        <!-- Разрешаем старый checksum, чтобы не падать на валидации -->
+        <validCheckSum>9:8243d9c51285a5af9d83391f1fd3a0b2</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <or>
+                <columnExists tableName="reaction" columnName="post_id"/>
+                <columnExists tableName="reaction" columnName="comment_id"/>
+                <columnExists tableName="reaction" columnName="time"/>
+            </or>
+        </preConditions>
+        <sql>
+            ALTER TABLE reaction DROP COLUMN IF EXISTS post_id;
+            ALTER TABLE reaction DROP COLUMN IF EXISTS comment_id;
+            ALTER TABLE reaction DROP COLUMN IF EXISTS "time";
+        </sql>
+    </changeSet>
+
+    <!-- 6) Уникальные ключи и индексы -->
+    <changeSet id="0006-11-unique" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <!-- Если уже существует constraint ИЛИ индекс с таким именем в public — не выполнять -->
+            <sqlCheck expectedResult="0">
+                SELECT CASE
+                           WHEN EXISTS (
+                               SELECT 1
+                               FROM pg_constraint c
+                                        JOIN pg_namespace n ON n.oid = c.connamespace
+                               WHERE c.conname = 'uk_reaction_entity_user'
+                                 AND n.nspname = 'public'
+                           )
+                               OR EXISTS (
+                                   SELECT 1
+                                   FROM pg_class cl
+                                            JOIN pg_namespace n ON n.oid = cl.relnamespace
+                                   WHERE cl.relname = 'uk_reaction_entity_user'
+                                     AND n.nspname = 'public'
+                               )
+                               THEN 1 ELSE 0 END
+            </sqlCheck>
+        </preConditions>
+
+        <addUniqueConstraint tableName="reaction"
+                             columnNames="entity_type,entity_id,user_id"
+                             constraintName="uk_reaction_entity_user"/>
+    </changeSet>
+    <changeSet id="0006-12-indexes" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(*) FROM pg_indexes
+                    WHERE schemaname = 'public'
+                    AND tablename  = 'reaction'
+                    AND indexname  = 'idx_reaction_entity'
+                </sqlCheck>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(*) FROM pg_indexes
+                    WHERE schemaname = 'public'
+                    AND tablename  = 'reaction'
+                    AND indexname  = 'idx_reaction_user'
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <createIndex tableName="reaction" indexName="idx_reaction_entity">
+            <column name="entity_type"/>
+            <column name="entity_id"/>
+        </createIndex>
+        <createIndex tableName="reaction" indexName="idx_reaction_user">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 7) ENUM для entity_type -->
+    <changeSet id="0006-13-enum" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM pg_type WHERE typname = 'reaction_entity_type'
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            CREATE TYPE reaction_entity_type AS ENUM ('POST','COMMENT');
+        </sql>
+    </changeSet>
+
+    <changeSet id="0006-14-alter-column-to-enum" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <columnExists tableName="reaction" columnName="entity_type"/>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(*)
+                    FROM information_schema.columns
+                    WHERE table_schema='public'
+                    AND table_name='reaction'
+                    AND column_name='entity_type'
+                    AND udt_name='reaction_entity_type'
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <sql>
+            ALTER TABLE reaction
+            ALTER COLUMN entity_type TYPE reaction_entity_type
+            USING entity_type::reaction_entity_type;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
+
+------------------------------------------
+FILE: social_network/post-module/src/main/resources/db/changelog/0003-create-reactions.xml
+SIZE: 2593 bytes
+------------------------------------------
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="0003-create-reactions" author="aslan">
+        <!-- если ранее уже была другая контрольная сумма -->
+        <validCheckSum>ANY</validCheckSum>
+
+        <preConditions onFail="HALT">
+            <tableExists tableName="posts"/>
+            <tableExists tableName="comment"/>
+        </preConditions>
+
+        <createTable tableName="reaction">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="post_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="comment_id" type="UUID"/>
+
+            <column name="reaction_type" type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="time" type="TIMESTAMPTZ" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- FK на posts -->
+        <addForeignKeyConstraint
+                baseTableName="reaction"
+                baseColumnNames="post_id"
+                referencedTableName="posts"
+                referencedColumnNames="id"
+                constraintName="fk_reaction_post"
+                onDelete="CASCADE"/>
+
+        <!-- FK на comment (исправлено с comments -> comment) -->
+        <addForeignKeyConstraint
+                baseTableName="reaction"
+                baseColumnNames="comment_id"
+                referencedTableName="comment"
+                referencedColumnNames="id"
+                constraintName="fk_reaction_comment"
+                onDelete="CASCADE"/>
+
+        <createIndex tableName="reaction" indexName="idx_reaction_post_id">
+            <column name="post_id"/>
+        </createIndex>
+
+        <createIndex tableName="reaction" indexName="idx_reaction_comment_id">
+            <column name="comment_id"/>
+        </createIndex>
+
+        <rollback>
+            <dropTable tableName="reaction" cascadeConstraints="true"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
+
+------------------------------------------
+FILE: social_network/post-module/src/main/resources/db/changelog/0005-recreate-reaction.xml
+SIZE: 2251 bytes
+------------------------------------------
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="0005-recreate-reaction-if-missing" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="reaction"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="reaction">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="post_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="comment_id" type="UUID"/>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reaction_type" type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="reaction" baseColumnNames="post_id"
+                referencedTableName="posts" referencedColumnNames="id"
+                constraintName="fk_reaction_post" onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint
+                baseTableName="reaction" baseColumnNames="comment_id"
+                referencedTableName="comments" referencedColumnNames="id"
+                constraintName="fk_reaction_comment" onDelete="CASCADE"/>
+
+        <createIndex tableName="reaction" indexName="idx_reaction_post">
+            <column name="post_id"/>
+        </createIndex>
+        <createIndex tableName="reaction" indexName="idx_reaction_comment">
+            <column name="comment_id"/>
+        </createIndex>
+        <createIndex tableName="reaction" indexName="idx_reaction_user">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
+
+------------------------------------------
+FILE: social_network/post-module/src/main/resources/db/changelog/0009-fix-reaction-table.xml
+SIZE: 2359 bytes
+------------------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Удаляем ЛИШНЮЮ таблицу reactions, если есть -->
+    <changeSet id="0009-drop-reactions" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="reactions"/>
+        </preConditions>
+        <dropTable tableName="reactions" cascadeConstraints="true"/>
+    </changeSet>
+
+    <!-- Пересоздаём правильную reaction -->
+    <changeSet id="0009-recreate-reaction" author="aslan">
+        <!-- Если структура неизвестна/битая — дропаем -->
+        <preConditions onFail="CONTINUE">
+            <tableExists tableName="reaction"/>
+        </preConditions>
+        <dropTable tableName="reaction" cascadeConstraints="true" />
+
+        <createTable tableName="reaction">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="entity_type" type="varchar(16)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="entity_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="user_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="reaction_type" type="varchar(16)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="timestamptz" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Уникальность реакции пользователя на сущность (POST/COMMENT + entity_id + user_id) -->
+        <createIndex tableName="reaction" indexName="uk_reaction_entity_user" unique="true">
+            <column name="entity_type"/>
+            <column name="entity_id"/>
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
+
+------------------------------------------
+FILE: social_network/post-module/src/main/resources/db/changelog/0010-reaction-guard.xml
+SIZE: 2995 bytes
+------------------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- 0010-01: чистим орфаны по POST -->
+    <changeSet id="0010-01-delete-orphans-post" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="reaction"/>
+            <tableExists tableName="post"/>
+        </preConditions>
+        <sql>
+            DELETE FROM reaction r
+            WHERE r.entity_type = 'POST'
+              AND NOT EXISTS (SELECT 1 FROM post p WHERE p.id = r.entity_id);
+        </sql>
+    </changeSet>
+
+    <!-- 0010-02: чистим орфаны по COMMENT -->
+    <changeSet id="0010-02-delete-orphans-comment" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="reaction"/>
+                <tableExists tableName="comment"/>
+            </and>
+        </preConditions>
+        <sql>
+            DELETE FROM reaction r
+            WHERE r.entity_type = 'COMMENT'
+              AND NOT EXISTS (SELECT 1 FROM comment c WHERE c.id = r.entity_id);
+        </sql>
+    </changeSet>
+
+    <!-- 0010-03: функция проверки родителя -->
+    <changeSet id="0010-03-create-fn-reaction-parent-exists" author="aslan" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="reaction"/>
+        </preConditions>
+
+        <!-- ВАЖНО: без разбиения, в CDATA -->
+        <sql splitStatements="false" stripComments="false"><![CDATA[
+            CREATE OR REPLACE FUNCTION reaction_parent_exists()
+RETURNS trigger AS $$
+            BEGIN
+  IF NEW.entity_type = 'POST' THEN
+    IF NOT EXISTS (SELECT 1 FROM post WHERE id = NEW.entity_id) THEN
+      RAISE EXCEPTION 'Parent post % does not exist', NEW.entity_id;
+            END IF;
+  ELSIF NEW.entity_type = 'COMMENT' THEN
+    IF NOT EXISTS (SELECT 1 FROM comment WHERE id = NEW.entity_id) THEN
+      RAISE EXCEPTION 'Parent comment % does not exist', NEW.entity_id;
+            END IF;
+            END IF;
+            RETURN NEW;
+            END;
+$$ LANGUAGE plpgsql;
+            ]]></sql>
+    </changeSet>
+
+    <!-- 0010-04: триггер -->
+    <changeSet id="0010-04-create-trg-reaction-parent-exists" author="aslan" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="reaction"/>
+        </preConditions>
+        <sql>
+            DROP TRIGGER IF EXISTS trg_reaction_parent_exists ON reaction;
+            CREATE TRIGGER trg_reaction_parent_exists
+                BEFORE INSERT OR UPDATE ON reaction
+                                     FOR EACH ROW EXECUTE FUNCTION reaction_parent_exists();
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
+
+------------------------------------------
+FILE: social_network/post-module/src/main/resources/db/changelog/0012-reaction-count.xml
+SIZE: 3287 bytes
+------------------------------------------
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- 1) Включаем pgcrypto (для gen_random_uuid()), идемпотентно -->
+    <changeSet id="0012-1-enable-pgcrypto" author="you">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM pg_extension WHERE extname = 'pgcrypto'
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <sql>CREATE EXTENSION IF NOT EXISTS pgcrypto;</sql>
+    </changeSet>
+
+    <!-- 2) Создаём reaction_count (если её нет) + уникальный ключ + индекс -->
+    <changeSet id="0012-2-create-reaction-count" author="you">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="reaction_count"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="reaction_count">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="entity_type" type="VARCHAR(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entity_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reaction_type" type="VARCHAR(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="count" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMPTZ" defaultValueDate="NOW()"/>
+        </createTable>
+
+        <addUniqueConstraint tableName="reaction_count"
+                             columnNames="entity_type,entity_id,reaction_type"
+                             constraintName="ux_reaction_count_entity_type_id_type"/>
+
+        <createIndex indexName="idx_reaction_count_entity" tableName="reaction_count">
+            <column name="entity_type"/>
+            <column name="entity_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 3) Backfill из reaction (если обе таблицы есть). Идемпотентно за счёт ON CONFLICT -->
+    <changeSet id="0012-3-backfill-reaction-count" author="you">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="reaction"/>
+            <tableExists tableName="reaction_count"/>
+        </preConditions>
+
+        <sql>
+            INSERT INTO reaction_count (id, entity_type, entity_id, reaction_type, count, updated_at)
+            SELECT gen_random_uuid(), r.entity_type, r.entity_id, r.reaction_type, COUNT(*), NOW()
+            FROM reaction r
+            GROUP BY r.entity_type, r.entity_id, r.reaction_type
+                ON CONFLICT (entity_type, entity_id, reaction_type)
+            DO UPDATE SET count = EXCLUDED.count, updated_at = NOW();
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
+
+------------------------------------------
+FILE: social_network/post-module/src/main/resources/db/changelog/0001-create-posts.xml
+SIZE: 1108 bytes
+------------------------------------------
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="aslan">
+        <createTable tableName="posts">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="time" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="time_changed" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="author_id" type="UUID"/>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="post_text" type="TEXT"/>
+            <column name="is_blocked" type="BOOLEAN"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+            <column name="comments_count" type="BIGINT"/>
+            <column name="tags" type="TEXT"/>
+            <column name="like_amount" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
+
+------------------------------------------
+FILE: social_network/post-module/src/main/resources/db/changelog/0004-fix-reactions.xml
+SIZE: 1556 bytes
+------------------------------------------
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="0004-fix-reactions" author="aslan">
+        <!-- Если таблицы reaction нет — просто пометить changeset как выполненный -->
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="reaction"/>
+        </preConditions>
+
+        <!-- Идемпотентные дропы ограничений -->
+        <sql>ALTER TABLE IF EXISTS public.reaction DROP CONSTRAINT IF EXISTS fk_reaction_post;</sql>
+        <sql>ALTER TABLE IF EXISTS public.reaction DROP CONSTRAINT IF EXISTS fk_reaction_comment;</sql>
+
+        <!-- Здесь при необходимости добавь заново правильные FK/индексы -->
+        <!--
+        <addForeignKeyConstraint
+                baseTableName="reaction" baseColumnNames="post_id"
+                referencedTableName="posts" referencedColumnNames="id"
+                constraintName="fk_reaction_post" onDelete="CASCADE"/>
+        <addForeignKeyConstraint
+                baseTableName="reaction" baseColumnNames="comment_id"
+                referencedTableName="comments" referencedColumnNames="id"
+                constraintName="fk_reaction_comment" onDelete="CASCADE"/>
+        -->
+    </changeSet>
+</databaseChangeLog>
+
+------------------------------------------
+FILE: social_network/post-module/src/main/resources/db/changelog/0007-fix-post-table.xml
+SIZE: 2777 bytes
+------------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Если есть posts — переименуем в post -->
+    <changeSet id="0007-rename-posts-to-post" author="you">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="posts"/>
+            <not>
+                <tableExists tableName="post"/>
+            </not>
+        </preConditions>
+        <renameTable oldTableName="posts" newTableName="post"/>
+    </changeSet>
+
+    <!-- Если таблиц нет совсем — создадим post -->
+    <changeSet id="0007-create-post-if-missing" author="you">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="post"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="post">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="time" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time_changed" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="author_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="post_text" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_blocked" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="comments_count" type="bigint" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tags" type="text"/>
+            <column name="like_amount" type="bigint" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="post" indexName="idx_post_author">
+            <column name="author_id"/>
+        </createIndex>
+        <createIndex tableName="post" indexName="idx_post_time">
+            <column name="time"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/dto/reaction/ReactionDto.java
+SIZE: 255 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.dto.reaction;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Reaction response DTO")
+public record ReactionDto(
+        boolean active,
+        long quantity,
+        String reaction
+) {}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/dto/reaction/RequestReactionDto.java
+SIZE: 829 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.dto.reaction;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Pattern;
+
+@Schema(description = "Reaction request DTO")
+public record RequestReactionDto(
+        @Schema(
+                description = "Reaction type",
+                example = "LIKE",
+                allowableValues = {
+                        "LIKE", "DISLIKE", "HEART", "LAUGH", "SAD", "ANGRY",
+                        "WOW", "CARE", "FIRE", "CLAP", "STAR", "THINK"
+                }
+        )
+        @Pattern(
+                regexp = "LIKE|DISLIKE|HEART|LAUGH|SAD|ANGRY|WOW|CARE|FIRE|CLAP|STAR|THINK",
+                message = "reactionType must be one of: LIKE, DISLIKE, HEART, LAUGH, SAD, ANGRY, WOW, CARE, FIRE, CLAP, STAR, THINK"
+        )
+        String reactionType
+) {}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/dto/post/PostDto.java
+SIZE: 548 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.dto.post;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
+public record PostDto(
+        UUID id,
+        UUID authorId,
+        String title,
+        String text,               // из entity.postText
+        long likeAmount,           // ← счётчик лайков
+        long commentsCount,        // ← счётчик комментариев
+        OffsetDateTime time,       // created
+        OffsetDateTime timeChanged,// updated
+        boolean deleted,
+        boolean blocked
+) {}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/dto/post/CreatePostRequest.java
+SIZE: 198 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.dto.post;
+
+import jakarta.validation.constraints.NotBlank;
+
+public record CreatePostRequest(
+        @NotBlank String title,
+        @NotBlank String text
+) {}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/dto/post/PagePostDto.java
+SIZE: 633 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.dto.post;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
+
+@Schema(description = "Page of posts")
+public record PagePostDto(
+        @Schema(description = "Page content")
+        List<PostDto> content,
+
+        @Schema(description = "Current page number (0-based)", example = "0")
+        int pageNumber,
+
+        @Schema(description = "Page size", example = "10")
+        int pageSize,
+
+        @Schema(description = "Total elements", example = "0")
+        long totalElements,
+
+        @Schema(description = "Total pages", example = "0")
+        int totalPages
+) {}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/dto/post/UpdatePostRequest.java
+SIZE: 198 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.dto.post;
+
+import jakarta.validation.constraints.NotBlank;
+
+public record UpdatePostRequest(
+        @NotBlank String title,
+        @NotBlank String text
+) {}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/dto/comment/PageCommentDto.java
+SIZE: 336 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.dto.comment;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.util.List;
+
+@Schema(description = "Page of comments")
+public record PageCommentDto(
+        List<CommentDto> content,
+        int pageNumber,
+        int pageSize,
+        long totalElements,
+        int totalPages
+) {}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/dto/comment/CommentDto.java
+SIZE: 750 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.dto.comment;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
+@Schema(description = "Comment DTO")
+public record CommentDto(
+        UUID id,
+        String commentText,
+        UUID postId,
+        UUID parentId,
+        Boolean isBlocked,
+        Boolean isDeleted,
+        Long likeAmount,
+        Boolean myLike,
+        Integer commentsCount,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
+        OffsetDateTime time,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
+        OffsetDateTime timeChanged
+) {}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/dto/filter/PostFilter.java
+SIZE: 348 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.dto.filter;
+
+import java.time.OffsetDateTime;
+import java.util.Set;
+import java.util.UUID;
+
+public record PostFilter(
+        Set<UUID> ids,
+        Set<UUID> authorIds,
+        String q,
+        OffsetDateTime dateFrom,
+        OffsetDateTime dateTo,
+        Boolean isDeleted,
+        Boolean isBlocked
+) {}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/repository/CommentRepository.java
+SIZE: 647 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.repository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import ru.skillbox.socialnetwork.post.entity.CommentEntity;
+
+import java.util.UUID;
+
+@Repository
+public interface CommentRepository extends JpaRepository<CommentEntity, UUID> {
+
+    Page<CommentEntity> findAllByPostIdAndParentIdIsNull(UUID postId, Pageable pageable);
+
+    Page<CommentEntity> findAllByParentId(UUID parentId, Pageable pageable);
+
+    long countByParentId(UUID parentId);
+}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/repository/PostCountersDao.java
+SIZE: 1123 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.repository;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
+
+@Repository
+@RequiredArgsConstructor
+public class PostCountersDao {
+
+    private final JdbcTemplate jdbc;
+
+    // ВНИМАНИЕ: таблица называется "post" (как в @Table(name = "post"))
+    public int incrementPostLike(UUID postId) {
+        return jdbc.update("UPDATE post SET like_amount = like_amount + 1 WHERE id = ?", postId);
+    }
+
+    public int decrementPostLike(UUID postId) {
+        return jdbc.update("UPDATE post SET like_amount = GREATEST(like_amount - 1, 0) WHERE id = ?", postId);
+    }
+
+    public int addToCommentsCount(UUID postId, long delta) {
+        return jdbc.update("UPDATE post SET comments_count = comments_count + ? WHERE id = ?", delta, postId);
+    }
+
+    public int subtractFromCommentsCount(UUID postId, long delta) {
+        return jdbc.update("UPDATE post SET comments_count = GREATEST(comments_count - ?, 0) WHERE id = ?", delta, postId);
+    }
+}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/repository/ReactionRepository.java
+SIZE: 504 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import ru.skillbox.socialnetwork.post.entity.EntityType;
+import ru.skillbox.socialnetwork.post.entity.ReactionEntity;
+
+import java.util.Optional;
+import java.util.UUID;
+
+public interface ReactionRepository extends JpaRepository<ReactionEntity, UUID> {
+
+    Optional<ReactionEntity> findByUserIdAndEntityTypeAndEntityId(
+            UUID userId, EntityType entityType, UUID entityId
+    );
+}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/repository/spec/PostSpecs.java
+SIZE: 1828 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.repository.spec;
+
+import org.springframework.data.jpa.domain.Specification;
+import ru.skillbox.socialnetwork.post.dto.filter.PostFilter;
+import ru.skillbox.socialnetwork.post.entity.PostEntity;
+
+import jakarta.persistence.criteria.Predicate;
+import java.util.ArrayList;
+import java.util.List;
+
+public final class PostSpecs {
+    private PostSpecs() {}
+
+    public static Specification<PostEntity> withFilter(PostFilter f) {
+        return (root, cq, cb) -> {
+            if (f == null) return cb.conjunction();
+
+            List<Predicate> p = new ArrayList<>();
+
+            if (f.ids() != null && !f.ids().isEmpty()) {
+                p.add(root.get("id").in(f.ids()));
+            }
+            if (f.authorIds() != null && !f.authorIds().isEmpty()) {
+                p.add(root.get("authorId").in(f.authorIds()));
+            }
+            if (f.q() != null && !f.q().isBlank()) {
+                String like = "%" + f.q().toLowerCase() + "%";
+                p.add(cb.or(
+                        cb.like(cb.lower(root.get("title")), like),
+                        cb.like(cb.lower(root.get("postText")), like) // поле в Entity называется postText
+                ));
+            }
+            if (f.dateFrom() != null) {
+                p.add(cb.greaterThanOrEqualTo(root.get("time"), f.dateFrom()));
+            }
+            if (f.dateTo() != null) {
+                p.add(cb.lessThanOrEqualTo(root.get("time"), f.dateTo()));
+            }
+            if (f.isDeleted() != null) {
+                p.add(cb.equal(root.get("isDeleted"), f.isDeleted()));
+            }
+            if (f.isBlocked() != null) {
+                p.add(cb.equal(root.get("isBlocked"), f.isBlocked()));
+            }
+
+            return cb.and(p.toArray(new Predicate[0]));
+        };
+    }
+}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/repository/CommentCountersDao.java
+SIZE: 1563 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.repository;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+import java.util.UUID;
+
+@Repository
+@RequiredArgsConstructor
+public class CommentCountersDao {
+
+    private final JdbcTemplate jdbc;
+
+    // Таблица "comment" (как в @Table(name = "comment"))
+    public Optional<UUID> findPostIdByCommentId(UUID commentId) {
+        try {
+            UUID id = jdbc.queryForObject(
+                    "SELECT post_id FROM comment WHERE id = ?",
+                    (rs, rn) -> (UUID) rs.getObject(1),
+                    commentId
+            );
+            return Optional.ofNullable(id);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    public int incrementCommentLike(UUID commentId) {
+        return jdbc.update("UPDATE comment SET like_amount = like_amount + 1 WHERE id = ?", commentId);
+    }
+
+    public int decrementCommentLike(UUID commentId) {
+        return jdbc.update("UPDATE comment SET like_amount = GREATEST(like_amount - 1, 0) WHERE id = ?", commentId);
+    }
+
+    public long countVisibleCommentsByPost(UUID postId) {
+        Long cnt = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM comment WHERE post_id = ? AND is_deleted = false",
+                Long.class,
+                postId
+        );
+        return cnt == null ? 0L : cnt;
+    }
+}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/repository/PostRepository.java
+SIZE: 382 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import ru.skillbox.socialnetwork.post.entity.PostEntity;
+
+import java.util.UUID;
+
+public interface PostRepository extends JpaRepository<PostEntity, UUID>, JpaSpecificationExecutor<PostEntity> {
+}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/repository/ReactionCountRepository.java
+SIZE: 1277 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.repository;
+
+import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+import ru.skillbox.socialnetwork.post.entity.EntityType;
+import ru.skillbox.socialnetwork.post.entity.ReactionCount;
+import ru.skillbox.socialnetwork.post.entity.ReactionType;
+
+import java.util.*;
+
+@Repository
+public interface ReactionCountRepository extends JpaRepository<ReactionCount, UUID> {
+
+    Optional<ReactionCount> findByEntityTypeAndEntityIdAndReactionType(
+            EntityType entityType, UUID entityId, ReactionType reactionType);
+
+    List<ReactionCount> findByEntityTypeAndEntityId(EntityType entityType, UUID entityId);
+
+    @Modifying
+    @Query("""
+        update ReactionCount rc
+           set rc.count = rc.count + :delta,
+               rc.updatedAt = CURRENT_TIMESTAMP
+         where rc.entityType   = :entityType
+           and rc.entityId     = :entityId
+           and rc.reactionType = :reactionType
+        """)
+    int addDelta(@Param("entityType") EntityType entityType,
+                 @Param("entityId") UUID entityId,
+                 @Param("reactionType") ReactionType reactionType,
+                 @Param("delta") long delta);
+}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/util/CurrentUserProvider.java
+SIZE: 3375 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.util;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.lang.reflect.Method;
+import java.util.Optional;
+import java.util.UUID;
+
+@Component
+@Slf4j
+public class CurrentUserProvider {
+
+    public UUID getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            log.warn("[post] SecurityContext has no authentication");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+        if (!authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+            log.warn("[post] Authentication is anonymous or not authenticated");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+        Optional<UUID> userId = extractUserId(authentication.getPrincipal(), authentication.getName());
+        if (userId.isPresent()) {
+            return userId.get();
+        }
+        log.warn("[post] Failed to extract userId from principal");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid authentication principal");
+    }
+
+    private Optional<UUID> extractUserId(Object principal, String authenticationName) {
+        if (principal instanceof UUID uuid) {
+            return Optional.of(uuid);
+        }
+        if (principal instanceof String s) {
+            return parseUuid(s);
+        }
+        Optional<UUID> fromJwt = extractFromJwtPrincipal(principal);
+        if (fromJwt.isPresent()) {
+            return fromJwt;
+        }
+        return parseUuid(authenticationName);
+    }
+
+    private Optional<UUID> extractFromJwtPrincipal(Object principal) {
+        if (principal == null || !principal.getClass().getName().equals("org.springframework.security.oauth2.jwt.Jwt")) {
+            return Optional.empty();
+        }
+        try {
+            Method getClaim = principal.getClass().getMethod("getClaim", String.class);
+            Method getSubject = principal.getClass().getMethod("getSubject");
+            Object claimUserId = getClaim.invoke(principal, "userId");
+            Object claimId = getClaim.invoke(principal, "id");
+            String candidate = claimUserId != null ? claimUserId.toString()
+                    : (claimId != null ? claimId.toString() : String.valueOf(getSubject.invoke(principal)));
+            return parseUuid(candidate);
+        } catch (Exception ex) {
+            log.warn("[post] Failed to read Jwt principal claims: {}", ex.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    private Optional<UUID> parseUuid(String value) {
+        if (value == null || value.isBlank()) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(UUID.fromString(value));
+        } catch (IllegalArgumentException ex) {
+            log.warn("[post] Invalid UUID format: {}", value);
+            return Optional.empty();
+        }
+    }
+}
+
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/PostServiceApplication.java
+SIZE: 158 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post;
+
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class PostServiceApplication {
+}
+
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/config/KafkaHealthConfig.java
+SIZE: 1668 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.config;
+
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.DescribeClusterResult;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+
+@Configuration
+public class KafkaHealthConfig {
+
+    @Bean
+    public HealthIndicator kafkaHealthIndicator(Environment env) {
+        return () -> {
+            String bootstrap = env.getProperty("spring.kafka.bootstrap-servers", "localhost:9092");
+            Properties props = new Properties();
+            props.put("bootstrap.servers", bootstrap);
+            props.put("request.timeout.ms", "3000");
+            props.put("default.api.timeout.ms", "3000");
+
+            try (AdminClient client = AdminClient.create(props)) {
+                DescribeClusterResult r = client.describeCluster();
+                String clusterId = r.clusterId().get(2, TimeUnit.SECONDS);
+                int nodeCount = r.nodes().get(2, TimeUnit.SECONDS).size();
+                return Health.up()
+                        .withDetail("bootstrapServers", bootstrap)
+                        .withDetail("clusterId", clusterId)
+                        .withDetail("nodes", nodeCount)
+                        .build();
+            } catch (Exception e) {
+                return Health.down(e).withDetail("bootstrapServers", bootstrap).build();
+            }
+        };
+    }
+}
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/config/SecurityConfig.java
+SIZE: 1280 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    @Order(40)
+    public SecurityFilterChain postSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher(
+                        "/api/v1/post/**",
+                        "/api/v1/posts/**",
+                        "/_debug/**"
+                )
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .headers(h -> h.frameOptions(f -> f.disable()))
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                )
+                .httpBasic(b -> b.disable())
+                .formLogin(f -> f.disable());
+        return http.build();
+    }
+
+}
+
+
+------------------------------------------
+FILE: social_network/post-module/src/main/java/ru/skillbox/socialnetwork/post/config/OpenApiConfig.java
+SIZE: 574 bytes
+------------------------------------------
+package ru.skillbox.socialnetwork.post.config;
+
+import org.springdoc.core.models.GroupedOpenApi;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class OpenApiConfig {
+
+    @Bean
+    public GroupedOpenApi postServiceApi() {
+        return GroupedOpenApi.builder()
+                .group("post-service")
+                .packagesToScan("ru.skillbox.socialnetwork.post")
+                .pathsToMatch("/api/**", "/_debug/**") // ✅ добавили debug
+                .build();
+    }
+}
+
