@@ -116,6 +116,8 @@ export default {
         localStorage.removeItem('refresh-token');
 
         document.cookie = 'jwt=';
+        requestSettings.deleteDefaultHeader('Authorization');
+        commit('setToken', '');
         commit('setJwt');
       }
     },

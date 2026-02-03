@@ -54,9 +54,19 @@ public class AuthController {
 
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.OK)
-    public Response logoutUser() {
+    public Response logoutUser(HttpServletResponse response) {
         securityService.logout();
+        clearCookie(response, "jwt");
+        clearCookie(response, "refreshToken");
+        clearCookie(response, "refresh-token");
         return new Response("Logged out successfully");
+    }
+
+    private void clearCookie(HttpServletResponse response, String name) {
+        Cookie cookie = new Cookie(name, "");
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
     }
 
     @ResponseStatus(HttpStatus.OK)

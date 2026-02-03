@@ -13,7 +13,10 @@
       @input="updateValue($event.target.value)"
       @change="passwordBlur()"
       :class="{
-        invalid: (v.$dirty && !v.required) || (v.$dirty && !v.minLength),
+        invalid:
+          (v.$dirty && !v.required) ||
+          (v.$dirty && !v.minLength) ||
+          (v.$dirty && !v.maxLength),
       }"
       pattern="[A-Za-z0-9!@#$%^&*]+"
       autocomplete="current-password"
@@ -35,6 +38,12 @@
         <span class="form__error" v-if="v.$dirty && !v.minLength">
           {{ translationsLang.validatePass1 }}
           {{ v.$params.minLength.min }}
+          {{ translationsLang.validatePass2 }}
+          {{ password.length }}
+        </span>
+        <span class="form__error" v-if="v.$dirty && !v.maxLength">
+          {{ translationsLang.validatePass1 }}
+          {{ v.$params.maxLength.max }}
           {{ translationsLang.validatePass2 }}
           {{ password.length }}
         </span>
