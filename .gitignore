@@ -90,3 +90,4 @@ java_backend.sh
 project_dump.txt
 project_dump_excluded.txt
 currency.sh
+hotel.sh

@@ -1,0 +1,5635 @@
+HOTEL-BOOKING DUMP
+Root: /Users/ilia/IdeaProjects/pet_projects/java_backend/hotel-booking
+Generated: 2026-02-04T21:38:42Z
+==========================================
+
+------------------------------------------
+FILE: mvnw.cmd
+SIZE: 7061 bytes
+------------------------------------------
+<# : batch portion
+@REM ----------------------------------------------------------------------------
+@REM Licensed to the Apache Software Foundation (ASF) under one
+@REM or more contributor license agreements.  See the NOTICE file
+@REM distributed with this work for additional information
+@REM regarding copyright ownership.  The ASF licenses this file
+@REM to you under the Apache License, Version 2.0 (the
+@REM "License"); you may not use this file except in compliance
+@REM with the License.  You may obtain a copy of the License at
+@REM
+@REM    http://www.apache.org/licenses/LICENSE-2.0
+@REM
+@REM Unless required by applicable law or agreed to in writing,
+@REM software distributed under the License is distributed on an
+@REM "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+@REM KIND, either express or implied.  See the License for the
+@REM specific language governing permissions and limitations
+@REM under the License.
+@REM ----------------------------------------------------------------------------
+
+@REM ----------------------------------------------------------------------------
+@REM Apache Maven Wrapper startup batch script, version 3.3.2
+@REM
+@REM Optional ENV vars
+@REM   MVNW_REPOURL - repo url base for downloading maven distribution
+@REM   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
+@REM   MVNW_VERBOSE - true: enable verbose log; others: silence the output
+@REM ----------------------------------------------------------------------------
+
+@IF "%__MVNW_ARG0_NAME__%"=="" (SET __MVNW_ARG0_NAME__=%~nx0)
+@SET __MVNW_CMD__=
+@SET __MVNW_ERROR__=
+@SET __MVNW_PSMODULEP_SAVE=%PSModulePath%
+@SET PSModulePath=
+@FOR /F "usebackq tokens=1* delims==" %%A IN (`powershell -noprofile "& {$scriptDir='%~dp0'; $script='%__MVNW_ARG0_NAME__%'; icm -ScriptBlock ([Scriptblock]::Create((Get-Content -Raw '%~f0'))) -NoNewScope}"`) DO @(
+  IF "%%A"=="MVN_CMD" (set __MVNW_CMD__=%%B) ELSE IF "%%B"=="" (echo %%A) ELSE (echo %%A=%%B)
+)
+@SET PSModulePath=%__MVNW_PSMODULEP_SAVE%
+@SET __MVNW_PSMODULEP_SAVE=
+@SET __MVNW_ARG0_NAME__=
+@SET MVNW_USERNAME=
+@SET MVNW_PASSWORD=
+@IF NOT "%__MVNW_CMD__%"=="" (%__MVNW_CMD__% %*)
+@echo Cannot start maven from wrapper >&2 && exit /b 1
+@GOTO :EOF
+: end batch / begin powershell #>
+
+$ErrorActionPreference = "Stop"
+if ($env:MVNW_VERBOSE -eq "true") {
+  $VerbosePreference = "Continue"
+}
+
+# calculate distributionUrl, requires .mvn/wrapper/maven-wrapper.properties
+$distributionUrl = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionUrl
+if (!$distributionUrl) {
+  Write-Error "cannot read distributionUrl property in $scriptDir/.mvn/wrapper/maven-wrapper.properties"
+}
+
+switch -wildcard -casesensitive ( $($distributionUrl -replace '^.*/','') ) {
+  "maven-mvnd-*" {
+    $USE_MVND = $true
+    $distributionUrl = $distributionUrl -replace '-bin\.[^.]*$',"-windows-amd64.zip"
+    $MVN_CMD = "mvnd.cmd"
+    break
+  }
+  default {
+    $USE_MVND = $false
+    $MVN_CMD = $script -replace '^mvnw','mvn'
+    break
+  }
+}
+
+# apply MVNW_REPOURL and calculate MAVEN_HOME
+# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
+if ($env:MVNW_REPOURL) {
+  $MVNW_REPO_PATTERN = if ($USE_MVND) { "/org/apache/maven/" } else { "/maven/mvnd/" }
+  $distributionUrl = "$env:MVNW_REPOURL$MVNW_REPO_PATTERN$($distributionUrl -replace '^.*'+$MVNW_REPO_PATTERN,'')"
+}
+$distributionUrlName = $distributionUrl -replace '^.*/',''
+$distributionUrlNameMain = $distributionUrlName -replace '\.[^.]*$','' -replace '-bin$',''
+$MAVEN_HOME_PARENT = "$HOME/.m2/wrapper/dists/$distributionUrlNameMain"
+if ($env:MAVEN_USER_HOME) {
+  $MAVEN_HOME_PARENT = "$env:MAVEN_USER_HOME/wrapper/dists/$distributionUrlNameMain"
+}
+$MAVEN_HOME_NAME = ([System.Security.Cryptography.MD5]::Create().ComputeHash([byte[]][char[]]$distributionUrl) | ForEach-Object {$_.ToString("x2")}) -join ''
+$MAVEN_HOME = "$MAVEN_HOME_PARENT/$MAVEN_HOME_NAME"
+
+if (Test-Path -Path "$MAVEN_HOME" -PathType Container) {
+  Write-Verbose "found existing MAVEN_HOME at $MAVEN_HOME"
+  Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
+  exit $?
+}
+
+if (! $distributionUrlNameMain -or ($distributionUrlName -eq $distributionUrlNameMain)) {
+  Write-Error "distributionUrl is not valid, must end with *-bin.zip, but found $distributionUrl"
+}
+
+# prepare tmp dir
+$TMP_DOWNLOAD_DIR_HOLDER = New-TemporaryFile
+$TMP_DOWNLOAD_DIR = New-Item -Itemtype Directory -Path "$TMP_DOWNLOAD_DIR_HOLDER.dir"
+$TMP_DOWNLOAD_DIR_HOLDER.Delete() | Out-Null
+trap {
+  if ($TMP_DOWNLOAD_DIR.Exists) {
+    try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
+    catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
+  }
+}
+
+New-Item -Itemtype Directory -Path "$MAVEN_HOME_PARENT" -Force | Out-Null
+
+# Download and Install Apache Maven
+Write-Verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
+Write-Verbose "Downloading from: $distributionUrl"
+Write-Verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
+
+$webclient = New-Object System.Net.WebClient
+if ($env:MVNW_USERNAME -and $env:MVNW_PASSWORD) {
+  $webclient.Credentials = New-Object System.Net.NetworkCredential($env:MVNW_USERNAME, $env:MVNW_PASSWORD)
+}
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$webclient.DownloadFile($distributionUrl, "$TMP_DOWNLOAD_DIR/$distributionUrlName") | Out-Null
+
+# If specified, validate the SHA-256 sum of the Maven distribution zip file
+$distributionSha256Sum = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionSha256Sum
+if ($distributionSha256Sum) {
+  if ($USE_MVND) {
+    Write-Error "Checksum validation is not supported for maven-mvnd. `nPlease disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties."
+  }
+  Import-Module $PSHOME\Modules\Microsoft.PowerShell.Utility -Function Get-FileHash
+  if ((Get-FileHash "$TMP_DOWNLOAD_DIR/$distributionUrlName" -Algorithm SHA256).Hash.ToLower() -ne $distributionSha256Sum) {
+    Write-Error "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised. If you updated your Maven version, you need to update the specified distributionSha256Sum property."
+  }
+}
+
+# unzip and move
+Expand-Archive "$TMP_DOWNLOAD_DIR/$distributionUrlName" -DestinationPath "$TMP_DOWNLOAD_DIR" | Out-Null
+Rename-Item -Path "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain" -NewName $MAVEN_HOME_NAME | Out-Null
+try {
+  Move-Item -Path "$TMP_DOWNLOAD_DIR/$MAVEN_HOME_NAME" -Destination $MAVEN_HOME_PARENT | Out-Null
+} catch {
+  if (! (Test-Path -Path "$MAVEN_HOME" -PathType Container)) {
+    Write-Error "fail to move MAVEN_HOME"
+  }
+} finally {
+  try { Remove-Item $TMP_DOWNLOAD_DIR -Recurse -Force | Out-Null }
+  catch { Write-Warning "Cannot remove $TMP_DOWNLOAD_DIR" }
+}
+
+Write-Output "MVN_CMD=$MAVEN_HOME/bin/$MVN_CMD"
+
+
+------------------------------------------
+FILE: Dockerfile
+SIZE: 588 bytes
+------------------------------------------
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+
+WORKDIR /workspace
+COPY pom.xml .
+COPY src ./src
+RUN mvn -q -DskipTests package
+
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+ENV SERVER_PORT=8002
+
+COPY --from=build /workspace/target/*.jar /app/
+RUN set -e; \
+  jar_path="$(ls -1 /app/*.jar | grep -v 'original' | head -n 1)"; \
+  if [ -z "${jar_path}" ]; then \
+    echo "No runnable jar found in /app"; \
+    ls -la /app; \
+    exit 1; \
+  fi; \
+  mv "${jar_path}" /app/app.jar; \
+  find /app -maxdepth 1 -name "*.jar" ! -name "app.jar" -delete
+
+EXPOSE 8002
+CMD ["java","-jar","/app/app.jar"]
+
+
+------------------------------------------
+FILE: pom.xml
+SIZE: 5385 bytes
+------------------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xmlns="http://maven.apache.org/POM/4.0.0"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.4.3</version>
+		<relativePath/>
+	</parent>
+
+	<groupId>com.example</groupId>
+	<artifactId>hotel-booking</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>hotel-booking</name>
+	<description>Backend API for hotel booking system</description>
+
+	<properties>
+		<java.version>17</java.version>
+		<flyway.url>jdbc:postgresql://localhost:5432/hotel_booking</flyway.url>
+		<flyway.user>hotel_admin</flyway.user>
+		<flyway.password>postgres</flyway.password>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>1.5.3.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok-mapstruct-binding</artifactId>
+			<version>0.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct-processor</artifactId>
+			<version>1.5.3.Final</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.30</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>kafka</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>mongodb</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version>
+				<configuration>
+					<source>17</source>
+					<target>17</target>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>1.18.30</version>
+						</path>
+						<path>
+							<groupId>org.mapstruct</groupId>
+							<artifactId>mapstruct-processor</artifactId>
+							<version>1.5.3.Final</version>
+						</path>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok-mapstruct-binding</artifactId>
+							<version>0.2.0</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>run-app-after-tests</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<exec executable="mvn">
+									<arg value="spring-boot:run"/>
+								</exec>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>verify-then-run</id>
+		</profile>
+	</profiles>
+</project>
+
+------------------------------------------
+FILE: README.md
+SIZE: 6818 bytes
+------------------------------------------
+# Hotel Booking API 🏨
+
+## 1. Описание проекта
+
+Сервис для управления бронированием отелей. Поддерживает CRUD-операции для отелей, комнат, пользователей, бронирований и
+оценок. Встроено логирование, фильтрация, пагинация, хранение статистики в MongoDB, интеграция с Kafka и авторизация
+через Spring Security.
+
+## 2. Технологии
+
+- **Язык:** Java 17
+- **Фреймворк:** Spring Boot
+- **Безопасность:** Spring Security
+- **JPA / ORM:** Spring Data JPA, PostgreSQL
+- **NoSQL:** MongoDB
+- **Миграции:** Flyway
+- **Логирование:** Logback (в файл `logs/app.log`)
+- **API:** REST + Swagger
+- **Тесты:** JUnit 5, Mockito, Testcontainers
+
+## 3. Установка и запуск
+
+### 3.1. Требования
+
+- JDK 17+
+- Maven 3.8+
+- PostgreSQL 16+
+- MongoDB 6+
+- Docker (опционально)
+
+### 3.2. Настройка PostgreSQL
+```sql
+CREATE DATABASE hotel_booking;
+CREATE USER hotel_admin WITH PASSWORD 'postgres';
+ALTER ROLE hotel_admin SET client_encoding TO 'utf8';
+ALTER ROLE hotel_admin SET default_transaction_isolation TO 'read committed';
+ALTER ROLE hotel_admin SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE hotel_booking TO hotel_admin;
+```
+
+### 3.3. Применение миграций (Flyway)
+
+```bash
+./mvnw flyway:migrate \
+  -Dflyway.url=jdbc:postgresql://localhost:5432/hotel_booking \
+  -Dflyway.User=hotel_admin \
+  -Dflyway.password=postgres \
+  -Dflyway.outOfOrder=true
+```
+
+Проверка статуса:
+```sql
+SELECT * FROM flyway_schema_history;
+```
+
+#### Описание файлов миграций
+
+| Файл                      | Назначение       |
+|---------------------------|------------------|
+| V2__add_hotel_table.sql   | Таблица hotels   |
+| V3__add_room_table.sql    | Таблица rooms    |
+| V4__add_user_table.sql    | Таблица users    |
+| V5__add_booking_table.sql | Таблица bookings |
+| V6__add_ratings_table.sql | Таблица ratings  |
+| V7__add_roles_table.sql   | Таблица roles    |
+
+### 3.4. Проверка данных PostgreSQL
+```sql
+SELECT * FROM users;
+SELECT * FROM hotels;
+SELECT * FROM rooms;
+SELECT * FROM bookings;
+SELECT * FROM ratings;
+SELECT * FROM roles;
+```
+
+### 3.5. Настройка MongoDB
+
+```bash
+docker run -d --name mongodb -p 27017:27017 mongo
+```
+
+Для docker-compose окружения:
+- .env лежит в `java_backend/hotel-booking/.env`
+- По умолчанию используются:
+  - `SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/hotel_booking`
+  - `SPRING_DATA_MONGODB_HOST=mongodb`
+  - `SPRING_DATA_MONGODB_PORT=27017`
+  - `SPRING_DATA_MONGODB_DATABASE=hotel_booking`
+
+```js
+mongosh
+use hotel_booking
+db.statistics.createIndex({ "eventType": 1 });
+db.statistics.createIndex({ "userId": 1 });
+db.statistics.createIndex({ "timestamp": -1 });
+```
+
+```bash
+db.statistics.find().pretty()
+```
+
+## 4. Swagger API
+
+- http://localhost:8080/swagger-ui/index.html
+
+## 5. application.properties
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/hotel_booking
+spring.datasource.username=hotel_admin
+spring.datasource.password=postgres
+spring.data.mongodb.uri=mongodb://localhost:27017/hotel_booking
+logging.file.name=logs/app.log
+logging.level.root=INFO
+```
+
+### MongoDB env (приоритет)
+
+- **Приоритет:** `SPRING_DATA_MONGODB_URI` (если задан) → игнорируются HOST/PORT/DATABASE.
+- Если URI не задан, он собирается из:
+  - `SPRING_DATA_MONGODB_HOST` (по умолчанию `mongodb`)
+  - `SPRING_DATA_MONGODB_PORT` (по умолчанию `27017`)
+  - `SPRING_DATA_MONGODB_DATABASE` (по умолчанию `hotel_booking`)
+- Имя базы не должно содержать: `/ .` пробел `' " $`
+
+## 6. Базы данных
+
+### **Используемые БД**
+
+Проект использует **две базы данных**:
+
+1. **PostgreSQL** – для хранения основной информации (отели, комнаты, пользователи, бронирования и роли).
+2. **MongoDB** – для хранения статистики (события регистрации и бронирования).
+
+---
+
+### **PostgreSQL**
+
+#### **Статус миграций и проверка данных**
+
+```sql
+
+---
+
+### **MongoDB**
+
+#### **1. Запуск MongoDB**
+```sh
+docker run -d --name mongodb -p 27017:27017 mongo
+```
+
+#### **2. Создание базы и коллекции**
+
+MongoDB создаёт коллекцию `statistics` автоматически при первой вставке данных.
+
+#### **3. Индексация (однократно)**
+```sh
+mongosh
+use hotel_booking
+db.statistics.createIndex({ "eventType": 1 });
+db.statistics.createIndex({ "userId": 1 });
+db.statistics.createIndex({ "timestamp": -1 });
+```
+
+#### **4. Проверка данных**
+```sh
+db.statistics.find().pretty()
+```
+
+---
+
+## 7. Структура проекта
+
+```
+src/
+├── main/
+│   ├── java/com/example/hotel_booking/
+│   │   ├── controller/      # REST-контроллеры (обработка HTTP-запросов)
+│   │   ├── dto/             # Data Transfer Objects (входные/выходные модели)
+│   │   ├── mapper/          # Классы MapStruct для преобразования DTO <-> Entity
+│   │   ├── model/           # Сущности JPA (Entity)
+│   │   ├── repository/      # Интерфейсы для доступа к БД (JPA, Mongo)
+│   │   ├── service/         # Бизнес-логика приложения
+│   │   ├── config/          # Конфигурационные классы (Security, Kafka, Logging)
+│   │   └── HotelBookingApplication.java  # Главный класс запуска Spring Boot приложения
+│   └── resources/
+│       ├── application.properties        # Настройки приложения
+│       └── db/migration/                 # SQL-миграции для Flyway
+└── test/
+    └── java/com/example/hotel_booking/
+        └── service/                      # Юнит-тесты сервисного слоя (JUnit, Mockito)
+```
+
+## 8. Тестирование
+
+```bash
+mvn test
+```
+
+## 9. Логирование
+
+- Файл: `logs/app.log`
+- Уровни: INFO, DEBUG, ERROR
+- Примеры:
+
+```text
+INFO  [BookingService] Creating booking for user: 1
+WARN  [AuthController] Invalid login attempt
+```
+
+
+------------------------------------------
+FILE: .gitignore
+SIZE: 730 bytes
+------------------------------------------
+### Java ###
+*.class
+*.jar
+*.war
+*.ear
+
+### Gradle ###
+.gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+gradle-app.setting
+
+### Maven ###
+.mvn/
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackupgot
+pom.xml.next
+release.properties
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+springBootApp.iml
+.springBeans
+.sts4-cache
+
+### Eclipse ###
+.metadata/
+bin/
+tmp/
+
+### VS Code ###
+.vscode/
+
+### Logs ###
+logs/
+*.log
+hs_err_pid*
+
+### Docker ###
+docker-compose.override.yml
+.dockerignore
+
+### Spring Boot ###
+/BOOT-INF/
+/META-INF/
+/module-info.class
+
+### Environment Variables ###
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+------------------------------------------
+FILE: .gitattributes
+SIZE: 38 bytes
+------------------------------------------
+/mvnw text eol=lf
+*.cmd text eol=crlf
+
+
+------------------------------------------
+FILE: mvnw
+SIZE: 10665 bytes
+------------------------------------------
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Apache Maven Wrapper startup batch script, version 3.3.2
+#
+# Optional ENV vars
+# -----------------
+#   JAVA_HOME - location of a JDK home dir, required when download maven via java source
+#   MVNW_REPOURL - repo url base for downloading maven distribution
+#   MVNW_USERNAME/MVNW_PASSWORD - User and password for downloading maven
+#   MVNW_VERBOSE - true: enable verbose log; debug: trace the mvnw script; others: silence the output
+# ----------------------------------------------------------------------------
+
+set -euf
+[ "${MVNW_VERBOSE-}" != debug ] || set -x
+
+# OS specific support.
+native_path() { printf %s\\n "$1"; }
+case "$(uname)" in
+CYGWIN* | MINGW*)
+  [ -z "${JAVA_HOME-}" ] || JAVA_HOME="$(cygpath --unix "$JAVA_HOME")"
+  native_path() { cygpath --path --windows "$1"; }
+  ;;
+esac
+
+# set JAVACMD and JAVACCMD
+set_java_home() {
+  # For Cygwin and MinGW, ensure paths are in Unix format before anything is touched
+  if [ -n "${JAVA_HOME-}" ]; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ]; then
+      # IBM's JDK on AIX uses strange locations for the executables
+      JAVACMD="$JAVA_HOME/jre/sh/java"
+      JAVACCMD="$JAVA_HOME/jre/sh/javac"
+    else
+      JAVACMD="$JAVA_HOME/bin/java"
+      JAVACCMD="$JAVA_HOME/bin/javac"
+
+      if [ ! -x "$JAVACMD" ] || [ ! -x "$JAVACCMD" ]; then
+        echo "The JAVA_HOME environment variable is not defined correctly, so mvnw cannot run." >&2
+        echo "JAVA_HOME is set to \"$JAVA_HOME\", but \"\$JAVA_HOME/bin/java\" or \"\$JAVA_HOME/bin/javac\" does not exist." >&2
+        return 1
+      fi
+    fi
+  else
+    JAVACMD="$(
+      'set' +e
+      'unset' -f command 2>/dev/null
+      'command' -v java
+    )" || :
+    JAVACCMD="$(
+      'set' +e
+      'unset' -f command 2>/dev/null
+      'command' -v javac
+    )" || :
+
+    if [ ! -x "${JAVACMD-}" ] || [ ! -x "${JAVACCMD-}" ]; then
+      echo "The java/javac command does not exist in PATH nor is JAVA_HOME set, so mvnw cannot run." >&2
+      return 1
+    fi
+  fi
+}
+
+# hash string like Java String::hashCode
+hash_string() {
+  str="${1:-}" h=0
+  while [ -n "$str" ]; do
+    char="${str%"${str#?}"}"
+    h=$(((h * 31 + $(LC_CTYPE=C printf %d "'$char")) % 4294967296))
+    str="${str#?}"
+  done
+  printf %x\\n $h
+}
+
+verbose() { :; }
+[ "${MVNW_VERBOSE-}" != true ] || verbose() { printf %s\\n "${1-}"; }
+
+die() {
+  printf %s\\n "$1" >&2
+  exit 1
+}
+
+trim() {
+  # MWRAPPER-139:
+  #   Trims trailing and leading whitespace, carriage returns, tabs, and linefeeds.
+  #   Needed for removing poorly interpreted newline sequences when running in more
+  #   exotic environments such as mingw bash on Windows.
+  printf "%s" "${1}" | tr -d '[:space:]'
+}
+
+# parse distributionUrl and optional distributionSha256Sum, requires .mvn/wrapper/maven-wrapper.properties
+while IFS="=" read -r key value; do
+  case "${key-}" in
+  distributionUrl) distributionUrl=$(trim "${value-}") ;;
+  distributionSha256Sum) distributionSha256Sum=$(trim "${value-}") ;;
+  esac
+done <"${0%/*}/.mvn/wrapper/maven-wrapper.properties"
+[ -n "${distributionUrl-}" ] || die "cannot read distributionUrl property in ${0%/*}/.mvn/wrapper/maven-wrapper.properties"
+
+case "${distributionUrl##*/}" in
+maven-mvnd-*bin.*)
+  MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/
+  case "${PROCESSOR_ARCHITECTURE-}${PROCESSOR_ARCHITEW6432-}:$(uname -a)" in
+  *AMD64:CYGWIN* | *AMD64:MINGW*) distributionPlatform=windows-amd64 ;;
+  :Darwin*x86_64) distributionPlatform=darwin-amd64 ;;
+  :Darwin*arm64) distributionPlatform=darwin-aarch64 ;;
+  :Linux*x86_64*) distributionPlatform=linux-amd64 ;;
+  *)
+    echo "Cannot detect native platform for mvnd on $(uname)-$(uname -m), use pure java version" >&2
+    distributionPlatform=linux-amd64
+    ;;
+  esac
+  distributionUrl="${distributionUrl%-bin.*}-$distributionPlatform.zip"
+  ;;
+maven-mvnd-*) MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/ ;;
+*) MVN_CMD="mvn${0##*/mvnw}" _MVNW_REPO_PATTERN=/org/apache/maven/ ;;
+esac
+
+# apply MVNW_REPOURL and calculate MAVEN_HOME
+# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
+[ -z "${MVNW_REPOURL-}" ] || distributionUrl="$MVNW_REPOURL$_MVNW_REPO_PATTERN${distributionUrl#*"$_MVNW_REPO_PATTERN"}"
+distributionUrlName="${distributionUrl##*/}"
+distributionUrlNameMain="${distributionUrlName%.*}"
+distributionUrlNameMain="${distributionUrlNameMain%-bin}"
+MAVEN_USER_HOME="${MAVEN_USER_HOME:-${HOME}/.m2}"
+MAVEN_HOME="${MAVEN_USER_HOME}/wrapper/dists/${distributionUrlNameMain-}/$(hash_string "$distributionUrl")"
+
+exec_maven() {
+  unset MVNW_VERBOSE MVNW_USERNAME MVNW_PASSWORD MVNW_REPOURL || :
+  exec "$MAVEN_HOME/bin/$MVN_CMD" "$@" || die "cannot exec $MAVEN_HOME/bin/$MVN_CMD"
+}
+
+if [ -d "$MAVEN_HOME" ]; then
+  verbose "found existing MAVEN_HOME at $MAVEN_HOME"
+  exec_maven "$@"
+fi
+
+case "${distributionUrl-}" in
+*?-bin.zip | *?maven-mvnd-?*-?*.zip) ;;
+*) die "distributionUrl is not valid, must match *-bin.zip or maven-mvnd-*.zip, but found '${distributionUrl-}'" ;;
+esac
+
+# prepare tmp dir
+if TMP_DOWNLOAD_DIR="$(mktemp -d)" && [ -d "$TMP_DOWNLOAD_DIR" ]; then
+  clean() { rm -rf -- "$TMP_DOWNLOAD_DIR"; }
+  trap clean HUP INT TERM EXIT
+else
+  die "cannot create temp dir"
+fi
+
+mkdir -p -- "${MAVEN_HOME%/*}"
+
+# Download and Install Apache Maven
+verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
+verbose "Downloading from: $distributionUrl"
+verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
+
+# select .zip or .tar.gz
+if ! command -v unzip >/dev/null; then
+  distributionUrl="${distributionUrl%.zip}.tar.gz"
+  distributionUrlName="${distributionUrl##*/}"
+fi
+
+# verbose opt
+__MVNW_QUIET_WGET=--quiet __MVNW_QUIET_CURL=--silent __MVNW_QUIET_UNZIP=-q __MVNW_QUIET_TAR=''
+[ "${MVNW_VERBOSE-}" != true ] || __MVNW_QUIET_WGET='' __MVNW_QUIET_CURL='' __MVNW_QUIET_UNZIP='' __MVNW_QUIET_TAR=v
+
+# normalize http auth
+case "${MVNW_PASSWORD:+has-password}" in
+'') MVNW_USERNAME='' MVNW_PASSWORD='' ;;
+has-password) [ -n "${MVNW_USERNAME-}" ] || MVNW_USERNAME='' MVNW_PASSWORD='' ;;
+esac
+
+if [ -z "${MVNW_USERNAME-}" ] && command -v wget >/dev/null; then
+  verbose "Found wget ... using wget"
+  wget ${__MVNW_QUIET_WGET:+"$__MVNW_QUIET_WGET"} "$distributionUrl" -O "$TMP_DOWNLOAD_DIR/$distributionUrlName" || die "wget: Failed to fetch $distributionUrl"
+elif [ -z "${MVNW_USERNAME-}" ] && command -v curl >/dev/null; then
+  verbose "Found curl ... using curl"
+  curl ${__MVNW_QUIET_CURL:+"$__MVNW_QUIET_CURL"} -f -L -o "$TMP_DOWNLOAD_DIR/$distributionUrlName" "$distributionUrl" || die "curl: Failed to fetch $distributionUrl"
+elif set_java_home; then
+  verbose "Falling back to use Java to download"
+  javaSource="$TMP_DOWNLOAD_DIR/Downloader.java"
+  targetZip="$TMP_DOWNLOAD_DIR/$distributionUrlName"
+  cat >"$javaSource" <<-END
+	public class Downloader extends java.net.Authenticator
+	{
+	  protected java.net.PasswordAuthentication getPasswordAuthentication()
+	  {
+	    return new java.net.PasswordAuthentication( System.getenv( "MVNW_USERNAME" ), System.getenv( "MVNW_PASSWORD" ).toCharArray() );
+	  }
+	  public static void main( String[] args ) throws Exception
+	  {
+	    setDefault( new Downloader() );
+	    java.nio.file.Files.copy( java.net.URI.create( args[0] ).toURL().openStream(), java.nio.file.Paths.get( args[1] ).toAbsolutePath().normalize() );
+	  }
+	}
+	END
+  # For Cygwin/MinGW, switch paths to Windows format before running javac and java
+  verbose " - Compiling Downloader.java ..."
+  "$(native_path "$JAVACCMD")" "$(native_path "$javaSource")" || die "Failed to compile Downloader.java"
+  verbose " - Running Downloader.java ..."
+  "$(native_path "$JAVACMD")" -cp "$(native_path "$TMP_DOWNLOAD_DIR")" Downloader "$distributionUrl" "$(native_path "$targetZip")"
+fi
+
+# If specified, validate the SHA-256 sum of the Maven distribution zip file
+if [ -n "${distributionSha256Sum-}" ]; then
+  distributionSha256Result=false
+  if [ "$MVN_CMD" = mvnd.sh ]; then
+    echo "Checksum validation is not supported for maven-mvnd." >&2
+    echo "Please disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
+    exit 1
+  elif command -v sha256sum >/dev/null; then
+    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | sha256sum -c >/dev/null 2>&1; then
+      distributionSha256Result=true
+    fi
+  elif command -v shasum >/dev/null; then
+    if echo "$distributionSha256Sum  $TMP_DOWNLOAD_DIR/$distributionUrlName" | shasum -a 256 -c >/dev/null 2>&1; then
+      distributionSha256Result=true
+    fi
+  else
+    echo "Checksum validation was requested but neither 'sha256sum' or 'shasum' are available." >&2
+    echo "Please install either command, or disable validation by removing 'distributionSha256Sum' from your maven-wrapper.properties." >&2
+    exit 1
+  fi
+  if [ $distributionSha256Result = false ]; then
+    echo "Error: Failed to validate Maven distribution SHA-256, your Maven distribution might be compromised." >&2
+    echo "If you updated your Maven version, you need to update the specified distributionSha256Sum property." >&2
+    exit 1
+  fi
+fi
+
+# unzip and move
+if command -v unzip >/dev/null; then
+  unzip ${__MVNW_QUIET_UNZIP:+"$__MVNW_QUIET_UNZIP"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -d "$TMP_DOWNLOAD_DIR" || die "failed to unzip"
+else
+  tar xzf${__MVNW_QUIET_TAR:+"$__MVNW_QUIET_TAR"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -C "$TMP_DOWNLOAD_DIR" || die "failed to untar"
+fi
+printf %s\\n "$distributionUrl" >"$TMP_DOWNLOAD_DIR/$distributionUrlNameMain/mvnw.url"
+mv -- "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain" "$MAVEN_HOME" || [ -d "$MAVEN_HOME" ] || die "fail to move MAVEN_HOME"
+
+clean || :
+exec_maven "$@"
+
+
+------------------------------------------
+FILE: src/test/java/com/example/hotel_booking/controller/StatisticsControllerTest.java
+SIZE: 1899 bytes
+------------------------------------------
+package com.example.hotel_booking.controller;
+
+import com.example.hotel_booking.dto.Statistics.StatisticsDto;
+import com.example.hotel_booking.service.StatisticsService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
+public class StatisticsControllerTest {
+
+    @Mock
+    private StatisticsService statisticsService;
+
+    @InjectMocks
+    private StatisticsController statisticsController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testGetAllStatistics() {
+        List<StatisticsDto> statisticsList = List.of(
+                new StatisticsDto("1", "USER_REGISTRATION", "user1", null, LocalDateTime.now())
+        );
+        when(statisticsService.getAllStatistics()).thenReturn(statisticsList);
+
+        List<StatisticsDto> result = statisticsController.getAllStatistics();
+
+        assertEquals(1, result.size());
+        assertEquals("USER_REGISTRATION", result.get(0).getEventType());
+        verify(statisticsService, times(1)).getAllStatistics();
+    }
+
+    @Test
+    void testGetStatisticsByType() {
+        List<StatisticsDto> statisticsList = List.of(
+                new StatisticsDto("1", "ROOM_BOOKING", "user1", null, LocalDateTime.now())
+        );
+        when(statisticsService.getStatisticsByType("ROOM_BOOKING")).thenReturn(statisticsList);
+
+        List<StatisticsDto> result = statisticsController.getStatisticsByType("ROOM_BOOKING");
+
+        assertEquals(1, result.size());
+        assertEquals("ROOM_BOOKING", result.get(0).getEventType());
+        verify(statisticsService, times(1)).getStatisticsByType("ROOM_BOOKING");
+    }
+}
+
+
+------------------------------------------
+FILE: src/test/java/com/example/hotel_booking/controller/RoomControllerTest.java
+SIZE: 3151 bytes
+------------------------------------------
+package com.example.hotel_booking.controller;
+
+import com.example.hotel_booking.dto.Room.RoomCreateRequest;
+import com.example.hotel_booking.dto.Room.RoomDto;
+import com.example.hotel_booking.dto.Room.RoomUpdateRequest;
+import com.example.hotel_booking.service.RoomService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
+
+public class RoomControllerTest {
+
+    @Mock
+    private RoomService roomService;
+
+    @InjectMocks
+    private RoomController roomController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testGetAllRooms() {
+        List<RoomDto> rooms = List.of(new RoomDto(1L, 1L, "Deluxe Room", "Nice room", "101", BigDecimal.valueOf(200.0), 2));
+        when(roomService.getAllRooms()).thenReturn(rooms);
+
+        List<RoomDto> result = roomController.getAllRooms();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Deluxe Room", result.get(0).getName());
+        verify(roomService, times(1)).getAllRooms();
+    }
+
+    @Test
+    void testGetRoomById() {
+        RoomDto roomDto = new RoomDto(1L, 1L, "Deluxe Room", "Nice room", "101", BigDecimal.valueOf(200.0), 2);
+        when(roomService.getRoomById(1L)).thenReturn(roomDto);
+
+        RoomDto result = roomController.getRoomById(1L);
+
+        assertNotNull(result);
+        assertEquals("Deluxe Room", result.getName());
+        verify(roomService, times(1)).getRoomById(1L);
+    }
+
+    @Test
+    void testCreateRoom() {
+        RoomCreateRequest request = new RoomCreateRequest(1L, "Deluxe Room", "Nice room", "101", BigDecimal.valueOf(200.0), 2);
+        RoomDto responseDto = new RoomDto(1L, 1L, "Deluxe Room", "Nice room", "101", BigDecimal.valueOf(200.0), 2);
+        when(roomService.createRoom(request)).thenReturn(responseDto);
+
+        RoomDto result = roomController.createRoom(request);
+
+        assertNotNull(result);
+        assertEquals("Deluxe Room", result.getName());
+        verify(roomService, times(1)).createRoom(request);
+    }
+
+    @Test
+    void testUpdateRoom() {
+        RoomUpdateRequest request = new RoomUpdateRequest("Updated Room", "Updated description", "202", BigDecimal.valueOf(250.0), 3);
+        RoomDto responseDto = new RoomDto(1L, 1L, "Updated Room", "Updated description", "202", BigDecimal.valueOf(250.0), 3);
+        when(roomService.updateRoom(1L, request)).thenReturn(responseDto);
+
+        RoomDto result = roomController.updateRoom(1L, request);
+
+        assertNotNull(result);
+        assertEquals("Updated Room", result.getName());
+        verify(roomService, times(1)).updateRoom(1L, request);
+    }
+
+    @Test
+    void testDeleteRoom() {
+        doNothing().when(roomService).deleteRoom(1L);
+        roomController.deleteRoom(1L);
+        verify(roomService, times(1)).deleteRoom(1L);
+    }
+}
+
+
+------------------------------------------
+FILE: src/test/java/com/example/hotel_booking/controller/HotelControllerTest.java
+SIZE: 4125 bytes
+------------------------------------------
+package com.example.hotel_booking.controller;
+
+import com.example.hotel_booking.dto.Hotel.HotelCreateRequest;
+import com.example.hotel_booking.dto.Hotel.HotelDto;
+import com.example.hotel_booking.dto.Hotel.HotelUpdateRequest;
+import com.example.hotel_booking.service.HotelService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
+
+public class HotelControllerTest {
+
+    @Mock
+    private HotelService hotelService;
+
+    @InjectMocks
+    private HotelController hotelController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testGetAllHotels() {
+        List<HotelDto> hotels = List.of(new HotelDto(1L, "Hotel 1", "Luxury Hotel", "New York", "Main St",
+                BigDecimal.valueOf(2.5), BigDecimal.valueOf(4.5), 10));
+        when(hotelService.getAllHotels()).thenReturn(hotels);
+
+        List<HotelDto> result = hotelController.getAllHotels();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Hotel 1", result.get(0).getName());
+        verify(hotelService, times(1)).getAllHotels();
+    }
+
+    @Test
+    void testGetHotelById() {
+        HotelDto hotel = new HotelDto(1L, "Hotel 1", "Luxury Hotel", "New York", "Main St",
+                BigDecimal.valueOf(2.5), BigDecimal.valueOf(4.5), 10);
+        when(hotelService.getHotelById(1L)).thenReturn(hotel);
+
+        HotelDto result = hotelController.getHotelById(1L);
+
+        assertNotNull(result);
+        assertEquals("Hotel 1", result.getName());
+        verify(hotelService, times(1)).getHotelById(1L);
+    }
+
+    @Test
+    void testCreateHotel() {
+        HotelCreateRequest request = new HotelCreateRequest("Hotel 1", "Luxury Hotel", "New York", "Main St",
+                BigDecimal.valueOf(2.5));
+        HotelDto hotelDto = new HotelDto(1L, "Hotel 1", "Luxury Hotel", "New York", "Main St",
+                BigDecimal.valueOf(2.5), BigDecimal.valueOf(4.5), 10);
+        when(hotelService.createHotel(request)).thenReturn(hotelDto);
+
+        HotelDto result = hotelController.createHotel(request);
+
+        assertNotNull(result);
+        assertEquals("Hotel 1", result.getName());
+        verify(hotelService, times(1)).createHotel(request);
+    }
+
+    @Test
+    void testUpdateHotel() {
+        HotelUpdateRequest request = new HotelUpdateRequest("Hotel Updated", "Updated Luxury", "Los Angeles", "Broadway",
+                BigDecimal.valueOf(3.0));
+        HotelDto hotelDto = new HotelDto(1L, "Hotel Updated", "Updated Luxury", "Los Angeles", "Broadway",
+                BigDecimal.valueOf(3.0), BigDecimal.valueOf(4.5), 10);
+        when(hotelService.updateHotel(1L, request)).thenReturn(hotelDto);
+
+        HotelDto result = hotelController.updateHotel(1L, request);
+
+        assertNotNull(result);
+        assertEquals("Hotel Updated", result.getName());
+        verify(hotelService, times(1)).updateHotel(1L, request);
+    }
+
+    @Test
+    void testDeleteHotel() {
+        doNothing().when(hotelService).deleteHotel(1L);
+        hotelController.deleteHotel(1L);
+        verify(hotelService, times(1)).deleteHotel(1L);
+    }
+
+    @Test
+    void testGetHotels() {
+        Page<HotelDto> hotelsPage = new PageImpl<>(List.of(
+                new HotelDto(1L, "Hotel 1", "Luxury Hotel", "New York", "Main St",
+                        BigDecimal.valueOf(2.5), BigDecimal.valueOf(4.5), 10)
+        ));
+        when(hotelService.getHotels("New York", 0, 10)).thenReturn(hotelsPage);
+
+        Page<HotelDto> result = hotelController.getHotels("New York", 0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        verify(hotelService, times(1)).getHotels("New York", 0, 10);
+    }
+}
+
+------------------------------------------
+FILE: src/test/java/com/example/hotel_booking/controller/RoleControllerTest.java
+SIZE: 2795 bytes
+------------------------------------------
+package com.example.hotel_booking.controller;
+
+import com.example.hotel_booking.dto.Role.RoleDto;
+import com.example.hotel_booking.model.RoleType;
+import com.example.hotel_booking.service.RoleService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class RoleControllerTest {
+
+    @Mock
+    private RoleService roleService;
+
+    @InjectMocks
+    private RoleController roleController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testGetAllRoles() {
+        List<RoleDto> roles = List.of(new RoleDto(1L, RoleType.ADMIN));
+        when(roleService.getAllRoles()).thenReturn(roles);
+
+        List<RoleDto> result = roleController.getAllRoles();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(RoleType.ADMIN, result.get(0).getName());
+        verify(roleService, times(1)).getAllRoles();
+    }
+
+    @Test
+    void testGetRoleByName_WhenRoleExists() {
+        RoleDto roleDto = new RoleDto(1L, RoleType.USER);
+        when(roleService.getRoleByName(RoleType.USER)).thenReturn(Optional.of(roleDto));
+
+        RoleDto result = roleController.getRoleByName(RoleType.USER);
+
+        assertNotNull(result);
+        assertEquals(RoleType.USER, result.getName());
+        verify(roleService, times(1)).getRoleByName(RoleType.USER);
+    }
+
+    @Test
+    void testGetRoleByName_WhenRoleDoesNotExist() {
+        when(roleService.getRoleByName(RoleType.MANAGER)).thenReturn(Optional.empty());
+
+        RoleController.RoleNotFoundException exception = assertThrows(
+                RoleController.RoleNotFoundException.class,
+                () -> roleController.getRoleByName(RoleType.MANAGER)
+        );
+
+        assertEquals("Роль 'MANAGER' не найдена", exception.getMessage());
+        verify(roleService, times(1)).getRoleByName(RoleType.MANAGER);
+    }
+
+    @Test
+    void testCreateRole() {
+        RoleDto requestDto = new RoleDto(null, RoleType.MANAGER);
+        RoleDto responseDto = new RoleDto(2L, RoleType.MANAGER);
+        when(roleService.createRole(requestDto)).thenReturn(responseDto);
+
+        RoleDto result = roleController.createRole(requestDto);
+
+        assertNotNull(result);
+        assertEquals(RoleType.MANAGER, result.getName());
+        verify(roleService, times(1)).createRole(requestDto);
+    }
+
+    @Test
+    void testDeleteRole() {
+        doNothing().when(roleService).deleteRole(1L);
+        roleController.deleteRole(1L);
+        verify(roleService, times(1)).deleteRole(1L);
+    }
+}
+
+
+------------------------------------------
+FILE: src/test/java/com/example/hotel_booking/controller/BookingControllerTest.java
+SIZE: 3613 bytes
+------------------------------------------
+package com.example.hotel_booking.controller;
+
+import com.example.hotel_booking.dto.Booking.BookingCreateRequest;
+import com.example.hotel_booking.dto.Booking.BookingDto;
+import com.example.hotel_booking.dto.Booking.BookingUpdateRequest;
+import com.example.hotel_booking.service.BookingService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
+
+public class BookingControllerTest {
+
+    @Mock
+    private BookingService bookingService;
+
+    @InjectMocks
+    private BookingController bookingController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testCreateBooking() {
+        BookingCreateRequest request = new BookingCreateRequest();
+        request.setUserId(1L);
+        request.setRoomId(1L);
+        request.setCheckIn(LocalDate.now());
+        request.setCheckOut(LocalDate.now().plusDays(3));
+
+        BookingDto expectedDto = new BookingDto(1L, 1L, 1L, request.getCheckIn(), request.getCheckOut());
+        when(bookingService.createBooking(request)).thenReturn(expectedDto);
+
+        BookingDto result = bookingController.createBooking(request);
+
+        assertNotNull(result);
+        assertEquals(expectedDto.getId(), result.getId());
+        verify(bookingService, times(1)).createBooking(request);
+    }
+
+    @Test
+    void testUpdateBooking() {
+        BookingUpdateRequest request = new BookingUpdateRequest();
+        request.setCheckIn(LocalDate.now());
+        request.setCheckOut(LocalDate.now().plusDays(3));
+
+        BookingDto expectedDto = new BookingDto(1L, 1L, 1L, request.getCheckIn(), request.getCheckOut());
+        when(bookingService.updateBooking(1L, request)).thenReturn(expectedDto);
+
+        BookingDto result = bookingController.updateBooking(1L, request);
+
+        assertNotNull(result);
+        assertEquals(expectedDto.getId(), result.getId());
+        verify(bookingService, times(1)).updateBooking(1L, request);
+    }
+
+    @Test
+    void testDeleteBooking() {
+        doNothing().when(bookingService).deleteBooking(1L);
+        bookingController.deleteBooking(1L);
+        verify(bookingService, times(1)).deleteBooking(1L);
+    }
+
+    @Test
+    void testGetBookingById() {
+        BookingDto expectedDto = new BookingDto(1L, 1L, 1L, LocalDate.now(), LocalDate.now().plusDays(3));
+        when(bookingService.getBookingById(1L)).thenReturn(expectedDto);
+
+        BookingDto result = bookingController.getBookingById(1L);
+
+        assertNotNull(result);
+        assertEquals(expectedDto.getId(), result.getId());
+        verify(bookingService, times(1)).getBookingById(1L);
+    }
+
+    @Test
+    void testGetAllBookings() {
+        Page<BookingDto> expectedPage = new PageImpl<>(
+                List.of(new BookingDto(1L, 1L, 1L, LocalDate.now(), LocalDate.now().plusDays(3)))
+        );
+        when(bookingService.getAllBookings(PageRequest.of(0, 10))).thenReturn(expectedPage);
+
+        Page<BookingDto> result = bookingController.getAllBookings(0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        verify(bookingService, times(1)).getAllBookings(PageRequest.of(0, 10));
+    }
+}
+
+
+------------------------------------------
+FILE: src/test/java/com/example/hotel_booking/controller/RatingControllerTest.java
+SIZE: 3001 bytes
+------------------------------------------
+package com.example.hotel_booking.controller;
+
+import com.example.hotel_booking.dto.Rating.RatingDto;
+import com.example.hotel_booking.service.RatingService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
+
+public class RatingControllerTest {
+
+    @Mock
+    private RatingService ratingService;
+
+    @InjectMocks
+    private RatingController ratingController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testGetAllRatings() {
+        List<RatingDto> ratings = List.of(
+                new RatingDto(1L, 1L, 1L, 5, "Отличный отель", LocalDateTime.now())
+        );
+        when(ratingService.getAllRatings()).thenReturn(ratings);
+        List<RatingDto> result = ratingController.getAllRatings();
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(5, result.get(0).getScore());
+        verify(ratingService, times(1)).getAllRatings();
+    }
+
+    @Test
+    void testGetRatingById() {
+        RatingDto ratingDto = new RatingDto(1L, 1L, 1L, 4, "Хороший сервис", LocalDateTime.now());
+        when(ratingService.getRatingById(1L)).thenReturn(ratingDto);
+        RatingDto result = ratingController.getRatingById(1L);
+        assertNotNull(result);
+        assertEquals(4, result.getScore());
+        verify(ratingService, times(1)).getRatingById(1L);
+    }
+
+    @Test
+    void testAddRating() {
+        RatingDto requestDto = new RatingDto(null, 1L, 1L, 5, "Супер!", LocalDateTime.now());
+        RatingDto responseDto = new RatingDto(1L, 1L, 1L, 5, "Супер!", LocalDateTime.now());
+        when(ratingService.addRating(requestDto)).thenReturn(responseDto);
+        RatingDto result = ratingController.addRating(requestDto);
+        assertNotNull(result);
+        assertEquals(5, result.getScore());
+        verify(ratingService, times(1)).addRating(requestDto);
+    }
+
+    @Test
+    void testUpdateRating() {
+        RatingDto requestDto = new RatingDto(1L, 1L, 1L, 3, "Средний", LocalDateTime.now());
+        RatingDto responseDto = new RatingDto(1L, 1L, 1L, 3, "Средний", LocalDateTime.now());
+        when(ratingService.updateRating(1L, requestDto)).thenReturn(responseDto);
+        RatingDto result = ratingController.updateRating(1L, requestDto);
+        assertNotNull(result);
+        assertEquals(3, result.getScore());
+        verify(ratingService, times(1)).updateRating(1L, requestDto);
+    }
+
+    @Test
+    void testDeleteRating() {
+        doNothing().when(ratingService).deleteRating(1L);
+        ratingController.deleteRating(1L);
+        verify(ratingService, times(1)).deleteRating(1L);
+    }
+}
+
+
+------------------------------------------
+FILE: src/test/java/com/example/hotel_booking/controller/UserControllerTest.java
+SIZE: 2222 bytes
+------------------------------------------
+package com.example.hotel_booking.controller;
+
+import com.example.hotel_booking.dto.User.UserDto;
+import com.example.hotel_booking.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
+public class UserControllerTest {
+
+    @Mock
+    private UserService userService;
+
+    @InjectMocks
+    private UserController userController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testGetAllUsers() {
+        List<UserDto> users = List.of(
+                new UserDto(1L, "user1", "user1@example.com", "password", "USER", "2025-03-19")
+        );
+        when(userService.getAllUsers()).thenReturn(users);
+
+        List<UserDto> result = userController.getAllUsers();
+
+        assertEquals(1, result.size());
+        assertEquals("user1", result.get(0).getUsername());
+        verify(userService, times(1)).getAllUsers();
+    }
+
+    @Test
+    void testGetUserByEmail() {
+        UserDto userDto = new UserDto(1L, "user1", "user1@example.com", "password", "USER", "2025-03-19");
+        when(userService.getUserByEmail("user1@example.com")).thenReturn(Optional.of(userDto));
+
+        UserDto result = userController.getUserByEmail("user1@example.com");
+
+        assertEquals("user1", result.getUsername());
+        verify(userService, times(1)).getUserByEmail("user1@example.com");
+    }
+
+    @Test
+    void testCreateUser() {
+        UserDto userDto = new UserDto(null, "newUser", "new@example.com", "password", "USER", "2025-03-19");
+        when(userService.createUser(userDto)).thenReturn(userDto);
+
+        UserDto result = userController.createUser(userDto);
+
+        assertEquals("newUser", result.getUsername());
+        verify(userService, times(1)).createUser(userDto);
+    }
+
+    @Test
+    void testDeleteUser() {
+        doNothing().when(userService).deleteUser(1L);
+        userController.deleteUser(1L);
+        verify(userService, times(1)).deleteUser(1L);
+    }
+}
+
+
+------------------------------------------
+FILE: src/test/java/com/example/hotel_booking/service/RatingServiceTest.java
+SIZE: 4680 bytes
+------------------------------------------
+package com.example.hotel_booking.service;
+
+import com.example.hotel_booking.dto.Rating.RatingDto;
+import com.example.hotel_booking.mapper.RatingMapper;
+import com.example.hotel_booking.model.Hotel;
+import com.example.hotel_booking.model.Rating;
+import com.example.hotel_booking.model.User;
+import com.example.hotel_booking.repository.jpa.HotelRepository;
+import com.example.hotel_booking.repository.jpa.RatingRepository;
+import com.example.hotel_booking.repository.jpa.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+public class RatingServiceTest {
+
+    @Mock
+    private RatingRepository ratingRepository;
+
+    @Mock
+    private RatingMapper ratingMapper;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private HotelRepository hotelRepository;
+
+    @InjectMocks
+    private RatingService ratingService;
+
+    private Rating rating;
+    private RatingDto ratingDto;
+    private User user;
+    private Hotel hotel;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        user = new User();
+        user.setId(1L);
+        hotel = new Hotel();
+        hotel.setId(1L);
+        rating = new Rating();
+        rating.setId(1L);
+        rating.setScore(5);
+        rating.setUser(user);
+        rating.setHotel(hotel);
+        ratingDto = new RatingDto();
+        ratingDto.setId(1L);
+        ratingDto.setScore(5);
+        ratingDto.setUserId(1L);
+        ratingDto.setHotelId(1L);
+    }
+
+    @Test
+    void testGetRatingById_WhenRatingExists() {
+        when(ratingRepository.findById(1L)).thenReturn(Optional.of(rating));
+        when(ratingMapper.toDto(rating)).thenReturn(ratingDto);
+        RatingDto actualDto = ratingService.getRatingById(1L);
+        assertNotNull(actualDto);
+        assertEquals(5, actualDto.getScore());
+        verify(ratingRepository).findById(1L);
+    }
+
+    @Test
+    void testGetRatingById_WhenRatingNotFound() {
+        when(ratingRepository.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(RuntimeException.class, () -> ratingService.getRatingById(99L));
+    }
+
+    @Test
+    void testGetAllRatings() {
+        when(ratingRepository.findAll()).thenReturn(List.of(rating));
+        when(ratingMapper.toDto(rating)).thenReturn(ratingDto);
+        List<RatingDto> ratings = ratingService.getAllRatings();
+        assertEquals(1, ratings.size());
+        assertEquals(5, ratings.get(0).getScore());
+    }
+
+    @Test
+    void testAddRating() {
+        when(ratingMapper.toEntity(ratingDto)).thenReturn(rating);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
+        when(ratingRepository.save(rating)).thenReturn(rating);
+        when(ratingMapper.toDto(rating)).thenReturn(ratingDto);
+        RatingDto result = ratingService.addRating(ratingDto);
+        assertNotNull(result);
+        assertEquals(5, result.getScore());
+    }
+
+    @Test
+    void testUpdateRating_WhenRatingExists() {
+        RatingDto updatedDto = new RatingDto();
+        updatedDto.setId(1L);
+        updatedDto.setScore(4);
+        updatedDto.setUserId(1L);
+        updatedDto.setHotelId(1L);
+        when(ratingRepository.findById(1L)).thenReturn(Optional.of(rating));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
+        when(ratingRepository.save(rating)).thenReturn(rating);
+        when(ratingMapper.toDto(rating)).thenReturn(updatedDto);
+        RatingDto result = ratingService.updateRating(1L, updatedDto);
+        assertNotNull(result);
+        assertEquals(4, result.getScore());
+    }
+
+    @Test
+    void testUpdateRating_WhenRatingNotFound() {
+        when(ratingRepository.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(RuntimeException.class, () -> ratingService.updateRating(99L, ratingDto));
+    }
+
+    @Test
+    void testDeleteRating_WhenExists() {
+        when(ratingRepository.findById(1L)).thenReturn(Optional.of(rating));
+        ratingService.deleteRating(1L);
+        verify(ratingRepository).delete(rating);
+    }
+
+    @Test
+    void testDeleteRating_WhenNotFound() {
+        when(ratingRepository.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(RuntimeException.class, () -> ratingService.deleteRating(99L));
+    }
+}
+
+
+------------------------------------------
+FILE: src/test/java/com/example/hotel_booking/service/RoleServiceTest.java
+SIZE: 3786 bytes
+------------------------------------------
+package com.example.hotel_booking.service;
+
+import com.example.hotel_booking.dto.Role.RoleDto;
+import com.example.hotel_booking.mapper.RoleMapper;
+import com.example.hotel_booking.model.Role;
+import com.example.hotel_booking.model.RoleType;
+import com.example.hotel_booking.repository.jpa.RoleRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class RoleServiceTest {
+
+    @Mock
+    private RoleRepository roleRepository;
+
+    @Mock
+    private RoleMapper roleMapper;
+
+    @InjectMocks
+    private RoleService roleService;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testGetAllRoles() {
+        List<Role> roles = List.of(new Role(1L, RoleType.ADMIN, null));
+        when(roleRepository.findAll()).thenReturn(roles);
+        when(roleMapper.toDto(any(Role.class))).thenAnswer(invocation -> {
+            Role role = invocation.getArgument(0);
+            return new RoleDto(role.getId(), role.getName());
+        });
+        List<RoleDto> result = roleService.getAllRoles();
+        assertEquals(1, result.size());
+        assertEquals(RoleType.ADMIN, result.get(0).getName());
+        verify(roleRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetRoleByName_WhenRoleExists() {
+        Role role = new Role(1L, RoleType.USER, null);
+        when(roleRepository.findByName(RoleType.USER)).thenReturn(Optional.of(role));
+        when(roleMapper.toDto(role)).thenReturn(new RoleDto(role.getId(), role.getName()));
+        Optional<RoleDto> result = roleService.getRoleByName(RoleType.USER);
+        assertTrue(result.isPresent());
+        assertEquals(RoleType.USER, result.get().getName());
+        verify(roleRepository, times(1)).findByName(RoleType.USER);
+    }
+
+    @Test
+    void testGetRoleByName_WhenRoleDoesNotExist() {
+        when(roleRepository.findByName(RoleType.MANAGER)).thenReturn(Optional.empty());
+        Optional<RoleDto> result = roleService.getRoleByName(RoleType.MANAGER);
+        assertFalse(result.isPresent());
+        verify(roleRepository, times(1)).findByName(RoleType.MANAGER);
+    }
+
+    @Test
+    void testCreateRole_WhenRoleDoesNotExist() {
+        RoleDto roleDto = new RoleDto(null, RoleType.MANAGER);
+        Role role = new Role(2L, RoleType.MANAGER, null);
+        when(roleRepository.findByName(RoleType.MANAGER)).thenReturn(Optional.empty());
+        when(roleMapper.toEntity(roleDto)).thenReturn(role);
+        when(roleRepository.save(role)).thenReturn(role);
+        when(roleMapper.toDto(role)).thenReturn(new RoleDto(role.getId(), role.getName()));
+        RoleDto result = roleService.createRole(roleDto);
+        assertNotNull(result);
+        assertEquals(RoleType.MANAGER, result.getName());
+        verify(roleRepository, times(1)).save(role);
+    }
+
+    @Test
+    void testCreateRole_WhenRoleAlreadyExists() {
+        RoleDto roleDto = new RoleDto(null, RoleType.ADMIN);
+        Role role = new Role(1L, RoleType.ADMIN, null);
+        when(roleRepository.findByName(RoleType.ADMIN)).thenReturn(Optional.of(role));
+        assertThrows(IllegalArgumentException.class, () -> roleService.createRole(roleDto));
+        verify(roleRepository, times(1)).findByName(RoleType.ADMIN);
+        verify(roleRepository, never()).save(any(Role.class));
+    }
+
+    @Test
+    void testDeleteRole() {
+        Long roleId = 1L;
+        doNothing().when(roleRepository).deleteById(roleId);
+        roleService.deleteRole(roleId);
+        verify(roleRepository, times(1)).deleteById(roleId);
+    }
+}
+
+
+------------------------------------------
+FILE: src/test/java/com/example/hotel_booking/service/RoomServiceTest.java
+SIZE: 4614 bytes
+------------------------------------------
+package com.example.hotel_booking.service;
+
+import com.example.hotel_booking.dto.Room.RoomCreateRequest;
+import com.example.hotel_booking.dto.Room.RoomDto;
+import com.example.hotel_booking.exception.ResourceNotFoundException;
+import com.example.hotel_booking.mapper.RoomMapper;
+import com.example.hotel_booking.model.Hotel;
+import com.example.hotel_booking.model.Room;
+import com.example.hotel_booking.repository.jpa.HotelRepository;
+import com.example.hotel_booking.repository.jpa.RoomRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class RoomServiceTest {
+
+    @Mock
+    private RoomRepository roomRepository;
+
+    @Mock
+    private HotelRepository hotelRepository;
+
+    @Mock
+    private RoomMapper roomMapper;
+
+    @InjectMocks
+    private RoomService roomService;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testGetAllRooms() {
+        List<Room> rooms = List.of(new Room(1L, new Hotel(), "Luxury Suite", "Nice room", "101", BigDecimal.valueOf(200.0), 2, null));
+        when(roomRepository.findAll()).thenReturn(rooms);
+        when(roomMapper.toDto(any(Room.class))).thenAnswer(invocation -> {
+            Room room = invocation.getArgument(0);
+            return new RoomDto(room.getId(), 1L, room.getName(), room.getDescription(), room.getRoomNumber(), room.getPrice(), room.getMaxGuests());
+        });
+        List<RoomDto> result = roomService.getAllRooms();
+        assertEquals(1, result.size());
+        assertEquals("Luxury Suite", result.get(0).getName());
+        verify(roomRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetRoomById_WhenRoomExists() {
+        Room room = new Room(1L, new Hotel(), "Luxury Suite", "Nice room", "101", BigDecimal.valueOf(200.0), 2, null);
+        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
+        when(roomMapper.toDto(room)).thenReturn(new RoomDto(room.getId(), 1L, room.getName(), room.getDescription(), room.getRoomNumber(), room.getPrice(), room.getMaxGuests()));
+        RoomDto result = roomService.getRoomById(1L);
+        assertNotNull(result);
+        assertEquals("Luxury Suite", result.getName());
+        verify(roomRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testGetRoomById_WhenRoomDoesNotExist() {
+        when(roomRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> roomService.getRoomById(1L));
+        verify(roomRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testCreateRoom() {
+        Hotel hotel = new Hotel();
+        hotel.setId(1L);
+        RoomCreateRequest request = new RoomCreateRequest(1L, "Luxury Suite", "Nice room", "101", BigDecimal.valueOf(200.0), 2);
+        Room room = new Room(1L, hotel, request.getName(), request.getDescription(), request.getRoomNumber(), request.getPrice(), request.getMaxGuests(), null);
+        when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
+        when(roomMapper.toEntity(request)).thenReturn(room);
+        when(roomRepository.save(any(Room.class))).thenReturn(room);
+        when(roomMapper.toDto(room)).thenReturn(new RoomDto(room.getId(), 1L, room.getName(), room.getDescription(), room.getRoomNumber(), room.getPrice(), room.getMaxGuests()));
+        RoomDto result = roomService.createRoom(request);
+        assertNotNull(result);
+        assertEquals("Luxury Suite", result.getName());
+        verify(roomRepository, times(1)).save(any(Room.class));
+    }
+
+    @Test
+    void testDeleteRoom() {
+        Room room = new Room(1L, new Hotel(), "Luxury Suite", "Nice room", "101", BigDecimal.valueOf(200.0), 2, null);
+        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
+        roomService.deleteRoom(1L);
+        verify(roomRepository, times(1)).delete(room);
+    }
+
+    @Test
+    void testIsRoomAvailable() {
+        Room room = new Room(1L, new Hotel(), "Luxury Suite", "Nice room", "101", BigDecimal.valueOf(200.0), 2, List.of());
+        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
+        boolean isAvailable = roomService.isRoomAvailable(1L, LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 5));
+        assertTrue(isAvailable);
+        verify(roomRepository, times(1)).findById(1L);
+    }
+}
+
+
+------------------------------------------
+FILE: src/test/java/com/example/hotel_booking/service/HotelServiceTest.java
+SIZE: 5223 bytes
+------------------------------------------
+package com.example.hotel_booking.service;
+
+import com.example.hotel_booking.dto.Hotel.HotelCreateRequest;
+import com.example.hotel_booking.dto.Hotel.HotelDto;
+import com.example.hotel_booking.dto.Hotel.HotelUpdateRequest;
+import com.example.hotel_booking.model.Hotel;
+import com.example.hotel_booking.repository.jpa.HotelRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class HotelServiceTest {
+
+    @Mock
+    private HotelRepository hotelRepository;
+
+    @InjectMocks
+    private HotelService hotelService;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testGetAllHotels() {
+        List<Hotel> hotels = List.of(new Hotel(1L, "Hotel1", "Title1", "City1", "Address1", BigDecimal.valueOf(1.5), BigDecimal.valueOf(4.0), 10, null, null));
+        when(hotelRepository.findAll()).thenReturn(hotels);
+        List<HotelDto> result = hotelService.getAllHotels();
+        assertEquals(1, result.size());
+        assertEquals("Hotel1", result.get(0).getName());
+        verify(hotelRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetHotelById_WhenHotelExists() {
+        Hotel hotel = new Hotel(1L, "Hotel1", "Title1", "City1", "Address1", BigDecimal.valueOf(1.5), BigDecimal.valueOf(4.0), 10, null, null);
+        when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
+        HotelDto result = hotelService.getHotelById(1L);
+        assertNotNull(result);
+        assertEquals("Hotel1", result.getName());
+        verify(hotelRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testGetHotelById_WhenHotelDoesNotExist() {
+        when(hotelRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> hotelService.getHotelById(1L));
+        verify(hotelRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testCreateHotel() {
+        HotelCreateRequest request = new HotelCreateRequest("Hotel1", "Title1", "City1", "Address1", BigDecimal.valueOf(1.5));
+        Hotel hotel = new Hotel(1L, request.getName(), request.getTitle(), request.getCity(), request.getAddress(), request.getDistanceFromCenter(), BigDecimal.ZERO, 0, null, null);
+        when(hotelRepository.save(any(Hotel.class))).thenReturn(hotel);
+        HotelDto result = hotelService.createHotel(request);
+        assertNotNull(result);
+        assertEquals("Hotel1", result.getName());
+        verify(hotelRepository, times(1)).save(any(Hotel.class));
+    }
+
+    @Test
+    void testUpdateHotel_WhenHotelExists() {
+        Hotel hotel = new Hotel(1L, "Hotel1", "Title1", "City1", "Address1", BigDecimal.valueOf(1.5), BigDecimal.valueOf(4.0), 10, null, null);
+        HotelUpdateRequest request = new HotelUpdateRequest("Updated Hotel", "Updated Title", "Updated City", "Updated Address", BigDecimal.valueOf(2.0));
+        when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
+        when(hotelRepository.save(any(Hotel.class))).thenReturn(hotel);
+        HotelDto result = hotelService.updateHotel(1L, request);
+        assertNotNull(result);
+        assertEquals("Updated Hotel", result.getName());
+        verify(hotelRepository, times(1)).save(hotel);
+    }
+
+    @Test
+    void testUpdateHotel_WhenHotelDoesNotExist() {
+        when(hotelRepository.findById(1L)).thenReturn(Optional.empty());
+        HotelUpdateRequest request = new HotelUpdateRequest("Updated Hotel", "Updated Title", "Updated City", "Updated Address", BigDecimal.valueOf(2.0));
+        assertThrows(EntityNotFoundException.class, () -> hotelService.updateHotel(1L, request));
+        verify(hotelRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testDeleteHotel_WhenHotelExists() {
+        when(hotelRepository.existsById(1L)).thenReturn(true);
+        hotelService.deleteHotel(1L);
+        verify(hotelRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testDeleteHotel_WhenHotelDoesNotExist() {
+        when(hotelRepository.existsById(1L)).thenReturn(false);
+        assertThrows(EntityNotFoundException.class, () -> hotelService.deleteHotel(1L));
+        verify(hotelRepository, times(1)).existsById(1L);
+    }
+
+    @Test
+    void testGetHotels_WithPagination() {
+        Page<Hotel> hotels = new PageImpl<>(List.of(new Hotel(1L, "Hotel1", "Title1", "City1", "Address1", BigDecimal.valueOf(1.5), BigDecimal.valueOf(4.0), 10, null, null)));
+        when(hotelRepository.findAll(any(Pageable.class))).thenReturn(hotels);
+        Page<HotelDto> result = hotelService.getHotels(null, 0, 10);
+        assertEquals(1, result.getTotalElements());
+        assertEquals("Hotel1", result.getContent().get(0).getName());
+        verify(hotelRepository, times(1)).findAll(any(Pageable.class));
+    }
+}
+
+
+------------------------------------------
+FILE: src/test/java/com/example/hotel_booking/service/StatisticsServiceTest.java
+SIZE: 3577 bytes
+------------------------------------------
+package com.example.hotel_booking.service;
+
+import com.example.hotel_booking.dto.Statistics.StatisticsDto;
+import com.example.hotel_booking.dto.Statistics.StatisticsEventDto;
+import com.example.hotel_booking.kafka.KafkaProducerService;
+import com.example.hotel_booking.model.BookingDetails;
+import com.example.hotel_booking.model.Statistics;
+import com.example.hotel_booking.repository.mongo.StatisticsRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
+
+public class StatisticsServiceTest {
+
+    @Mock
+    private KafkaProducerService kafkaProducerService;
+
+    @Mock
+    private StatisticsRepository statisticsRepository;
+
+    @InjectMocks
+    private StatisticsService statisticsService;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testGetAllStatistics() {
+        List<Statistics> statisticsList = List.of(new Statistics("1", "USER_REGISTRATION", "user1", null, LocalDateTime.now()));
+        when(statisticsRepository.findAll()).thenReturn(statisticsList);
+        List<StatisticsDto> result = statisticsService.getAllStatistics();
+        assertEquals(1, result.size());
+        assertEquals("USER_REGISTRATION", result.get(0).getEventType());
+        verify(statisticsRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetStatisticsByType() {
+        List<Statistics> statisticsList = List.of(new Statistics("1", "ROOM_BOOKING", "user1", null, LocalDateTime.now()));
+        when(statisticsRepository.findByEventType("ROOM_BOOKING")).thenReturn(statisticsList);
+        List<StatisticsDto> result = statisticsService.getStatisticsByType("ROOM_BOOKING");
+        assertEquals(1, result.size());
+        assertEquals("ROOM_BOOKING", result.get(0).getEventType());
+        verify(statisticsRepository, times(1)).findByEventType("ROOM_BOOKING");
+    }
+
+    @Test
+    void testSaveUserRegistration() {
+        statisticsService.saveUserRegistration("user1");
+        verify(kafkaProducerService, times(1)).sendEvent(eq("statistics-events"), any(StatisticsEventDto.class));
+    }
+
+    @Test
+    void testSaveRoomBooking() {
+        statisticsService.saveRoomBooking("user1", "booking1", "room1", LocalDateTime.now(), LocalDateTime.now().plusDays(2));
+        verify(kafkaProducerService, times(1)).sendEvent(eq("statistics-events"), any(StatisticsEventDto.class));
+    }
+
+    @Test
+    void testExportStatisticsToCSV() {
+        List<Statistics> statisticsList = List.of(new Statistics("1", "ROOM_BOOKING", "user1",
+                new BookingDetails("booking1", "room1", LocalDateTime.now(), LocalDateTime.now().plusDays(2)), LocalDateTime.now()));
+        when(statisticsRepository.findAll()).thenReturn(statisticsList);
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        statisticsService.exportStatisticsToCSV(writer);
+        writer.flush();
+        String csvContent = stringWriter.toString();
+        assertTrue(csvContent.contains("ROOM_BOOKING"));
+        assertTrue(csvContent.contains("user1"));
+        assertTrue(csvContent.contains("booking1"));
+        verify(statisticsRepository, times(1)).findAll();
+    }
+}
+
+
+------------------------------------------
+FILE: src/test/java/com/example/hotel_booking/service/UserServiceTest.java
+SIZE: 3304 bytes
+------------------------------------------
+package com.example.hotel_booking.service;
+
+import com.example.hotel_booking.dto.User.UserDto;
+import com.example.hotel_booking.mapper.UserMapper;
+import com.example.hotel_booking.model.User;
+import com.example.hotel_booking.repository.jpa.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class UserServiceTest {
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private UserMapper userMapper;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @InjectMocks
+    private UserService userService;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testGetAllUsers() {
+        List<User> users = List.of(new User(1L, "user1", "user1@example.com", "password", null, null));
+        when(userRepository.findAll()).thenReturn(users);
+        when(userMapper.toDto(any(User.class))).thenReturn(new UserDto(1L, "user1", "user1@example.com", "password", "USER", "2025-03-19"));
+        List<UserDto> result = userService.getAllUsers();
+        assertEquals(1, result.size());
+        assertEquals("user1", result.get(0).getUsername());
+        verify(userRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetUserByEmail_WhenExists() {
+        User user = new User(1L, "user1", "user1@example.com", "password", null, null);
+        when(userRepository.findByEmail("user1@example.com")).thenReturn(Optional.of(user));
+        when(userMapper.toDto(user)).thenReturn(new UserDto(1L, "user1", "user1@example.com", "password", "USER", "2025-03-19"));
+        Optional<UserDto> result = userService.getUserByEmail("user1@example.com");
+        assertTrue(result.isPresent());
+        assertEquals("user1", result.get().getUsername());
+        verify(userRepository, times(1)).findByEmail("user1@example.com");
+    }
+
+    @Test
+    void testCreateUser() {
+        UserDto userDto = new UserDto(null, "newUser", "new@example.com", "password", "USER", "2025-03-19");
+        User user = new User(1L, "newUser", "new@example.com", "encodedPassword", null, null);
+        when(userRepository.existsByEmail("new@example.com")).thenReturn(false);
+        when(userRepository.existsByUsername("newUser")).thenReturn(false);
+        when(userMapper.toEntity(userDto)).thenReturn(user);
+        when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(userMapper.toDto(user)).thenReturn(new UserDto(1L, "newUser", "new@example.com", "password", "USER", "2025-03-19"));
+        UserDto result = userService.createUser(userDto);
+        assertNotNull(result);
+        assertEquals("newUser", result.getUsername());
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    void testDeleteUser() {
+        doNothing().when(userRepository).deleteById(1L);
+        userService.deleteUser(1L);
+        verify(userRepository, times(1)).deleteById(1L);
+    }
+}
+
+
+------------------------------------------
+FILE: src/test/java/com/example/hotel_booking/service/BookingServiceTest.java
+SIZE: 5228 bytes
+------------------------------------------
+package com.example.hotel_booking.service;
+
+import com.example.hotel_booking.dto.Booking.BookingCreateRequest;
+import com.example.hotel_booking.dto.Booking.BookingDto;
+import com.example.hotel_booking.dto.Booking.BookingUpdateRequest;
+import com.example.hotel_booking.exception.ResourceNotFoundException;
+import com.example.hotel_booking.mapper.BookingMapper;
+import com.example.hotel_booking.model.Booking;
+import com.example.hotel_booking.model.Room;
+import com.example.hotel_booking.model.User;
+import com.example.hotel_booking.repository.jpa.BookingRepository;
+import com.example.hotel_booking.repository.jpa.RoomRepository;
+import com.example.hotel_booking.repository.jpa.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.time.LocalDate;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class BookingServiceTest {
+
+    @Mock
+    private BookingRepository bookingRepository;
+
+    @Mock
+    private BookingMapper bookingMapper;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private RoomRepository roomRepository;
+
+    @InjectMocks
+    private BookingService bookingService;
+
+    private User user;
+    private Room room;
+    private Booking booking;
+    private BookingDto bookingDto;
+    private BookingCreateRequest createRequest;
+    private BookingUpdateRequest updateRequest;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        user = new User();
+        user.setId(1L);
+        room = new Room();
+        room.setId(1L);
+        booking = new Booking();
+        booking.setId(1L);
+        booking.setUser(user);
+        booking.setRoom(room);
+        booking.setCheckIn(LocalDate.of(2025, 3, 24));
+        booking.setCheckOut(LocalDate.of(2025, 3, 26));
+        bookingDto = BookingDto.builder()
+                .id(1L)
+                .userId(1L)
+                .roomId(1L)
+                .checkIn(LocalDate.of(2025, 3, 24))
+                .checkOut(LocalDate.of(2025, 3, 26))
+                .build();
+        createRequest = new BookingCreateRequest();
+        createRequest.setUserId(1L);
+        createRequest.setRoomId(1L);
+        createRequest.setCheckIn(LocalDate.of(2025, 3, 24));
+        createRequest.setCheckOut(LocalDate.of(2025, 3, 26));
+        updateRequest = new BookingUpdateRequest();
+        updateRequest.setCheckIn(LocalDate.of(2025, 3, 25));
+        updateRequest.setCheckOut(LocalDate.of(2025, 3, 27));
+    }
+
+    @Test
+    void testCreateBooking_Success() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
+        when(bookingMapper.toEntity(createRequest)).thenReturn(booking);
+        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
+        when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
+        BookingDto result = bookingService.createBooking(createRequest);
+        assertNotNull(result);
+        assertEquals(1L, result.getUserId());
+        assertEquals(1L, result.getRoomId());
+        verify(bookingRepository).save(any(Booking.class));
+    }
+
+    @Test
+    void testCreateBooking_UserNotFound() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> bookingService.createBooking(createRequest));
+    }
+
+    @Test
+    void testGetBookingById_Found() {
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+        when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
+        BookingDto result = bookingService.getBookingById(1L);
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+    }
+
+    @Test
+    void testGetBookingById_NotFound() {
+        when(bookingRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> bookingService.getBookingById(1L));
+    }
+
+    @Test
+    void testUpdateBooking_Success() {
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+        when(bookingRepository.save(any())).thenReturn(booking);
+        when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
+        BookingDto result = bookingService.updateBooking(1L, updateRequest);
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+    }
+
+    @Test
+    void testUpdateBooking_NotFound() {
+        when(bookingRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> bookingService.updateBooking(1L, updateRequest));
+    }
+
+    @Test
+    void testDeleteBooking_Success() {
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+        bookingService.deleteBooking(1L);
+        verify(bookingRepository).delete(booking);
+    }
+
+    @Test
+    void testDeleteBooking_NotFound() {
+        when(bookingRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> bookingService.deleteBooking(1L));
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/resources/logback-spring.xml
+SIZE: 1134 bytes
+------------------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+    <property name="LOG_PATH" value="logs"/>
+    <property name="LOG_FILE" value="${LOG_PATH}/hotel-booking.log"/>
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="FileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/hotel-booking.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <root level="INFO">
+        <appender-ref ref="Console"/>
+        <appender-ref ref="FileAppender"/>
+    </root>
+    <logger name="com.example.hotel_booking" level="DEBUG"/>
+</configuration>
+
+------------------------------------------
+FILE: src/main/resources/db/migration/V4__add_user_table.sql
+SIZE: 444 bytes
+------------------------------------------
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role_id BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT fk_user_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_user_username ON users(username);
+CREATE INDEX idx_user_email ON users(email);
+
+------------------------------------------
+FILE: src/main/resources/db/migration/V7__add_ratings_table.sql
+SIZE: 373 bytes
+------------------------------------------
+CREATE TABLE ratings (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    hotel_id BIGINT NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    created_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE (user_id, hotel_id)
+);
+
+CREATE INDEX idx_rating_hotel ON ratings(hotel_id);
+
+------------------------------------------
+FILE: src/main/resources/db/migration/V6__add_booking_table.sql
+SIZE: 435 bytes
+------------------------------------------
+CREATE TABLE bookings (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    room_id BIGINT NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+    check_in DATE NOT NULL,
+    check_out DATE NOT NULL CHECK (check_out > check_in),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_booking_dates ON bookings(check_in, check_out);
+CREATE INDEX idx_booking_room ON bookings(room_id);
+
+------------------------------------------
+FILE: src/main/resources/db/migration/V5__add_room_table.sql
+SIZE: 482 bytes
+------------------------------------------
+CREATE TABLE rooms (
+    id BIGSERIAL PRIMARY KEY,
+    hotel_id BIGINT NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    room_number VARCHAR(50) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    max_guests INT NOT NULL CHECK (max_guests > 0),
+    unavailable_dates JSONB DEFAULT '[]'::jsonb,
+    UNIQUE (hotel_id, room_number)
+);
+
+CREATE INDEX idx_room_price ON rooms(price);
+CREATE INDEX idx_room_hotel_id ON rooms(hotel_id);
+
+------------------------------------------
+FILE: src/main/resources/db/migration/V10__add_score_to_ratings.sql
+SIZE: 436 bytes
+------------------------------------------
+ALTER TABLE ratings ADD COLUMN IF NOT EXISTS score INT;
+
+UPDATE ratings
+SET score = rating
+WHERE score IS NULL;
+
+ALTER TABLE ratings
+  ALTER COLUMN score SET NOT NULL;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'chk_ratings_score'
+      AND conrelid = 'ratings'::regclass
+  ) THEN
+    ALTER TABLE ratings
+      ADD CONSTRAINT chk_ratings_score CHECK (score BETWEEN 1 AND 5);
+  END IF;
+END$$;
+
+
+------------------------------------------
+FILE: src/main/resources/db/migration/V9__fix_roles_id_bigint.sql
+SIZE: 614 bytes
+------------------------------------------
+-- Align roles.id and users.role_id with Hibernate Long/BIGINT expectations.
+-- Safe for existing data: converts types and restores FK + sequence default.
+
+ALTER TABLE users DROP CONSTRAINT IF EXISTS fk_user_role;
+
+ALTER TABLE roles
+    ALTER COLUMN id TYPE BIGINT;
+
+ALTER SEQUENCE IF EXISTS roles_id_seq AS BIGINT;
+ALTER SEQUENCE IF EXISTS roles_id_seq OWNED BY roles.id;
+ALTER TABLE roles ALTER COLUMN id SET DEFAULT nextval('roles_id_seq');
+
+ALTER TABLE users
+    ALTER COLUMN role_id TYPE BIGINT;
+
+ALTER TABLE users
+    ADD CONSTRAINT fk_user_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE;
+
+
+------------------------------------------
+FILE: src/main/resources/db/migration/V8__add_review_to_ratings.sql
+SIZE: 58 bytes
+------------------------------------------
+ALTER TABLE ratings ADD COLUMN IF NOT EXISTS review TEXT;
+
+
+------------------------------------------
+FILE: src/main/resources/db/migration/V11__fix_rooms_price_numeric.sql
+SIZE: 397 bytes
+------------------------------------------
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'rooms'
+      AND column_name = 'price'
+      AND NOT (data_type = 'numeric' AND numeric_precision = 10 AND numeric_scale = 2)
+  ) THEN
+    ALTER TABLE public.rooms
+      ALTER COLUMN price TYPE numeric(10,2)
+      USING round(price::numeric, 2);
+  END IF;
+END $$;
+
+
+------------------------------------------
+FILE: src/main/resources/db/migration/V2__add_hotel_table.sql
+SIZE: 450 bytes
+------------------------------------------
+CREATE TABLE hotels (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    distance_from_center DECIMAL(6,2) NOT NULL,
+    rating DECIMAL(2,1) NOT NULL DEFAULT 0 CHECK (rating BETWEEN 1 AND 5),
+    ratings_count INT NOT NULL DEFAULT 0
+);
+
+CREATE INDEX idx_hotel_city ON hotels(city);
+CREATE INDEX idx_hotel_rating ON hotels(rating DESC);
+
+------------------------------------------
+FILE: src/main/resources/db/migration/V3__add_roles_table.sql
+SIZE: 171 bytes
+------------------------------------------
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL
+);
+
+INSERT INTO roles (name) VALUES ('USER'), ('ADMIN') ON CONFLICT (name) DO NOTHING;
+
+------------------------------------------
+FILE: src/main/resources/application.properties
+SIZE: 3391 bytes
+------------------------------------------
+# ===============================
+# SERVER CONFIG
+# ===============================
+server.port=${SERVER_PORT:8002}
+
+# ===============================
+# DATABASE CONFIGURATION (PostgreSQL)
+# ===============================
+spring.datasource.url=${SPRING_DATASOURCE_URL}
+spring.datasource.username=${SPRING_DATASOURCE_USERNAME}
+spring.datasource.password=${SPRING_DATASOURCE_PASSWORD}
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.open-in-view=false
+
+# ===============================
+# FLYWAY MIGRATIONS (DEFAULTS TO DATASOURCE)
+# ===============================
+spring.flyway.url=${SPRING_FLYWAY_URL:${SPRING_DATASOURCE_URL}}
+spring.flyway.user=${SPRING_FLYWAY_USER:${SPRING_DATASOURCE_USERNAME}}
+spring.flyway.password=${SPRING_FLYWAY_PASSWORD:${SPRING_DATASOURCE_PASSWORD}}
+spring.flyway.enabled=true
+spring.flyway.baseline-on-migrate=true
+spring.flyway.out-of-order=true
+
+# ===============================
+# KAFKA CONFIGURATION
+# ===============================
+spring.kafka.bootstrap-servers=${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+kafka.consumer.group-id=${KAFKA_CONSUMER_GROUP_ID:hotel-booking-group}
+kafka.consumer.auto-offset-reset=${KAFKA_CONSUMER_AUTO_OFFSET_RESET:earliest}
+kafka.producer.retries=${KAFKA_PRODUCER_RETRIES:3}
+kafka.producer.acks=${KAFKA_PRODUCER_ACKS:all}
+
+# Kafka Consumer Configuration (JSON Deserialization)
+spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.JsonDeserializer
+spring.kafka.consumer.properties.spring.json.trusted.packages=*
+
+# Kafka Producer Configuration (JSON Serialization)
+spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
+spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer
+
+# ===============================
+# JWT SECURITY CONFIGURATION
+# ===============================
+security.jwt.secret=${SECURITY_JWT_SECRET}
+security.jwt.expiration=${SECURITY_JWT_EXPIRATION}
+
+# ===============================
+# LOGGING CONFIGURATION
+# ===============================
+logging.level.root=INFO
+logging.level.org.springframework.web=DEBUG
+
+# ===============================
+# MONGODB CONFIGURATION (STATISTICS STORAGE)
+# ===============================
+spring.data.mongodb.uri=${SPRING_DATA_MONGODB_URI}
+spring.data.mongodb.database=${SPRING_DATA_MONGODB_DATABASE}
+
+# Safe MongoDB timeouts/pooling to avoid long hangs when Mongo is unavailable
+app.mongodb.connect-timeout=2s
+app.mongodb.socket-timeout=5s
+app.mongodb.server-selection-timeout=3s
+app.mongodb.max-pool-size=20
+app.mongodb.min-pool-size=2
+app.mongodb.max-idle-time=60s
+app.mongodb.max-wait-time=5s
+
+# ===============================
+# ACTUATOR HEALTH
+# ===============================
+management.endpoints.web.exposure.include=health,info
+management.endpoint.health.probes.enabled=true
+management.health.livenessstate.enabled=true
+management.health.readinessstate.enabled=true
+management.endpoint.health.status.http-mapping.DOWN=200
+management.endpoint.health.status.http-mapping.OUT_OF_SERVICE=200
+management.endpoint.health.status.http-mapping.UNKNOWN=200
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/dto/Statistics/StatisticsDto.java
+SIZE: 405 bytes
+------------------------------------------
+package com.example.hotel_booking.dto.Statistics;
+
+import com.example.hotel_booking.model.BookingDetails;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class StatisticsDto {
+    private String id;
+    private String eventType;
+    private String userId;
+    private BookingDetails details;
+    private LocalDateTime createdAt;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/dto/Statistics/StatisticsEventDto.java
+SIZE: 387 bytes
+------------------------------------------
+package com.example.hotel_booking.dto.Statistics;
+
+import com.example.hotel_booking.model.BookingDetails;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class StatisticsEventDto {
+    private String eventType;
+    private String userId;
+    private LocalDateTime timestamp;
+    private BookingDetails details;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/dto/Role/RoleDto.java
+SIZE: 310 bytes
+------------------------------------------
+package com.example.hotel_booking.dto.Role;
+
+import com.example.hotel_booking.model.RoleType;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class RoleDto {
+    private Long id;
+
+    @NotNull
+    private RoleType name;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/dto/Room/RoomDto.java
+SIZE: 378 bytes
+------------------------------------------
+package com.example.hotel_booking.dto.Room;
+
+import lombok.*;
+
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class RoomDto {
+    private Long id;
+    private Long hotelId;
+    private String name;
+    private String description;
+    private String roomNumber;
+    private BigDecimal price;
+    private Integer maxGuests;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/dto/Room/RoomUpdateRequest.java
+SIZE: 566 bytes
+------------------------------------------
+package com.example.hotel_booking.dto.Room;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import lombok.*;
+
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class RoomUpdateRequest {
+    @NotBlank
+    private String name;
+    private String description;
+    @NotBlank
+    private String roomNumber;
+    @NotNull
+    @Positive
+    private BigDecimal price;
+    @NotNull
+    @Positive
+    private Integer maxGuests;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/dto/Room/RoomCreateRequest.java
+SIZE: 665 bytes
+------------------------------------------
+package com.example.hotel_booking.dto.Room;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import lombok.*;
+
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class RoomCreateRequest {
+    @NotNull
+    private Long hotelId;
+
+    @NotBlank
+    private String name;
+
+    @NotBlank
+    private String description;
+
+    @NotBlank
+    private String roomNumber;
+
+    @NotNull
+    @Positive
+    private BigDecimal price;
+
+    @NotNull
+    @Min(1)
+    private Integer maxGuests;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/dto/Rating/RatingDto.java
+SIZE: 536 bytes
+------------------------------------------
+package com.example.hotel_booking.dto.Rating;
+
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class RatingDto {
+    private Long id;
+
+    @NotNull
+    private Long userId;
+
+    @NotNull
+    private Long hotelId;
+
+    @Min(1)
+    @Max(5)
+    private int score;
+
+    private String review;
+
+    private LocalDateTime createdAt;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/dto/Hotel/HotelDto.java
+SIZE: 417 bytes
+------------------------------------------
+package com.example.hotel_booking.dto.Hotel;
+
+import lombok.*;
+
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class HotelDto {
+    private Long id;
+    private String name;
+    private String title;
+    private String city;
+    private String address;
+    private BigDecimal distanceFromCenter;
+    private BigDecimal rating;
+    private Integer ratingsCount;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/dto/Hotel/HotelCreateRequest.java
+SIZE: 571 bytes
+------------------------------------------
+package com.example.hotel_booking.dto.Hotel;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import lombok.*;
+
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class HotelCreateRequest {
+    @NotBlank
+    private String name;
+
+    @NotBlank
+    private String title;
+
+    @NotBlank
+    private String city;
+
+    @NotBlank
+    private String address;
+
+    @NotNull
+    @Positive
+    private BigDecimal distanceFromCenter;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/dto/Hotel/HotelUpdateRequest.java
+SIZE: 341 bytes
+------------------------------------------
+package com.example.hotel_booking.dto.Hotel;
+
+import lombok.*;
+
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class HotelUpdateRequest {
+    private String name;
+    private String title;
+    private String city;
+    private String address;
+    private BigDecimal distanceFromCenter;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/dto/Booking/BookingUpdateRequest.java
+SIZE: 582 bytes
+------------------------------------------
+package com.example.hotel_booking.dto.Booking;
+
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+import java.time.LocalDate;
+
+@Data
+public class BookingUpdateRequest {
+    @NotNull
+    @FutureOrPresent(message = "Дата заезда должна быть текущей или будущей")
+    private LocalDate checkIn;
+
+    @NotNull
+    @Future(message = "Дата выезда должна быть в будущем")
+    private LocalDate checkOut;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/dto/Booking/BookingCreateRequest.java
+SIZE: 660 bytes
+------------------------------------------
+package com.example.hotel_booking.dto.Booking;
+
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+import java.time.LocalDate;
+
+@Data
+public class BookingCreateRequest {
+    @NotNull
+    private Long userId;
+
+    @NotNull
+    private Long roomId;
+
+    @NotNull
+    @FutureOrPresent(message = "Дата заезда должна быть текущей или будущей")
+    private LocalDate checkIn;
+
+    @NotNull
+    @Future(message = "Дата выезда должна быть в будущем")
+    private LocalDate checkOut;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/dto/Booking/BookingDto.java
+SIZE: 321 bytes
+------------------------------------------
+package com.example.hotel_booking.dto.Booking;
+
+import lombok.*;
+
+import java.time.LocalDate;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class BookingDto {
+    private Long id;
+    private Long userId;
+    private Long roomId;
+    private LocalDate checkIn;
+    private LocalDate checkOut;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/dto/User/UserDto.java
+SIZE: 617 bytes
+------------------------------------------
+package com.example.hotel_booking.dto.User;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class UserDto {
+    private Long id;
+
+    @NotBlank
+    private String username;
+
+    @NotBlank
+    @Email
+    private String email;
+
+    @NotBlank
+    @Size(min = 6, message = "Пароль должен содержать минимум 6 символов")
+    private String password;
+
+    private String role;
+    private String createdAt;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/dto/ErrorResponse.java
+SIZE: 322 bytes
+------------------------------------------
+package com.example.hotel_booking.dto;
+
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ErrorResponse {
+    private int status;
+    private String message;
+    private String path;
+    private LocalDateTime timestamp = LocalDateTime.now();
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/repository/jpa/RoomRepository.java
+SIZE: 772 bytes
+------------------------------------------
+package com.example.hotel_booking.repository.jpa;
+
+import com.example.hotel_booking.model.Room;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface RoomRepository extends JpaRepository<Room, Long>, JpaSpecificationExecutor<Room> {
+    Optional<Room> findByHotelIdAndRoomNumber(Long hotelId, String roomNumber);
+
+    Page<Room> findByPriceBetweenAndMaxGuestsBetween(java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, Integer minGuests, Integer maxGuests, Pageable pageable);
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/repository/jpa/RatingRepository.java
+SIZE: 605 bytes
+------------------------------------------
+package com.example.hotel_booking.repository.jpa;
+
+import com.example.hotel_booking.model.Hotel;
+import com.example.hotel_booking.model.Rating;
+import com.example.hotel_booking.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface RatingRepository extends JpaRepository<Rating, Long> {
+
+    List<Rating> findByHotel(Hotel hotel);
+
+    Optional<Rating> findByUserAndHotel(User user, Hotel hotel);
+
+    void deleteByUserAndHotel(User user, Hotel hotel);
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/repository/jpa/HotelRepository.java
+SIZE: 580 bytes
+------------------------------------------
+package com.example.hotel_booking.repository.jpa;
+
+import com.example.hotel_booking.model.Hotel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface HotelRepository extends JpaRepository<Hotel, Long> {
+    List<Hotel> findByCity(String city);
+
+    Page<Hotel> findAll(Pageable pageable);
+
+    Page<Hotel> findByCityContainingIgnoreCase(String city, Pageable pageable);
+
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/repository/jpa/RoleRepository.java
+SIZE: 352 bytes
+------------------------------------------
+package com.example.hotel_booking.repository.jpa;
+
+import com.example.hotel_booking.model.Role;
+import com.example.hotel_booking.model.RoleType;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface RoleRepository extends JpaRepository<Role, Long> {
+    Optional<Role> findByName(RoleType name);
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/repository/jpa/UserRepository.java
+SIZE: 446 bytes
+------------------------------------------
+package com.example.hotel_booking.repository.jpa;
+
+import com.example.hotel_booking.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByEmail(String email);
+
+    Optional<User> findByUsername(String username);
+
+    boolean existsByEmail(String email);
+
+    boolean existsByUsername(String username);
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/repository/jpa/BookingRepository.java
+SIZE: 609 bytes
+------------------------------------------
+package com.example.hotel_booking.repository.jpa;
+
+import com.example.hotel_booking.model.Booking;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Repository
+public interface BookingRepository extends JpaRepository<Booking, Long> {
+    List<Booking> findByRoomIdAndCheckOutAfterAndCheckInBefore(Long roomId, LocalDate checkIn, LocalDate checkOut);
+
+    Page<Booking> findAll(Pageable pageable);
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/repository/mongo/StatisticsRepository.java
+SIZE: 401 bytes
+------------------------------------------
+package com.example.hotel_booking.repository.mongo;
+
+import com.example.hotel_booking.model.Statistics;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface StatisticsRepository extends MongoRepository<Statistics, String> {
+    List<Statistics> findByEventType(String eventType);
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/config/SecurityConfig.java
+SIZE: 2354 bytes
+------------------------------------------
+package com.example.hotel_booking.config;
+
+import com.example.hotel_booking.security.CustomUserDetailsService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@RequiredArgsConstructor
+public class SecurityConfig {
+
+    private final CustomUserDetailsService userDetailsService;
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
+                )
+                .authenticationProvider(authenticationProvider())
+                .build();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/config/PersistenceConfig.java
+SIZE: 483 bytes
+------------------------------------------
+package com.example.hotel_booking.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+
+@Configuration
+@EnableJpaRepositories(basePackages = "com.example.hotel_booking.repository.jpa")
+@EnableMongoRepositories(basePackages = "com.example.hotel_booking.repository.mongo")
+public class PersistenceConfig {
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/config/KafkaConfig.java
+SIZE: 1603 bytes
+------------------------------------------
+package com.example.hotel_booking.config;
+
+import jakarta.annotation.PostConstruct;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.core.KafkaAdmin;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Configuration
+@EnableKafka
+public class KafkaConfig {
+
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
+
+    @Bean
+    public KafkaAdmin kafkaAdmin() {
+        Map<String, Object> configs = new HashMap<>();
+        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        configs.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, "2000");
+        configs.put(AdminClientConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, "3000");
+        KafkaAdmin admin = new KafkaAdmin(configs);
+        admin.setFatalIfBrokerNotAvailable(true);
+        return admin;
+    }
+
+    /**
+     * Топик, который слушает KafkaConsumer (statistics-events).
+     * 1 партиция и replicationFactor=1 — норм для single-broker dev окружения.
+     */
+    @Bean
+    public NewTopic statisticsEventsTopic() {
+        return new NewTopic("statistics-events", 1, (short) 1);
+    }
+
+    @PostConstruct
+    public void logKafkaBootstrap() {
+        System.out.println("Kafka bootstrap servers: " + bootstrapServers);
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/config/MongoClientConfig.java
+SIZE: 1901 bytes
+------------------------------------------
+package com.example.hotel_booking.config;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.mongo.MongoClientSettingsBuilderCustomizer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
+
+@Configuration
+public class MongoClientConfig {
+
+    @Bean
+    public MongoClientSettingsBuilderCustomizer mongoClientSettingsBuilderCustomizer(
+            @Value("${app.mongodb.connect-timeout:2s}") Duration connectTimeout,
+            @Value("${app.mongodb.socket-timeout:5s}") Duration socketTimeout,
+            @Value("${app.mongodb.server-selection-timeout:3s}") Duration serverSelectionTimeout,
+            @Value("${app.mongodb.max-pool-size:20}") int maxPoolSize,
+            @Value("${app.mongodb.min-pool-size:2}") int minPoolSize,
+            @Value("${app.mongodb.max-idle-time:60s}") Duration maxIdleTime,
+            @Value("${app.mongodb.max-wait-time:5s}") Duration maxWaitTime) {
+        return builder -> {
+            builder.applyToSocketSettings(settings -> {
+                settings.connectTimeout((int) connectTimeout.toMillis(), TimeUnit.MILLISECONDS);
+                settings.readTimeout((int) socketTimeout.toMillis(), TimeUnit.MILLISECONDS);
+            });
+            builder.applyToClusterSettings(settings ->
+                    settings.serverSelectionTimeout(serverSelectionTimeout.toMillis(), TimeUnit.MILLISECONDS));
+            builder.applyToConnectionPoolSettings(settings -> {
+                settings.maxSize(maxPoolSize);
+                settings.minSize(minPoolSize);
+                settings.maxConnectionIdleTime(maxIdleTime.toMillis(), TimeUnit.MILLISECONDS);
+                settings.maxWaitTime(maxWaitTime.toMillis(), TimeUnit.MILLISECONDS);
+            });
+        };
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/security/CustomUserDetails.java
+SIZE: 1477 bytes
+------------------------------------------
+package com.example.hotel_booking.security;
+
+import com.example.hotel_booking.model.User;
+import lombok.Getter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
+
+@Getter
+public class CustomUserDetails implements UserDetails {
+
+    private final Long id;
+    private final String username;
+    private final String password;
+    private final Collection<? extends GrantedAuthority> authorities;
+
+    public CustomUserDetails(User user) {
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.password = user.getPassword();
+
+        this.authorities = List.of(new SimpleGrantedAuthority(user.getRole().getName().name()));
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+}
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/security/CustomUserDetailsService.java
+SIZE: 1106 bytes
+------------------------------------------
+package com.example.hotel_booking.security;
+
+import com.example.hotel_booking.model.User;
+import com.example.hotel_booking.repository.jpa.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+    private final UserRepository userRepository;
+
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Пользователь " + username + " не найден"));
+        return new CustomUserDetails(user);
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/HotelBookingApplication.java
+SIZE: 465 bytes
+------------------------------------------
+package com.example.hotel_booking;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@Slf4j
+@SpringBootApplication
+public class HotelBookingApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(HotelBookingApplication.class, args);
+        log.info("✅ Hotel Booking Application успешно запущено!");
+    }
+}
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/mapper/HotelMapper.java
+SIZE: 1720 bytes
+------------------------------------------
+package com.example.hotel_booking.mapper;
+
+import com.example.hotel_booking.dto.Hotel.HotelCreateRequest;
+import com.example.hotel_booking.dto.Hotel.HotelDto;
+import com.example.hotel_booking.dto.Hotel.HotelUpdateRequest;
+import com.example.hotel_booking.model.Hotel;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.factory.Mappers;
+
+@Mapper(componentModel = "spring")
+public interface HotelMapper {
+    HotelMapper INSTANCE = Mappers.getMapper(HotelMapper.class);
+
+    HotelDto toDto(Hotel hotel);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "rating", ignore = true)
+    @Mapping(target = "ratingsCount", ignore = true)
+    @Mapping(target = "rooms", ignore = true)
+    @Mapping(target = "ratings", ignore = true)
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "title", target = "title")
+    @Mapping(source = "city", target = "city")
+    @Mapping(source = "address", target = "address")
+    @Mapping(source = "distanceFromCenter", target = "distanceFromCenter")
+    Hotel toEntity(HotelCreateRequest request);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "rating", ignore = true)
+    @Mapping(target = "ratingsCount", ignore = true)
+    @Mapping(target = "rooms", ignore = true)
+    @Mapping(target = "ratings", ignore = true)
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "title", target = "title")
+    @Mapping(source = "city", target = "city")
+    @Mapping(source = "address", target = "address")
+    @Mapping(source = "distanceFromCenter", target = "distanceFromCenter")
+    void updateHotelFromDto(HotelUpdateRequest request, @MappingTarget Hotel hotel);
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/mapper/BookingMapper.java
+SIZE: 993 bytes
+------------------------------------------
+package com.example.hotel_booking.mapper;
+
+import com.example.hotel_booking.dto.Booking.BookingCreateRequest;
+import com.example.hotel_booking.dto.Booking.BookingDto;
+import com.example.hotel_booking.dto.Booking.BookingUpdateRequest;
+import com.example.hotel_booking.model.Booking;
+import org.mapstruct.*;
+
+@Mapper(componentModel = "spring")
+public interface BookingMapper {
+
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "roomId", source = "room.id")
+    BookingDto toDto(Booking booking);
+
+    @Mappings({
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "user", ignore = true),
+            @Mapping(target = "room", ignore = true),
+            @Mapping(target = "createdAt", ignore = true)
+    })
+    Booking toEntity(BookingCreateRequest request);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntity(BookingUpdateRequest request, @MappingTarget Booking booking);
+}
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/mapper/RoomMapper.java
+SIZE: 1145 bytes
+------------------------------------------
+package com.example.hotel_booking.mapper;
+
+import com.example.hotel_booking.dto.Room.RoomCreateRequest;
+import com.example.hotel_booking.dto.Room.RoomDto;
+import com.example.hotel_booking.dto.Room.RoomUpdateRequest;
+import com.example.hotel_booking.model.Room;
+import com.example.hotel_booking.repository.jpa.HotelRepository;
+import org.mapstruct.*;
+
+@Mapper(componentModel = "spring", uses = {HotelRepository.class})
+public interface RoomMapper {
+
+    @Mappings({
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "hotel", ignore = true),
+            @Mapping(source = "name", target = "name"),
+            @Mapping(source = "description", target = "description"),
+            @Mapping(source = "roomNumber", target = "roomNumber"),
+            @Mapping(source = "price", target = "price"),
+            @Mapping(source = "maxGuests", target = "maxGuests")
+    })
+    Room toEntity(RoomCreateRequest request);
+
+    RoomDto toDto(Room room);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntity(RoomUpdateRequest request, @MappingTarget Room room);
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/mapper/RatingMapper.java
+SIZE: 565 bytes
+------------------------------------------
+package com.example.hotel_booking.mapper;
+
+import com.example.hotel_booking.dto.Rating.RatingDto;
+import com.example.hotel_booking.model.Rating;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+@Mapper(componentModel = "spring")
+public interface RatingMapper {
+
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "hotelId", source = "hotel.id")
+    RatingDto toDto(Rating rating);
+
+    @Mapping(source = "userId", target = "user.id")
+    @Mapping(source = "hotelId", target = "hotel.id")
+    Rating toEntity(RatingDto ratingDto);
+}
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/mapper/StatisticsMapper.java
+SIZE: 1002 bytes
+------------------------------------------
+package com.example.hotel_booking.mapper;
+
+import com.example.hotel_booking.dto.Statistics.StatisticsDto;
+import com.example.hotel_booking.model.Statistics;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
+
+@Mapper
+public interface StatisticsMapper {
+    StatisticsMapper INSTANCE = Mappers.getMapper(StatisticsMapper.class);
+
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "eventType", source = "eventType")
+    @Mapping(target = "userId", source = "userId")
+    @Mapping(target = "details", source = "details")
+    @Mapping(target = "createdAt", source = "createdAt")
+    StatisticsDto toDto(Statistics statistics);
+
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "eventType", source = "eventType")
+    @Mapping(target = "userId", source = "userId")
+    @Mapping(target = "details", source = "details")
+    @Mapping(target = "createdAt", source = "createdAt")
+    Statistics toEntity(StatisticsDto statisticsDto);
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/mapper/UserMapper.java
+SIZE: 867 bytes
+------------------------------------------
+package com.example.hotel_booking.mapper;
+
+import com.example.hotel_booking.dto.User.UserDto;
+import com.example.hotel_booking.model.User;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
+
+@Mapper(componentModel = "spring")
+public interface UserMapper {
+
+    @Mappings({
+            @Mapping(source = "id", target = "id"),
+            @Mapping(source = "username", target = "username"),
+            @Mapping(source = "email", target = "email"),
+            @Mapping(target = "role", source = "role.name"),
+            @Mapping(target = "createdAt", ignore = true)
+    })
+    UserDto toDto(User user);
+
+    @Mappings({
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "createdAt", ignore = true),
+            @Mapping(target = "role", ignore = true)
+    })
+    User toEntity(UserDto userDto);
+}
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/mapper/RoleMapper.java
+SIZE: 465 bytes
+------------------------------------------
+package com.example.hotel_booking.mapper;
+
+import com.example.hotel_booking.dto.Role.RoleDto;
+import com.example.hotel_booking.model.Role;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+@Mapper(componentModel = "spring")
+public interface RoleMapper {
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "name", source = "name")
+    RoleDto toDto(Role role);
+
+    @Mapping(target = "id", ignore = true)
+    Role toEntity(RoleDto roleDto);
+}
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/specification/RoomSpecification.java
+SIZE: 1993 bytes
+------------------------------------------
+package com.example.hotel_booking.specification;
+
+import com.example.hotel_booking.model.Room;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+public class RoomSpecification {
+
+    public static Specification<Room> byHotel(Long hotelId) {
+        return (root, query, cb) -> (hotelId == null) ? cb.conjunction() : cb.equal(root.get("hotel").get("id"), hotelId);
+    }
+
+    public static Specification<Room> byPrice(BigDecimal minPrice, BigDecimal maxPrice) {
+        return (root, query, cb) -> {
+            if (minPrice == null && maxPrice == null) return cb.conjunction();
+            if (minPrice == null) return cb.lessThanOrEqualTo(root.get("price"), maxPrice);
+            if (maxPrice == null) return cb.greaterThanOrEqualTo(root.get("price"), minPrice);
+            return cb.between(root.get("price"), minPrice, maxPrice);
+        };
+    }
+
+    public static Specification<Room> byGuests(Integer minGuests, Integer maxGuests) {
+        return (root, query, cb) -> {
+            if (minGuests == null && maxGuests == null) return cb.conjunction();
+            if (minGuests == null) return cb.lessThanOrEqualTo(root.get("maxGuests"), maxGuests);
+            if (maxGuests == null) return cb.greaterThanOrEqualTo(root.get("maxGuests"), minGuests);
+            return cb.between(root.get("maxGuests"), minGuests, maxGuests);
+        };
+    }
+
+    public static Specification<Room> isAvailableBetweenDates(LocalDate checkIn, LocalDate checkOut) {
+        return (root, query, cb) -> {
+            if (checkIn == null || checkOut == null) return cb.conjunction();
+
+            Predicate checkInPredicate = cb.lessThanOrEqualTo(root.get("bookings").get("checkOut"), checkIn);
+            Predicate checkOutPredicate = cb.greaterThanOrEqualTo(root.get("bookings").get("checkIn"), checkOut);
+
+            return cb.or(checkInPredicate, checkOutPredicate);
+        };
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/controller/RoomController.java
+SIZE: 3497 bytes
+------------------------------------------
+package com.example.hotel_booking.controller;
+
+import com.example.hotel_booking.dto.Room.RoomCreateRequest;
+import com.example.hotel_booking.dto.Room.RoomDto;
+import com.example.hotel_booking.dto.Room.RoomUpdateRequest;
+import com.example.hotel_booking.service.RoomService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Slf4j
+@RestController
+@RequestMapping("/api/rooms")
+@RequiredArgsConstructor
+public class RoomController {
+    private final RoomService roomService;
+
+    @GetMapping
+    public List<RoomDto> getAllRooms() {
+        log.info("GET /api/v1/rooms | Получение списка всех комнат");
+        return roomService.getAllRooms();
+    }
+
+    @GetMapping("/{id}")
+    public RoomDto getRoomById(@PathVariable Long id) {
+        log.info("GET /api/v1/rooms/{} | Получение комнаты по id", id);
+        return roomService.getRoomById(id);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public RoomDto createRoom(@Valid @RequestBody RoomCreateRequest request) {
+        log.info("POST /api/v1/rooms | Создание комнаты для отеля с id={}", request.getHotelId());
+        return roomService.createRoom(request);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping("/{id}")
+    public RoomDto updateRoom(@PathVariable Long id, @Valid @RequestBody RoomUpdateRequest request) {
+        log.info("PUT /api/v1/rooms/{} | Обновление данных комнаты", id);
+        return roomService.updateRoom(id, request);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteRoom(@PathVariable Long id) {
+        log.info("DELETE /api/v1/rooms/{} | Удаление комнаты", id);
+        roomService.deleteRoom(id);
+    }
+
+    @GetMapping("/search")
+    public Page<RoomDto> searchRooms(
+            @RequestParam(required = false) Long hotelId,
+            @RequestParam(required = false) java.math.BigDecimal minPrice,
+            @RequestParam(required = false) java.math.BigDecimal maxPrice,
+            @RequestParam(required = false) Integer minGuests,
+            @RequestParam(required = false) Integer maxGuests,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return roomService.getFilteredRooms(hotelId, minPrice, maxPrice, minGuests, maxGuests, checkIn, checkOut, page, size);
+    }
+
+    @GetMapping("/availability")
+    public boolean checkRoomAvailability(
+            @RequestParam Long roomId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut) {
+        return roomService.isRoomAvailable(roomId, checkIn, checkOut);
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/controller/HotelController.java
+SIZE: 2388 bytes
+------------------------------------------
+package com.example.hotel_booking.controller;
+
+import com.example.hotel_booking.dto.Hotel.HotelCreateRequest;
+import com.example.hotel_booking.dto.Hotel.HotelDto;
+import com.example.hotel_booking.dto.Hotel.HotelUpdateRequest;
+import com.example.hotel_booking.service.HotelService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Slf4j
+@RestController
+@RequestMapping("/api/hotels")
+@RequiredArgsConstructor
+public class HotelController {
+    private final HotelService hotelService;
+
+    @GetMapping
+    public List<HotelDto> getAllHotels() {
+        log.info("GET /api/v1/hotels | Получение списка всех отелей");
+        return hotelService.getAllHotels();
+    }
+
+    @GetMapping("/{id}")
+    public HotelDto getHotelById(@PathVariable Long id) {
+        log.info("GET /api/v1/hotels/{} | Получение отеля по id", id);
+        return hotelService.getHotelById(id);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping
+    public HotelDto createHotel(@Valid @RequestBody HotelCreateRequest request) {
+        log.info("POST /api/v1/hotels | Создание отеля: {}", request.getName());
+        return hotelService.createHotel(request);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping("/{id}")
+    public HotelDto updateHotel(@PathVariable Long id, @Valid @RequestBody HotelUpdateRequest request) {
+        log.info("PUT /api/v1/hotels/{} | Обновление отеля", id);
+        return hotelService.updateHotel(id, request);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(code = org.springframework.http.HttpStatus.NO_CONTENT)
+    public void deleteHotel(@PathVariable Long id) {
+        log.info("DELETE /api/v1/hotels/{} | Удаление отеля", id);
+        hotelService.deleteHotel(id);
+    }
+
+    @GetMapping("/paged")
+    public Page<HotelDto> getHotels(
+            @RequestParam(required = false) String city,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return hotelService.getHotels(city, page, size);
+    }
+}
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/controller/RatingController.java
+SIZE: 1781 bytes
+------------------------------------------
+package com.example.hotel_booking.controller;
+
+import com.example.hotel_booking.dto.Rating.RatingDto;
+import com.example.hotel_booking.service.RatingService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Slf4j
+@RestController
+@RequestMapping("/ratings")
+@RequiredArgsConstructor
+public class RatingController {
+
+    private final RatingService ratingService;
+
+    @GetMapping
+    public List<RatingDto> getAllRatings() {
+        log.info("GET /api/v1/ratings | Получение всех рейтингов");
+        return ratingService.getAllRatings();
+    }
+
+    @GetMapping("/{id}")
+    public RatingDto getRatingById(@PathVariable Long id) {
+        log.info("GET /api/v1/ratings/{} | Получение рейтинга", id);
+        return ratingService.getRatingById(id);
+    }
+
+    @PostMapping
+    public RatingDto addRating(@RequestBody RatingDto ratingDto) {
+        log.info("POST /api/v1/ratings | Добавление рейтинга от пользователя {} для отеля {}", ratingDto.getUserId(), ratingDto.getHotelId());
+        return ratingService.addRating(ratingDto);
+    }
+
+    @PutMapping("/{id}")
+    public RatingDto updateRating(@PathVariable Long id, @RequestBody RatingDto ratingDto) {
+        log.info("PUT /api/v1/ratings/{} | Обновление рейтинга", id);
+        return ratingService.updateRating(id, ratingDto);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(code = org.springframework.http.HttpStatus.NO_CONTENT)
+    public void deleteRating(@PathVariable Long id) {
+        log.info("DELETE /api/v1/ratings/{} | Удаление рейтинга", id);
+        ratingService.deleteRating(id);
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/controller/RoleController.java
+SIZE: 1954 bytes
+------------------------------------------
+package com.example.hotel_booking.controller;
+
+import com.example.hotel_booking.dto.Role.RoleDto;
+import com.example.hotel_booking.model.RoleType;
+import com.example.hotel_booking.service.RoleService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Slf4j
+@RestController
+@RequestMapping("/roles")
+public class RoleController {
+
+    private final RoleService roleService;
+
+    public RoleController(RoleService roleService) {
+        this.roleService = roleService;
+    }
+
+    @GetMapping
+    public List<RoleDto> getAllRoles() {
+        log.info("GET /api/v1/roles | Получение списка всех ролей");
+        return roleService.getAllRoles();
+    }
+
+    @GetMapping("/{name}")
+    public RoleDto getRoleByName(@PathVariable RoleType name) {
+        log.info("GET /api/v1/roles/{} | Получение роли по имени", name);
+        return roleService.getRoleByName(name).orElseThrow(() -> new RoleNotFoundException(name));
+    }
+
+    @PostMapping
+    public RoleDto createRole(@RequestBody RoleDto roleDto) {
+        log.info("POST /api/v1/roles | Создание новой роли: {}", roleDto.getName());
+        return roleService.createRole(roleDto);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteRole(@PathVariable Long id) {
+        log.info("DELETE /api/v1/roles/{} | Удаление роли", id);
+        roleService.deleteRole(id);
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(RoleNotFoundException.class)
+    public String handleRoleNotFound(RoleNotFoundException ex) {
+        return ex.getMessage();
+    }
+
+    public static class RoleNotFoundException extends RuntimeException {
+        public RoleNotFoundException(RoleType name) {
+            super("Роль '" + name + "' не найдена");
+        }
+    }
+}
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/controller/BookingController.java
+SIZE: 2551 bytes
+------------------------------------------
+package com.example.hotel_booking.controller;
+
+import com.example.hotel_booking.dto.Booking.BookingCreateRequest;
+import com.example.hotel_booking.dto.Booking.BookingDto;
+import com.example.hotel_booking.dto.Booking.BookingUpdateRequest;
+import com.example.hotel_booking.service.BookingService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+@Slf4j
+@RestController
+@RequestMapping("/api/bookings")
+@RequiredArgsConstructor
+public class BookingController {
+    private final BookingService bookingService;
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public BookingDto createBooking(@Valid @RequestBody BookingCreateRequest request) {
+        log.info("POST /api/v1/bookings | Создание бронирования: userId={}, roomId={}", request.getUserId(), request.getRoomId());
+        return bookingService.createBooking(request);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{id}")
+    public BookingDto updateBooking(@PathVariable Long id, @Valid @RequestBody BookingUpdateRequest request) {
+        log.info("PUT /api/v1/bookings/{} | Обновление бронирования", id);
+        return bookingService.updateBooking(id, request);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteBooking(@PathVariable Long id) {
+        log.info("DELETE /api/v1/bookings/{} | Удаление бронирования", id);
+        bookingService.deleteBooking(id);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{id}")
+    public BookingDto getBookingById(@PathVariable Long id) {
+        log.info("GET /api/v1/bookings/{} | Получение бронирования по id", id);
+        return bookingService.getBookingById(id);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping
+    public Page<BookingDto> getAllBookings(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info("GET /api/v1/bookings | Получение списка бронирований");
+        return bookingService.getAllBookings(PageRequest.of(page, size));
+    }
+}
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/controller/StatisticsController.java
+SIZE: 3605 bytes
+------------------------------------------
+package com.example.hotel_booking.controller;
+
+import com.example.hotel_booking.dto.Statistics.StatisticsDto;
+import com.example.hotel_booking.model.Statistics;
+import com.example.hotel_booking.service.StatisticsService;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+
+@Slf4j
+@RestController
+@RequestMapping("/api/statistics")
+@Validated
+public class StatisticsController {
+
+    private final StatisticsService statisticsService;
+
+    public StatisticsController(StatisticsService statisticsService) {
+        this.statisticsService = statisticsService;
+    }
+
+    @GetMapping
+    public List<StatisticsDto> getAllStatistics() {
+        log.info("Получен запрос на получение всех статистик");
+        return statisticsService.getAllStatistics();
+    }
+
+    @GetMapping("/type/{eventType}")
+    public List<StatisticsDto> getStatisticsByType(@PathVariable String eventType) {
+        log.info("Получен запрос на получение статистики по типу: {}", eventType);
+        return statisticsService.getStatisticsByType(eventType);
+    }
+
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.OK)
+    public String saveUserRegistration(@RequestParam String userId) {
+        log.info("Получен запрос на регистрацию пользователя: {}", userId);
+        statisticsService.saveUserRegistration(userId);
+        return "User registration event sent to Kafka";
+    }
+
+    @PostMapping("/booking")
+    public String saveRoomBooking(@RequestBody Statistics statistics) {
+        log.info("Получен запрос на бронирование от пользователя: {}", statistics.getUserId());
+        if (statistics.getDetails() == null) {
+            throw new IllegalArgumentException("Booking details are required");
+        }
+        statisticsService.saveRoomBooking(
+                statistics.getUserId(),
+                statistics.getDetails().getBookingId(),
+                statistics.getDetails().getRoomId(),
+                statistics.getDetails().getCheckIn(),
+                statistics.getDetails().getCheckOut()
+        );
+        log.debug("Событие бронирования пользователя {} отправлено в Kafka", statistics.getUserId());
+        return "Room booking event sent to Kafka";
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/export/csv")
+    public void exportStatisticsToCSV(HttpServletResponse response) throws IOException {
+        log.info("Получен запрос на экспорт статистики в CSV");
+        response.setContentType("text/csv");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=statistics.csv");
+
+        PrintWriter writer = response.getWriter();
+        statisticsService.exportStatisticsToCSV(writer);
+        writer.flush();
+        log.debug("Файл statistics.csv успешно сгенерирован и отправлен");
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public String handleIllegalArgument(IllegalArgumentException ex) {
+        return ex.getMessage();
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/controller/UserController.java
+SIZE: 2600 bytes
+------------------------------------------
+package com.example.hotel_booking.controller;
+
+import com.example.hotel_booking.dto.User.UserDto;
+import com.example.hotel_booking.service.UserService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Slf4j
+@RestController
+@RequestMapping("/users")
+public class UserController {
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping
+    public List<UserDto> getAllUsers() {
+        log.info("GET /api/v1/users | Получение списка всех пользователей");
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("/email/{email}")
+    public UserDto getUserByEmail(@PathVariable String email) {
+        log.info("GET /api/v1/users/{} | Получение пользователя по Email", email);
+        return userService.getUserByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+    }
+
+    @GetMapping("/username/{username}")
+    public UserDto getUserByUsername(@PathVariable String username) {
+        log.info("GET /api/v1/users/{} | Получение пользователя по username", username);
+        return userService.getUserByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+    }
+
+    @PostMapping
+    public UserDto createUser(@RequestBody UserDto userDto) {
+        log.info("POST /api/v1/users | Создание пользователя с email={}", userDto.getEmail());
+        return userService.createUser(userDto);
+    }
+
+    @PutMapping("/{id}")
+    public UserDto updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
+        log.info("PUT /api/v1/users/{} | Обновление пользователя", id);
+        return userService.updateUser(id, userDto);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable Long id) {
+        log.info("DELETE /api/v1/users/{} | Удаление пользователя", id);
+        userService.deleteUser(id);
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(UserNotFoundException.class)
+    public String handleUserNotFound(UserNotFoundException ex) {
+        return ex.getMessage();
+    }
+
+    public static class UserNotFoundException extends RuntimeException {
+        public UserNotFoundException(String identifier) {
+            super("Пользователь '" + identifier + "' не найден");
+        }
+    }
+}
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/kafka/KafkaConsumerService.java
+SIZE: 1046 bytes
+------------------------------------------
+package com.example.hotel_booking.kafka;
+
+import com.example.hotel_booking.dto.Statistics.StatisticsEventDto;
+import com.example.hotel_booking.model.Statistics;
+import com.example.hotel_booking.repository.mongo.StatisticsRepository;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
+
+@Service
+public class KafkaConsumerService {
+
+    private final StatisticsRepository statisticsRepository;
+
+    public KafkaConsumerService(StatisticsRepository statisticsRepository) {
+        this.statisticsRepository = statisticsRepository;
+    }
+
+    @KafkaListener(topics = "statistics-events", groupId = "statistics_group")
+    public void consumeEvent(StatisticsEventDto event) {
+        Statistics statistics = Statistics.builder()
+                .eventType(event.getEventType())
+                .userId(event.getUserId())
+                .details(event.getDetails())
+                .createdAt(event.getTimestamp())
+                .build();
+        statisticsRepository.save(statistics);
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/kafka/KafkaProducerService.java
+SIZE: 593 bytes
+------------------------------------------
+package com.example.hotel_booking.kafka;
+
+import com.example.hotel_booking.dto.Statistics.StatisticsEventDto;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
+@Service
+public class KafkaProducerService {
+
+    private final KafkaTemplate<String, StatisticsEventDto> kafkaTemplate;
+
+    public KafkaProducerService(KafkaTemplate<String, StatisticsEventDto> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
+    public void sendEvent(String topic, StatisticsEventDto event) {
+        kafkaTemplate.send(topic, event);
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/model/Room.java
+SIZE: 1345 bytes
+------------------------------------------
+package com.example.hotel_booking.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@Entity
+@Table(name = "rooms", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"hotel_id", "room_number"})
+})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Room {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "hotel_id", nullable = false)
+    private Hotel hotel;
+
+    @Column(name = "name", nullable = false, length = 255)
+    @NotBlank
+    private String name;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "room_number", nullable = false, length = 50)
+    @NotBlank
+    private String roomNumber;
+
+    @Column(name = "price", precision = 10, scale = 2, nullable = false)
+    @NotNull
+    @Positive
+    private BigDecimal price;
+
+    @Column(name = "max_guests", nullable = false)
+    @NotNull
+    @Positive
+    private Integer maxGuests;
+
+    @Getter
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Booking> bookings;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/model/Booking.java
+SIZE: 1787 bytes
+------------------------------------------
+package com.example.hotel_booking.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "bookings")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Booking {
+
+    private static final Logger log = LoggerFactory.getLogger(Booking.class);
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @NotNull
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id", nullable = false)
+    @NotNull
+    private Room room;
+
+    @Column(name = "check_in", nullable = false)
+    @NotNull
+    @FutureOrPresent(message = "Дата заезда должна быть текущей или будущей")
+    private LocalDate checkIn;
+
+    @Column(name = "check_out", nullable = false)
+    @NotNull
+    @Future(message = "Дата выезда должна быть в будущем")
+    private LocalDate checkOut;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    public void validateDates() {
+        if (checkOut.isBefore(checkIn) || checkOut.isEqual(checkIn)) {
+            log.error("Ошибка бронирования: checkOut ({}) <= checkIn ({})", checkOut, checkIn);
+            throw new IllegalArgumentException("Дата выезда должна быть позже даты заезда.");
+        }
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/model/Hotel.java
+SIZE: 1927 bytes
+------------------------------------------
+package com.example.hotel_booking.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+
+@Entity
+@Table(name = "hotels")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Hotel {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 255)
+    @NotBlank
+    private String name;
+
+    @Column(nullable = false, length = 255)
+    @NotBlank
+    private String title;
+
+    @Column(nullable = false, length = 100)
+    @NotBlank
+    private String city;
+
+    @Column(nullable = false, length = 255)
+    @NotBlank
+    private String address;
+
+    @Column(nullable = false, precision = 6, scale = 2)
+    @NotNull
+    @Positive
+    private BigDecimal distanceFromCenter;
+
+    @Column(nullable = false, precision = 2, scale = 1)
+    @DecimalMin("1.0")
+    @DecimalMax("5.0")
+    private BigDecimal rating = BigDecimal.ZERO;
+
+    @Column(nullable = false)
+    private Integer ratingsCount = 0;
+
+    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Room> rooms;
+
+    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Rating> ratings;
+
+    /**
+     * Метод для обновления рейтинга отеля на основе новых оценок пользователей.
+     */
+    public void updateRating(BigDecimal newRating) {
+        this.ratingsCount++;
+        BigDecimal totalRating = this.rating
+                .multiply(BigDecimal.valueOf(this.ratingsCount - 1))
+                .add(newRating);
+        this.rating = totalRating.divide(BigDecimal.valueOf(this.ratingsCount), 1, RoundingMode.HALF_UP);
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/model/RoleType.java
+SIZE: 100 bytes
+------------------------------------------
+package com.example.hotel_booking.model;
+
+public enum RoleType {
+    USER,
+    ADMIN,
+    MANAGER
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/model/User.java
+SIZE: 1132 bytes
+------------------------------------------
+package com.example.hotel_booking.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "users", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "email")
+})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 50)
+    @NotBlank
+    private String username;
+
+    @Column(nullable = false, unique = true, length = 100)
+    @Email
+    @NotBlank
+    private String email;
+
+    @Column(nullable = false)
+    @NotBlank
+    private String password;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", nullable = false, foreignKey = @ForeignKey(name = "fk_user_role"))
+    private Role role;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/model/Statistics.java
+SIZE: 596 bytes
+------------------------------------------
+package com.example.hotel_booking.model;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalDateTime;
+
+@Document(collection = "statistics")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Statistics {
+
+    @Id
+    private String id;
+
+    @NotBlank
+    private String eventType;
+
+    @NotBlank
+    private String userId;
+
+    private BookingDetails details;
+
+    private LocalDateTime createdAt = LocalDateTime.now();
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/model/Rating.java
+SIZE: 1468 bytes
+------------------------------------------
+package com.example.hotel_booking.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "ratings", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "hotel_id"})
+})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Rating {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @NotNull
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hotel_id", nullable = false)
+    @NotNull
+    private Hotel hotel;
+
+    @Column(nullable = false)
+    @Min(value = 1, message = "Рейтинг должен быть не меньше 1")
+    @Max(value = 5, message = "Рейтинг должен быть не больше 5")
+    private int score;
+
+    @Column(name = "review", columnDefinition = "TEXT")
+    private String review;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @PrePersist
+    public void validateRating() {
+        if (score < 1 || score > 5) {
+            throw new IllegalArgumentException("Рейтинг должен быть от 1 до 5.");
+        }
+    }
+}
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/model/Role.java
+SIZE: 621 bytes
+------------------------------------------
+package com.example.hotel_booking.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.Set;
+
+@Entity
+@Table(name = "roles", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "name")
+})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Role {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 50)
+    @Enumerated(EnumType.STRING)
+    private RoleType name;
+
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<User> users;
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/model/BookingDetails.java
+SIZE: 316 bytes
+------------------------------------------
+package com.example.hotel_booking.model;
+
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class BookingDetails {
+    private String bookingId;
+    private String roomId;
+    private LocalDateTime checkIn;
+    private LocalDateTime checkOut;
+}
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/service/RoomService.java
+SIZE: 5425 bytes
+------------------------------------------
+package com.example.hotel_booking.service;
+
+import com.example.hotel_booking.dto.Room.RoomCreateRequest;
+import com.example.hotel_booking.dto.Room.RoomDto;
+import com.example.hotel_booking.dto.Room.RoomUpdateRequest;
+import com.example.hotel_booking.exception.ResourceNotFoundException;
+import com.example.hotel_booking.mapper.RoomMapper;
+import com.example.hotel_booking.model.Hotel;
+import com.example.hotel_booking.model.Room;
+import com.example.hotel_booking.repository.jpa.HotelRepository;
+import com.example.hotel_booking.repository.jpa.RoomRepository;
+import com.example.hotel_booking.specification.RoomSpecification;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class RoomService {
+
+    private final RoomRepository roomRepository;
+    private final HotelRepository hotelRepository;
+    private final RoomMapper roomMapper;
+
+    public List<RoomDto> getAllRooms() {
+        log.info("Получение списка всех комнат");
+        return roomRepository.findAll().stream()
+                .map(roomMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public RoomDto getRoomById(Long id) {
+        log.info("Получение комнаты по ID: {}", id);
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Комната с ID {} не найдена", id);
+                    return new ResourceNotFoundException("Комната не найдена");
+                });
+        return roomMapper.toDto(room);
+    }
+
+    @Transactional
+    public RoomDto createRoom(RoomCreateRequest request) {
+        log.info("Создание новой комнаты для отеля ID: {}", request.getHotelId());
+        Hotel hotel = hotelRepository.findById(request.getHotelId())
+                .orElseThrow(() -> new ResourceNotFoundException("Отель с id " + request.getHotelId() + " не найден"));
+
+        if (roomRepository.findByHotelIdAndRoomNumber(request.getHotelId(), request.getRoomNumber()).isPresent()) {
+            throw new IllegalArgumentException("Комната с номером " + request.getRoomNumber() + " уже существует в отеле");
+        }
+
+        Room room = roomMapper.toEntity(request);
+        if (room == null) {
+            throw new IllegalStateException("Ошибка маппинга: roomMapper.toEntity(request) вернул null");
+        }
+
+        room.setHotel(hotel);
+        room = roomRepository.save(room);
+        log.info("Комната успешно создана с ID {}", room.getId());
+        return roomMapper.toDto(room);
+    }
+
+    @Transactional
+    public RoomDto updateRoom(Long id, RoomUpdateRequest request) {
+        log.info("Обновление комнаты с ID {}", id);
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Комната с ID {} не найдена", id);
+                    return new ResourceNotFoundException("Комната не найдена");
+                });
+        roomMapper.updateEntity(request, room);
+        room = roomRepository.save(room);
+        log.info("Комната с ID {} успешно обновлена", room.getId());
+        return roomMapper.toDto(room);
+    }
+
+    @Transactional
+    public void deleteRoom(Long id) {
+        log.info("Удаление комнаты с ID {}", id);
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Комната с ID {} не найдена", id);
+                    return new ResourceNotFoundException("Комната не найдена");
+                });
+        roomRepository.delete(room);
+        log.info("Комната с ID {} успешно удалена", id);
+    }
+
+    public Page<RoomDto> getFilteredRooms(Long hotelId, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, Integer minGuests, Integer maxGuests,
+                                          LocalDate checkIn, LocalDate checkOut, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Specification<Room> spec = Specification.where(RoomSpecification.byHotel(hotelId))
+                .and(RoomSpecification.byPrice(minPrice, maxPrice))
+                .and(RoomSpecification.byGuests(minGuests, maxGuests))
+                .and(RoomSpecification.isAvailableBetweenDates(checkIn, checkOut));
+
+        Page<Room> rooms = roomRepository.findAll(spec, pageable);
+        return rooms.map(roomMapper::toDto);
+    }
+
+    public boolean isRoomAvailable(Long roomId, LocalDate checkIn, LocalDate checkOut) {
+        return roomRepository.findById(roomId)
+                .map(room -> room.getBookings().stream()
+                        .noneMatch(booking -> !(booking.getCheckOut().isBefore(checkIn) || booking.getCheckIn().isAfter(checkOut))))
+                .orElse(false);
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/service/BookingService.java
+SIZE: 4702 bytes
+------------------------------------------
+package com.example.hotel_booking.service;
+
+import com.example.hotel_booking.dto.Booking.BookingCreateRequest;
+import com.example.hotel_booking.dto.Booking.BookingDto;
+import com.example.hotel_booking.dto.Booking.BookingUpdateRequest;
+import com.example.hotel_booking.exception.ResourceNotFoundException;
+import com.example.hotel_booking.exception.RoomNotAvailableException;
+import com.example.hotel_booking.mapper.BookingMapper;
+import com.example.hotel_booking.model.Booking;
+import com.example.hotel_booking.model.Room;
+import com.example.hotel_booking.model.User;
+import com.example.hotel_booking.repository.jpa.BookingRepository;
+import com.example.hotel_booking.repository.jpa.RoomRepository;
+import com.example.hotel_booking.repository.jpa.UserRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class BookingService {
+    private final BookingRepository bookingRepository;
+    private final RoomRepository roomRepository;
+    private final UserRepository userRepository;
+    private final BookingMapper bookingMapper;
+
+    @Transactional
+    public BookingDto createBooking(BookingCreateRequest request) {
+        log.info("Создание нового бронирования: {}", request);
+        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> {
+            log.warn("Пользователь с ID {} не найден", request.getUserId());
+            return new ResourceNotFoundException("Пользователь не найден");
+        });
+        Room room = roomRepository.findById(request.getRoomId()).orElseThrow(() -> {
+            log.warn("Комната с ID {} не найдена", request.getRoomId());
+            return new ResourceNotFoundException("Комната не найдена");
+        });
+        Booking booking = bookingMapper.toEntity(request);
+        booking.setUser(user);
+        booking.setRoom(room);
+        booking = bookingRepository.save(booking);
+        log.info("Бронирование успешно создано с ID {}", booking.getId());
+        return bookingMapper.toDto(booking);
+    }
+
+    @Transactional
+    public BookingDto updateBooking(Long id, BookingUpdateRequest request) {
+        log.info("Обновление бронирования ID: {}", id);
+        Booking booking = bookingRepository.findById(id).orElseThrow(() -> {
+            log.warn("Бронирование с ID {} не найдено", id);
+            return new ResourceNotFoundException("Бронирование не найдено");
+        });
+        if (!isRoomAvailable(booking.getRoom().getId(), request.getCheckIn(), request.getCheckOut())) {
+            throw new RoomNotAvailableException("Комната уже забронирована на эти даты.");
+        }
+        bookingMapper.updateEntity(request, booking);
+        booking.validateDates();
+        Booking updatedBooking = bookingRepository.save(booking);
+        log.info("Бронирование с ID {} обновлено", id);
+        return bookingMapper.toDto(updatedBooking);
+    }
+
+    public void deleteBooking(Long id) {
+        log.info("Удаление бронирования с ID {}", id);
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Бронирование не найдено"));
+        bookingRepository.delete(booking);
+        log.info("Бронирование с ID {} удалено", id);
+    }
+
+    public BookingDto getBookingById(Long id) {
+        log.info("Поиск бронирования по ID: {}", id);
+        Booking booking = bookingRepository.findById(id).orElseThrow(() -> {
+            log.warn("Бронирование с ID {} не найдено", id);
+            return new ResourceNotFoundException("Бронирование не найдено");
+        });
+        return bookingMapper.toDto(booking);
+    }
+
+    public Page<BookingDto> getAllBookings(Pageable pageable) {
+        log.info("Получение всех бронирований (страница: {})", pageable.getPageNumber());
+        return bookingRepository.findAll(pageable).map(bookingMapper::toDto);
+    }
+
+    private boolean isRoomAvailable(Long roomId, LocalDate checkIn, LocalDate checkOut) {
+        return bookingRepository.findByRoomIdAndCheckOutAfterAndCheckInBefore(roomId, checkIn, checkOut).isEmpty();
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/service/UserService.java
+SIZE: 3012 bytes
+------------------------------------------
+package com.example.hotel_booking.service;
+
+import com.example.hotel_booking.dto.User.UserDto;
+import com.example.hotel_booking.mapper.UserMapper;
+import com.example.hotel_booking.model.User;
+import com.example.hotel_booking.repository.jpa.UserRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+
+@Slf4j
+@Service
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public List<UserDto> getAllUsers() {
+        log.info("Запрошен список всех пользователей");
+        return userRepository.findAll().stream()
+                .map(userMapper::toDto)
+                .toList();
+    }
+
+    public Optional<UserDto> getUserByEmail(String email) {
+        log.info("Поиск пользователя по email: {}", email);
+        return userRepository.findByEmail(email).map(userMapper::toDto);
+    }
+
+    public Optional<UserDto> getUserByUsername(String username) {
+        log.info("Поиск пользователя по username: {}", username);
+        return userRepository.findByUsername(username).map(userMapper::toDto);
+    }
+
+    @Transactional
+    public UserDto createUser(UserDto userDto) {
+        log.info("Создание пользователя с email: {}", userDto.getEmail());
+
+        if (userRepository.existsByEmail(userDto.getEmail())) {
+            throw new IllegalArgumentException("Email уже используется");
+        }
+
+        if (userRepository.existsByUsername(userDto.getUsername())) {
+            throw new IllegalArgumentException("Имя пользователя уже занято");
+        }
+
+        User user = userMapper.toEntity(userDto);
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        return userMapper.toDto(userRepository.save(user));
+    }
+
+    @Transactional
+    public UserDto updateUser(Long id, UserDto userDto) {
+        log.info("Обновление пользователя с id: {}", id);
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
+
+        user.setUsername(userDto.getUsername());
+        user.setEmail(userDto.getEmail());
+
+        return userMapper.toDto(userRepository.save(user));
+    }
+
+    public void deleteUser(Long id) {
+        log.info("Удаление пользователя с id: {}", id);
+        userRepository.deleteById(id);
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/service/HotelService.java
+SIZE: 3484 bytes
+------------------------------------------
+package com.example.hotel_booking.service;
+
+import com.example.hotel_booking.dto.Hotel.HotelCreateRequest;
+import com.example.hotel_booking.dto.Hotel.HotelDto;
+import com.example.hotel_booking.dto.Hotel.HotelUpdateRequest;
+import com.example.hotel_booking.mapper.HotelMapper;
+import com.example.hotel_booking.model.Hotel;
+import com.example.hotel_booking.repository.jpa.HotelRepository;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class HotelService {
+
+    private final HotelRepository hotelRepository;
+    private final HotelMapper hotelMapper = HotelMapper.INSTANCE;
+
+    public List<HotelDto> getAllHotels() {
+        return hotelRepository.findAll()
+                .stream()
+                .map(hotelMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public HotelDto getHotelById(Long id) {
+        log.info("Получение отеля по ID: {}", id);
+        Hotel hotel = hotelRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Отель с ID {} не найден", id);
+                    return new EntityNotFoundException("Отель не найден");
+                });
+        return hotelMapper.toDto(hotel);
+    }
+
+    public HotelDto createHotel(HotelCreateRequest request) {
+        log.info("Добавление нового отеля: {}", request.getName());
+        Hotel hotel = hotelMapper.toEntity(request);
+        hotel = hotelRepository.save(hotel);
+        log.info("Отель '{}' успешно добавлен с ID {}", hotel.getName(), hotel.getId());
+        return hotelMapper.toDto(hotel);
+    }
+
+    public HotelDto updateHotel(Long id, HotelUpdateRequest request) {
+        log.info("Обновление отеля с ID {}", id);
+        Hotel hotel = hotelRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Отель с ID {} не найден", id);
+                    return new EntityNotFoundException("Отель не найден");
+                });
+        hotelMapper.updateHotelFromDto(request, hotel);
+        hotel = hotelRepository.save(hotel);
+        log.info("Отель с ID {} успешно обновлён", hotel.getId());
+        return hotelMapper.toDto(hotel);
+    }
+
+    public void deleteHotel(Long id) {
+        log.info("Удаление отеля с ID {}", id);
+        if (!hotelRepository.existsById(id)) {
+            log.warn("Попытка удалить несуществующий отель с ID {}", id);
+            throw new EntityNotFoundException("Отель не найден");
+        }
+        hotelRepository.deleteById(id);
+        log.info("Отель с ID {} успешно удалён", id);
+    }
+
+    public Page<HotelDto> getHotels(String city, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Hotel> hotels = (city == null || city.isBlank())
+                ? hotelRepository.findAll(pageable)
+                : hotelRepository.findByCityContainingIgnoreCase(city, pageable);
+        return hotels.map(hotelMapper::toDto);
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/service/StatisticsService.java
+SIZE: 3979 bytes
+------------------------------------------
+package com.example.hotel_booking.service;
+
+import com.example.hotel_booking.dto.Statistics.StatisticsDto;
+import com.example.hotel_booking.dto.Statistics.StatisticsEventDto;
+import com.example.hotel_booking.kafka.KafkaProducerService;
+import com.example.hotel_booking.mapper.StatisticsMapper;
+import com.example.hotel_booking.model.BookingDetails;
+import com.example.hotel_booking.model.Statistics;
+import com.example.hotel_booking.repository.mongo.StatisticsRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+public class StatisticsService {
+
+    private final KafkaProducerService kafkaProducerService;
+    private final StatisticsRepository statisticsRepository;
+    private final StatisticsMapper statisticsMapper = StatisticsMapper.INSTANCE;
+
+    public StatisticsService(KafkaProducerService kafkaProducerService, StatisticsRepository statisticsRepository) {
+        this.kafkaProducerService = kafkaProducerService;
+        this.statisticsRepository = statisticsRepository;
+    }
+
+    public void saveUserRegistration(String userId) {
+        log.info("Сохранение события регистрации пользователя: {}", userId);
+        StatisticsEventDto event = StatisticsEventDto.builder()
+                .eventType("USER_REGISTRATION")
+                .userId(userId)
+                .timestamp(LocalDateTime.now())
+                .build();
+        kafkaProducerService.sendEvent("statistics-events", event);
+    }
+
+    public void saveRoomBooking(String userId, String bookingId, String roomId, LocalDateTime checkIn, LocalDateTime checkOut) {
+        log.info("Сохранение события бронирования: userId={}, bookingId={}, roomId={}", userId, bookingId, roomId);
+        StatisticsEventDto event = StatisticsEventDto.builder()
+                .eventType("ROOM_BOOKING")
+                .userId(userId)
+                .details(new BookingDetails(bookingId, roomId, checkIn, checkOut))
+                .timestamp(LocalDateTime.now())
+                .build();
+        kafkaProducerService.sendEvent("statistics-events", event);
+    }
+
+    public List<StatisticsDto> getAllStatistics() {
+        log.info("Получение всех записей статистики");
+        return statisticsRepository.findAll().stream()
+                .map(statisticsMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<StatisticsDto> getStatisticsByType(String eventType) {
+        log.info("Получение статистики по типу: {}", eventType);
+        return statisticsRepository.findByEventType(eventType).stream()
+                .map(statisticsMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public void exportStatisticsToCSV(PrintWriter writer) {
+        log.info("Экспорт статистики в CSV");
+        List<Statistics> statisticsList = statisticsRepository.findAll();
+        writer.println("Event Type, User ID, Timestamp, Booking ID, Room ID, Check-In, Check-Out");
+
+        for (Statistics stat : statisticsList) {
+            String bookingId = (stat.getDetails() != null) ? stat.getDetails().getBookingId() : "";
+            String roomId = (stat.getDetails() != null) ? stat.getDetails().getRoomId() : "";
+            String checkIn = (stat.getDetails() != null && stat.getDetails().getCheckIn() != null)
+                    ? stat.getDetails().getCheckIn().toString() : "";
+            String checkOut = (stat.getDetails() != null && stat.getDetails().getCheckOut() != null)
+                    ? stat.getDetails().getCheckOut().toString() : "";
+
+            writer.println(String.join(",", stat.getEventType(), stat.getUserId(),
+                    stat.getCreatedAt().toString(), bookingId, roomId, checkIn, checkOut));
+        }
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/service/RoleService.java
+SIZE: 1843 bytes
+------------------------------------------
+package com.example.hotel_booking.service;
+
+import com.example.hotel_booking.dto.Role.RoleDto;
+import com.example.hotel_booking.mapper.RoleMapper;
+import com.example.hotel_booking.model.Role;
+import com.example.hotel_booking.model.RoleType;
+import com.example.hotel_booking.repository.jpa.RoleRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+
+@Slf4j
+@Service
+public class RoleService {
+
+    private final RoleRepository roleRepository;
+    private final RoleMapper roleMapper;
+
+    public RoleService(RoleRepository roleRepository, RoleMapper roleMapper) {
+        this.roleRepository = roleRepository;
+        this.roleMapper = roleMapper;
+    }
+
+    public List<RoleDto> getAllRoles() {
+        log.info("Получение всех ролей");
+        return roleRepository.findAll().stream()
+                .map(roleMapper::toDto)
+                .toList();
+    }
+
+    public Optional<RoleDto> getRoleByName(RoleType name) {
+        return roleRepository.findByName(name)
+                .map(roleMapper::toDto);
+    }
+
+    @Transactional
+    public RoleDto createRole(RoleDto roleDto) {
+        log.info("Создание новой роли: {}", roleDto.getName());
+
+        if (roleRepository.findByName(roleDto.getName()).isPresent()) {
+            throw new IllegalArgumentException("Роль уже существует");
+        }
+
+        Role role = roleMapper.toEntity(roleDto);
+        return roleMapper.toDto(roleRepository.save(role));
+    }
+
+    public void deleteRole(Long id) {
+        log.info("Удаление роли с ID {}", id);
+        roleRepository.deleteById(id);
+        log.info("Роль с ID {} успешно удалена", id);
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/service/RatingService.java
+SIZE: 5772 bytes
+------------------------------------------
+package com.example.hotel_booking.service;
+
+import com.example.hotel_booking.dto.Rating.RatingDto;
+import com.example.hotel_booking.exception.ResourceNotFoundException;
+import com.example.hotel_booking.mapper.RatingMapper;
+import com.example.hotel_booking.model.Hotel;
+import com.example.hotel_booking.model.Rating;
+import com.example.hotel_booking.model.User;
+import com.example.hotel_booking.repository.jpa.HotelRepository;
+import com.example.hotel_booking.repository.jpa.RatingRepository;
+import com.example.hotel_booking.repository.jpa.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class RatingService {
+
+    private final RatingRepository ratingRepository;
+    private final UserRepository userRepository;
+    private final HotelRepository hotelRepository;
+    private final RatingMapper ratingMapper;
+
+    public List<RatingDto> getAllRatings() {
+        log.info("Получение списка всех оценок");
+        return ratingRepository.findAll().stream()
+                .map(ratingMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public RatingDto getRatingById(Long id) {
+        log.info("Получение оценки по ID: {}", id);
+        Rating rating = ratingRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Оценка с ID {} не найдена", id);
+                    return new ResourceNotFoundException("Оценка не найдена");
+                });
+        return ratingMapper.toDto(rating);
+    }
+
+    @Transactional
+    public RatingDto addRating(RatingDto ratingDto) {
+        log.info("Добавление новой оценки: {} (userId={}, hotelId={})", ratingDto.getScore(), ratingDto.getUserId(), ratingDto.getHotelId());
+
+        User user = userRepository.findById(ratingDto.getUserId())
+                .orElseThrow(() -> {
+                    log.warn("Пользователь с ID {} не найден", ratingDto.getUserId());
+                    return new ResourceNotFoundException("Пользователь не найден");
+                });
+
+        Hotel hotel = hotelRepository.findById(ratingDto.getHotelId())
+                .orElseThrow(() -> {
+                    log.warn("Отель с ID {} не найден", ratingDto.getHotelId());
+                    return new ResourceNotFoundException("Отель не найден");
+                });
+
+        Optional<Rating> existingRating = ratingRepository.findByUserAndHotel(user, hotel);
+        if (existingRating.isPresent()) {
+            throw new RuntimeException("Пользователь уже оставил оценку для этого отеля");
+        }
+
+        Rating rating = ratingMapper.toEntity(ratingDto);
+        rating.setUser(user);
+        rating.setHotel(hotel);
+        rating = ratingRepository.save(rating);
+
+        updateHotelRating(hotel);
+
+        log.info("Оценка успешно добавлена с ID {}", rating.getId());
+        return ratingMapper.toDto(rating);
+    }
+
+    @Transactional
+    public RatingDto updateRating(Long id, RatingDto ratingDto) {
+        log.info("Обновление оценки с ID {}", id);
+
+        Rating rating = ratingRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Оценка с ID {} не найдена", id);
+                    return new ResourceNotFoundException("Оценка не найдена");
+                });
+
+        if (ratingDto.getScore() < 1 || ratingDto.getScore() > 5) {
+            throw new IllegalArgumentException("Оценка должна быть от 1 до 5");
+        }
+
+        rating.setScore(ratingDto.getScore());
+        rating.setReview(ratingDto.getReview());
+        rating = ratingRepository.save(rating);
+
+        updateHotelRating(rating.getHotel());
+
+        log.info("Оценка с ID {} успешно обновлена", rating.getId());
+        return ratingMapper.toDto(rating);
+    }
+
+    @Transactional
+    public void deleteRating(Long id) {
+        log.info("Удаление оценки с ID {}", id);
+
+        Rating rating = ratingRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Оценка с ID {} не найдена", id);
+                    return new ResourceNotFoundException("Оценка не найдена");
+                });
+
+        ratingRepository.delete(rating);
+        updateHotelRating(rating.getHotel());
+
+        log.info("Оценка с ID {} успешно удалена", id);
+    }
+
+    @Transactional
+    public void updateHotelRating(Hotel hotel) {
+        log.debug("Пересчёт рейтинга для отеля ID {}", hotel.getId());
+
+        List<Rating> ratings = ratingRepository.findByHotel(hotel);
+        if (ratings.isEmpty()) {
+            hotel.setRating(BigDecimal.ZERO);
+            hotel.setRatingsCount(0);
+        } else {
+            BigDecimal totalRating = ratings.stream()
+                    .map(r -> BigDecimal.valueOf(r.getScore()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            int count = ratings.size();
+            hotel.setRatingsCount(count);
+            hotel.setRating(totalRating.divide(BigDecimal.valueOf(count), 1, RoundingMode.HALF_UP));
+        }
+
+        hotelRepository.save(hotel);
+        log.info("Обновлён рейтинг отеля");
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/exception/ResourceNotFoundException.java
+SIZE: 352 bytes
+------------------------------------------
+package com.example.hotel_booking.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(value = HttpStatus.NOT_FOUND)
+public class ResourceNotFoundException extends RuntimeException {
+    public ResourceNotFoundException(String message) {
+        super(message);
+    }
+}
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/exception/GlobalExceptionHandler.java
+SIZE: 2285 bytes
+------------------------------------------
+package com.example.hotel_booking.exception;
+
+import com.example.hotel_booking.dto.ErrorResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+
+import java.time.LocalDateTime;
+
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex, WebRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("Ошибка валидации: " + ex.getBindingResult().getFieldError().getDefaultMessage())
+                .path(request.getDescription(false))
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .message(ex.getMessage())
+                .path(request.getDescription(false))
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, WebRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .message("Внутренняя ошибка сервера")
+                .path(request.getDescription(false))
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+
+
+------------------------------------------
+FILE: src/main/java/com/example/hotel_booking/exception/RoomNotAvailableException.java
+SIZE: 347 bytes
+------------------------------------------
+package com.example.hotel_booking.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class RoomNotAvailableException extends RuntimeException {
+    public RoomNotAvailableException(String message) {
+        super(message);
+    }
+}
+
+
+==========================================
+DONE
+Included files: 98
+Excluded entries: 134
+Dump file: hotel-booking_dump.txt
+Excluded file: hotel-booking_dump_excluded.txt
+==========================================
