@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.fastdelivery.domain.common.currency.Currency;
 import ru.fastdelivery.domain.common.currency.CurrencyFactory;
 import ru.fastdelivery.domain.common.price.Price;
+import ru.fastdelivery.domain.repository.UserRequestRepository;
 import ru.fastdelivery.presentation.api.request.CalculatePackagesRequest;
 import ru.fastdelivery.presentation.api.request.CargoPackage;
 import ru.fastdelivery.presentation.api.request.CoordinateDto;
@@ -39,6 +40,8 @@ public class CalculateControllerTest {
     CurrencyFactory currencyFactory;
     @MockBean
     GeoProperties geoProperties;
+    @MockBean
+    UserRequestRepository userRequestRepository;
 
     @Test
     @DisplayName("Валидный запрос — HTTP 200")

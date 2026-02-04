@@ -19,6 +19,7 @@ import ru.fastdelivery.domain.delivery.pack.Pack;
 import ru.fastdelivery.domain.delivery.shipment.Shipment;
 import ru.fastdelivery.domain.dimension.OuterDimensions;
 import ru.fastdelivery.domain.geo.Coordinate;
+import ru.fastdelivery.domain.repository.UserRequestRepository;
 import ru.fastdelivery.presentation.api.request.CalculatePackagesRequest;
 import ru.fastdelivery.presentation.api.response.CalculatePackagesResponse;
 import ru.fastdelivery.presentation.config.GeoProperties;
@@ -42,6 +43,7 @@ public class CalculateController {
     private final TariffCalculateUseCase tariffCalculateUseCase;
     private final CurrencyFactory currencyFactory;
     private final ObjectMapper objectMapper;
+    private final UserRequestRepository userRequestRepository;
 
     @PostMapping
     @Operation(summary = "Расчет стоимости по упаковкам груза")
@@ -53,11 +55,15 @@ public class CalculateController {
             @Valid @RequestBody CalculatePackagesRequest request,
             HttpServletRequest servletRequest
     ) {
+        String requestJson = "";
+        String ipAddress = extractClientIp(servletRequest);
+        String userAgent = servletRequest.getHeader("User-Agent");
+
         try {
-            String requestJson = objectMapper.writeValueAsString(request);
+            requestJson = objectMapper.writeValueAsString(request);
             log.info("Запрос на расчет: IP={}, UA={}, Payload={}",
-                    servletRequest.getRemoteAddr(),
-                    servletRequest.getHeader("User-Agent"),
+                    ipAddress,
+                    userAgent,
                     requestJson
             );
             validateCoordinates(request);
@@ -78,11 +84,64 @@ public class CalculateController {
                     tariffCalculateUseCase.minimalPrice()
             );
             String responseJson = objectMapper.writeValueAsString(response);
+            saveSuccessfulRequest(ipAddress, userAgent, requestJson, response, responseJson);
             log.info("Успешный ответ: {}", responseJson);
             return response;
+        } catch (IllegalArgumentException e) {
+            saveFailedRequest(ipAddress, userAgent, requestJson, e.getMessage());
+            throw e;
         } catch (Exception e) {
-            log.error("Ошибка при расчете тарифа: {}", e.getMessage());
-            throw new RuntimeException("Ошибка при расчете тарифа");
+            log.error("Ошибка при расчете тарифа", e);
+            saveFailedRequest(ipAddress, userAgent, requestJson, e.getMessage());
+            throw new RuntimeException("Ошибка при расчете тарифа", e);
+        }
+    }
+
+    private String extractClientIp(HttpServletRequest servletRequest) {
+        String forwardedFor = servletRequest.getHeader("X-Forwarded-For");
+        if (forwardedFor != null && !forwardedFor.isBlank()) {
+            return forwardedFor.split(",")[0].trim();
+        }
+        return servletRequest.getRemoteAddr();
+    }
+
+    private void saveSuccessfulRequest(
+            String ipAddress,
+            String userAgent,
+            String requestJson,
+            CalculatePackagesResponse response,
+            String responseJson
+    ) {
+        try {
+            userRequestRepository.saveSuccess(
+                    ipAddress,
+                    userAgent,
+                    requestJson,
+                    response.totalPrice(),
+                    response.minimalPrice(),
+                    response.currencyCode(),
+                    responseJson
+            );
+        } catch (Exception saveException) {
+            log.error("Не удалось сохранить успешный расчет в БД", saveException);
+        }
+    }
+
+    private void saveFailedRequest(
+            String ipAddress,
+            String userAgent,
+            String requestJson,
+            String errorMessage
+    ) {
+        try {
+            userRequestRepository.saveFailure(
+                    ipAddress,
+                    userAgent,
+                    requestJson,
+                    errorMessage
+            );
+        } catch (Exception saveException) {
+            log.error("Не удалось сохранить ошибку расчета в БД", saveException);
         }
     }
 
