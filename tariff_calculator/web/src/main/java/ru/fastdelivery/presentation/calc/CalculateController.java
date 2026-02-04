@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.fastdelivery.domain.common.currency.CurrencyFactory;
 import ru.fastdelivery.domain.common.weight.Weight;
@@ -34,7 +33,6 @@ import java.util.List;
  * Обрабатывает запросы на расчет по упаковкам и координатам, возвращает итоговую стоимость и минимальную цену.
  */
 @RestController
-@RequestMapping("/api/v1/calculate")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Расчеты стоимости доставки")
@@ -45,7 +43,7 @@ public class CalculateController {
     private final ObjectMapper objectMapper;
     private final UserRequestRepository userRequestRepository;
 
-    @PostMapping
+    @PostMapping(path = {"/api/v1/calculate", "/api/tariff-calculator"})
     @Operation(summary = "Расчет стоимости по упаковкам груза")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Успешный расчет"),

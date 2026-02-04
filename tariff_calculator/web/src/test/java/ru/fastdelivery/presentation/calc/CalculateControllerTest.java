@@ -33,7 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(CalculateController.class)
 public class CalculateControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final String URL = "/api/v1/calculate";
+    private static final String URL_V1 = "/api/v1/calculate";
+    private static final String URL_ALIAS = "/api/tariff-calculator";
     @MockBean
     TariffCalculateUseCase useCase;
     @MockBean
@@ -67,7 +68,40 @@ public class CalculateControllerTest {
                 new CoordinateDto(BigDecimal.valueOf(55.7558), BigDecimal.valueOf(37.6176)),
                 new CoordinateDto(BigDecimal.valueOf(59.9343), BigDecimal.valueOf(30.3351))
         );
-        mockMvc.perform(post(URL)
+        mockMvc.perform(post(URL_V1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.currencyCode").value("RUB"))
+                .andExpect(jsonPath("$.totalPrice").value(1000))
+                .andExpect(jsonPath("$.minimalPrice").value(500));
+    }
+
+    @Test
+    @DisplayName("Alias endpoint /api/tariff-calculator — HTTP 200")
+    void whenValidRequestToAlias_thenReturns200(@org.springframework.beans.factory.annotation.Autowired MockMvc mockMvc) throws Exception {
+        var rub = new Currency("RUB", BigDecimal.ONE);
+        var total = new Price(BigDecimal.valueOf(1000), rub);
+        var minimal = new Price(BigDecimal.valueOf(500), rub);
+        when(geoProperties.getMinLatitude()).thenReturn(BigDecimal.valueOf(45));
+        when(geoProperties.getMaxLatitude()).thenReturn(BigDecimal.valueOf(65));
+        when(geoProperties.getMinLongitude()).thenReturn(BigDecimal.valueOf(30));
+        when(geoProperties.getMaxLongitude()).thenReturn(BigDecimal.valueOf(96));
+        when(currencyFactory.create("RUB")).thenReturn(rub);
+        when(useCase.calc(any())).thenReturn(total);
+        when(useCase.minimalPrice()).thenReturn(minimal);
+        var request = new CalculatePackagesRequest(
+                List.of(new CargoPackage(
+                        BigDecimal.valueOf(2000),
+                        BigDecimal.valueOf(500),
+                        BigDecimal.valueOf(300),
+                        BigDecimal.valueOf(400)
+                )),
+                "RUB",
+                new CoordinateDto(BigDecimal.valueOf(55.7558), BigDecimal.valueOf(37.6176)),
+                new CoordinateDto(BigDecimal.valueOf(59.9343), BigDecimal.valueOf(30.3351))
+        );
+        mockMvc.perform(post(URL_ALIAS)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -86,7 +120,7 @@ public class CalculateControllerTest {
                 new CoordinateDto(BigDecimal.valueOf(59.9343), BigDecimal.valueOf(30.3351))
         );
 
-        mockMvc.perform(post(URL)
+        mockMvc.perform(post(URL_V1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
