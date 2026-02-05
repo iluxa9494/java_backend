@@ -9,9 +9,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-/**
- * Демо-режим: открывает API без аутентификации для фронтенд демо.
- */
 @Configuration
 @Profile("demo")
 public class DemoSecurityConfig {
