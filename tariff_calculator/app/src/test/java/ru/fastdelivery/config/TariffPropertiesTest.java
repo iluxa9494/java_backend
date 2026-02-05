@@ -2,28 +2,27 @@ package ru.fastdelivery.config;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import java.math.BigDecimal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TariffPropertiesTest {
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+            .withInitializer(new ConfigDataApplicationContextInitializer())
             .withUserConfiguration(TariffPropertiesConfig.class)
             .withPropertyValues(
-                    "cost.rub.perKg=400.00",
-                    "cost.rub.perCubicMeter=1200.00",
-                    "cost.rub.minimal=500.00",
-                    "cost.rub.distanceStepKm=450"
+                    "spring.config.location=classpath:application-test.yml"
             );
 
     @Test
     void bindTariffPropertiesCorrectly() {
         contextRunner.run(context -> {
             TariffProperties properties = context.getBean(TariffProperties.class);
-            assertThat(properties.getPerKg()).isEqualByComparingTo(BigDecimal.valueOf(400));
-            assertThat(properties.getPerCubicMeter()).isEqualByComparingTo(BigDecimal.valueOf(1200));
-            assertThat(properties.getMinimal()).isEqualByComparingTo(BigDecimal.valueOf(500));
-            assertThat(properties.getDistanceStepKm()).isEqualTo(450);
+            assertThat(properties.getWeightCostPerGram()).isEqualByComparingTo(BigDecimal.valueOf(0.04));
+            assertThat(properties.getVolumeCostPerM3()).isEqualByComparingTo(BigDecimal.valueOf(1200));
+            assertThat(properties.getMinimalPrice()).isEqualByComparingTo(BigDecimal.valueOf(500));
+            assertThat(properties.getDistanceStep()).isEqualTo(450);
         });
     }
 

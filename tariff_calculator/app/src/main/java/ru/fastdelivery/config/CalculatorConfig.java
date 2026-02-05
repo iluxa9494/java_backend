@@ -25,10 +25,10 @@ public class CalculatorConfig {
                 volumeCalculator,
                 distanceCalculator,
                 tariffSettingsRepository,
-                tariffProperties.getPerKg(),
-                tariffProperties.getPerCubicMeter(),
-                tariffProperties.getMinimal(),
-                tariffProperties.getDistanceStepKm()
+                tariffProperties.getWeightCostPerGram(),
+                tariffProperties.getVolumeCostPerM3(),
+                tariffProperties.getMinimalPrice(),
+                tariffProperties.getDistanceStep()
         );
     }
 }

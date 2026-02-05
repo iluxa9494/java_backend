@@ -67,10 +67,21 @@ public class CalculateController {
             validateCoordinates(request);
             List<Pack> packs = request.packages().stream()
                     .map(pkg -> new Pack(
-                            new Weight(pkg.weight().toBigIntegerExact()),
+                            new Weight(validateWeight(pkg.weight()).toBigIntegerExact()),
                             normalizeDimensions(pkg.length(), pkg.width(), pkg.height())
                     ))
                     .toList();
+            if (log.isInfoEnabled()) {
+                log.info("Нормализованные данные: packagesCount={}, totalWeightGrams={}, currencyCode={}, source={}, destination={}",
+                        packs.size(),
+                        packs.stream()
+                                .map(pack -> pack.weight().weightGrams())
+                                .reduce(java.math.BigInteger.ZERO, java.math.BigInteger::add),
+                        request.currencyCode(),
+                        request.source(),
+                        request.destination()
+                );
+            }
             Shipment shipment = new Shipment(
                     packs,
                     new Coordinate(request.source().lat(), request.source().lon()),
@@ -180,5 +191,13 @@ public class CalculateController {
                     String.format("Размер %s превышает максимально допустимые 1500 мм.", dimensionName)
             );
         }
+    }
+
+    private BigDecimal validateWeight(BigDecimal weight) {
+        BigDecimal maxAllowed = BigDecimal.valueOf(150000);
+        if (weight.compareTo(maxAllowed) > 0) {
+            throw new IllegalArgumentException("Вес превышает максимально допустимые 150000 г.");
+        }
+        return weight;
     }
 }

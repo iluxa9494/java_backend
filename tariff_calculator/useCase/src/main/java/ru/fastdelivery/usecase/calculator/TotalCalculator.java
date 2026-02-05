@@ -63,18 +63,23 @@ public class TotalCalculator {
             log.info("Тариф из БД: weightRate={}, volumeRate={}, minimalPrice={}, distanceStepKm={}, currencyCode={}",
                     weightRate, volumeRate, minimal, distanceStepKm, tariff.getCurrencyCode());
         }
-        BigDecimal weight = shipment.weightAllPackages().kilograms();
+        BigDecimal weightGrams = new BigDecimal(shipment.weightAllPackages().weightGrams());
+        BigDecimal weightKg = weightGrams.divide(BigDecimal.valueOf(1000), 6, RoundingMode.HALF_UP);
         BigDecimal volume = volumeCalculator.calculate(shipment);
         double distance = distanceCalculator.calculate(shipment.source(), shipment.destination());
-        BigDecimal weightCost = weightRate.multiply(weight);
+        int distanceSteps = (int) Math.ceil(distance / distanceStepKm);
+        if (distanceSteps < 1) {
+            distanceSteps = 1;
+        }
+        BigDecimal weightCost = weightRate.multiply(weightGrams);
         BigDecimal volumeCost = volumeRate.multiply(volume);
-        BigDecimal distanceCoefficient = BigDecimal.valueOf(distance / distanceStepKm).max(BigDecimal.ONE);
+        BigDecimal distanceCoefficient = BigDecimal.valueOf(distanceSteps);
         BigDecimal maxCost = weightCost.max(volumeCost);
         BigDecimal costWithDistance = maxCost.multiply(distanceCoefficient);
         BigDecimal finalAmount = costWithDistance.max(minimal)
                 .setScale(2, RoundingMode.CEILING);
-        log.info("Детали расчета: weightKg={}, volumeM3={}, distanceKm={}, distanceStepKm={}, distanceCoef={}",
-                weight, volume, distance, distanceStepKm, distanceCoefficient);
+        log.info("Детали расчета: weightGrams={}, weightKg={}, volumeM3={}, distanceKm={}, distanceStepKm={}, distanceSteps={}, distanceCoef={}",
+                weightGrams, weightKg, volume, distance, distanceStepKm, distanceSteps, distanceCoefficient);
         log.info("Стоимость до минималки: weightCost={}, volumeCost={}, maxCost={}, costWithDistance={}",
                 weightCost, volumeCost, maxCost, costWithDistance);
         log.info("Минималка={} => финальная={}", minimal, finalAmount);
