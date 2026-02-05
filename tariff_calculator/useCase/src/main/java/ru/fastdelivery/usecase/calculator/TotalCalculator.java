@@ -27,7 +27,20 @@ public class TotalCalculator {
     private final int fallbackDistanceStepKm;
 
     public Price calculateTotal(Shipment shipment) {
-        log.debug("Начат расчет полной стоимости доставки");
+        log.info("Начат расчет полной стоимости доставки: packages={}, currency={}, source={}, destination={}",
+                shipment.packages().size(),
+                shipment.currency().getCode(),
+                shipment.source(),
+                shipment.destination());
+        if (log.isInfoEnabled()) {
+            shipment.packages().forEach(pack -> log.info(
+                    "Package: weightGrams={}, dimensions(mm)={}x{}x{}",
+                    pack.weight().weightGrams(),
+                    pack.outerDimensions().length(),
+                    pack.outerDimensions().width(),
+                    pack.outerDimensions().height()
+            ));
+        }
         TariffSettings tariff = tariffSettingsRepository.getLatest().orElse(null);
         Currency currency = shipment.currency();
         BigDecimal weightRate;
@@ -40,11 +53,15 @@ public class TotalCalculator {
             volumeRate = fallbackVolumeRate;
             minimal = fallbackMinimalPrice;
             distanceStepKm = fallbackDistanceStepKm;
+            log.info("Fallback тариф: weightRate={}, volumeRate={}, minimalPrice={}, distanceStepKm={}",
+                    weightRate, volumeRate, minimal, distanceStepKm);
         } else {
             weightRate = tariff.getWeightRate();
             volumeRate = tariff.getVolumeRate();
             minimal = tariff.getMinimalPrice();
             distanceStepKm = tariff.getDistanceStepKm();
+            log.info("Тариф из БД: weightRate={}, volumeRate={}, minimalPrice={}, distanceStepKm={}, currencyCode={}",
+                    weightRate, volumeRate, minimal, distanceStepKm, tariff.getCurrencyCode());
         }
         BigDecimal weight = shipment.weightAllPackages().kilograms();
         BigDecimal volume = volumeCalculator.calculate(shipment);
@@ -56,8 +73,11 @@ public class TotalCalculator {
         BigDecimal costWithDistance = maxCost.multiply(distanceCoefficient);
         BigDecimal finalAmount = costWithDistance.max(minimal)
                 .setScale(2, RoundingMode.CEILING);
-        log.debug("Рассчитанная стоимость: {}, Минимальная: {}, Итоговая (округленная): {}",
-                costWithDistance, minimal, finalAmount);
+        log.info("Детали расчета: weightKg={}, volumeM3={}, distanceKm={}, distanceStepKm={}, distanceCoef={}",
+                weight, volume, distance, distanceStepKm, distanceCoefficient);
+        log.info("Стоимость до минималки: weightCost={}, volumeCost={}, maxCost={}, costWithDistance={}",
+                weightCost, volumeCost, maxCost, costWithDistance);
+        log.info("Минималка={} => финальная={}", minimal, finalAmount);
         return Price.of(finalAmount, currency.getCode());
     }
 
