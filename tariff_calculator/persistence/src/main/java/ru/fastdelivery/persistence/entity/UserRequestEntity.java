@@ -14,9 +14,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Сущность пользовательского запроса на расчет тарифа.
- */
 @Entity
 @Table(name = "user_requests")
 @Getter

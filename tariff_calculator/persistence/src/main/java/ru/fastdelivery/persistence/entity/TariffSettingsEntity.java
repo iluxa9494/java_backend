@@ -9,10 +9,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * Сущность, представляющая настройки тарифа для расчета стоимости доставки.
- * Отражает таблицу tariff_settings в базе данных.
- */
 @Entity
 @Table(name = "tariff_settings")
 @Getter

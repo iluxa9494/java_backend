@@ -9,10 +9,6 @@ import ru.fastdelivery.persistence.repository.AdditionalServiceJpaAdapter;
 import ru.fastdelivery.persistence.repository.AdditionalServiceJpaRepository;
 import ru.fastdelivery.usecase.TariffCalculateUseCase;
 
-/**
- * Конфигурационный класс для регистрации вручную создаваемых бинов.
- * Используется для явной привязки интерфейсов к их реализациям.
- */
 @Configuration
 public class Beans {
 

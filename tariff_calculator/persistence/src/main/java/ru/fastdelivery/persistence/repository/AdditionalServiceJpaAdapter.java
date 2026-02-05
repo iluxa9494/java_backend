@@ -8,10 +8,6 @@ import ru.fastdelivery.persistence.mapper.EntityToDomainMapper;
 
 import java.util.List;
 
-/**
- * Адаптер репозитория дополнительных услуг.
- * Реализует доменный интерфейс, используя JPA-репозиторий.
- */
 @Repository
 @RequiredArgsConstructor
 public class AdditionalServiceJpaAdapter implements AdditionalServiceRepository {

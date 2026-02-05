@@ -5,9 +5,6 @@ import ru.fastdelivery.domain.common.price.Price;
 
 import java.math.BigDecimal;
 
-/**
- * Ответ API на расчет стоимости доставки.
- */
 @Slf4j
 public record CalculatePackagesResponse(
         BigDecimal totalPrice,

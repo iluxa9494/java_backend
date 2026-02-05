@@ -28,10 +28,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-/**
- * Контроллер для расчета стоимости доставки.
- * Обрабатывает запросы на расчет по упаковкам и координатам, возвращает итоговую стоимость и минимальную цену.
- */
 @RestController
 @RequiredArgsConstructor
 @Slf4j

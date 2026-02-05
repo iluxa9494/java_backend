@@ -5,10 +5,6 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
-/**
- * Сущность дополнительной услуги, хранимой в базе данных.
- * Отражает таблицу additional_services.
- */
 @Entity
 @Table(name = "additional_services")
 @Getter

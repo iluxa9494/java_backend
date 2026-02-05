@@ -3,9 +3,6 @@ package ru.fastdelivery.domain.dimension;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/**
- * Габариты упаковки в миллиметрах.
- */
 public record OuterDimensions(
         BigDecimal length,
         BigDecimal width,

@@ -8,10 +8,6 @@ import ru.fastdelivery.usecase.calculator.TotalCalculator;
 
 import javax.inject.Named;
 
-/**
- * Use case для расчета стоимости доставки на основе параметров отправления.
- * Делегирует расчет калькулятору {@link TotalCalculator}.
- */
 @Slf4j
 @Named
 @RequiredArgsConstructor

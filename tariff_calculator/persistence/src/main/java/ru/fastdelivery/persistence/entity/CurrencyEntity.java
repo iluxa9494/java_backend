@@ -9,10 +9,6 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * Сущность валюты, отображающая таблицу currency в базе данных.
- * Хранит код, название, курс к рублю и дату обновления.
- */
 @Entity
 @Table(name = "currency")
 @Getter

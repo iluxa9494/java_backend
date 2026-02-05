@@ -8,9 +8,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import ru.fastdelivery.config.TariffProperties;
 import ru.fastdelivery.presentation.config.GeoProperties;
 
-/**
- * Класс запускающий приложение
- */
 @SpringBootApplication(scanBasePackages = { "ru.fastdelivery" })
 @ConfigurationPropertiesScan(value = { "ru.fastdelivery.properties" })
 @EnableConfigurationProperties({GeoProperties.class, TariffProperties.class})

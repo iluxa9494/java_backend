@@ -7,9 +7,6 @@ import ru.fastdelivery.persistence.entity.UserRequestEntity;
 
 import java.math.BigDecimal;
 
-/**
- * Адаптер для сохранения пользовательских запросов на расчет в БД.
- */
 @Repository
 @RequiredArgsConstructor
 public class UserRequestJpaAdapter implements UserRequestRepository {

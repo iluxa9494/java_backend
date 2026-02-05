@@ -8,10 +8,6 @@ import ru.fastdelivery.persistence.mapper.EntityToDomainMapper;
 
 import java.util.Optional;
 
-/**
- * Адаптер для доступа к валютам через JPA.
- * Реализует доменный интерфейс CurrencyRepository.
- */
 @Repository
 @RequiredArgsConstructor
 public class CurrencyJpaAdapter implements CurrencyRepository {

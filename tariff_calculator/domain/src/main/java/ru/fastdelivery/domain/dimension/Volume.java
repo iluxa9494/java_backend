@@ -3,10 +3,6 @@ package ru.fastdelivery.domain.dimension;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-/**
- * Представляет объем в кубических метрах.
- * Обеспечивает проверку на неотрицательное значение и операции сложения.
- */
 public final class Volume {
     private final BigDecimal cubicMeters;
 

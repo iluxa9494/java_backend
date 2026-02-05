@@ -3,9 +3,6 @@ package ru.fastdelivery.domain.geo;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-/**
- * Географическая координата (широта и долгота).
- */
 public final class Coordinate {
     private final BigDecimal lat;
     private final BigDecimal lon;

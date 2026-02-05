@@ -5,9 +5,6 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-/**
- * Запрос на расчет стоимости доставки.
- */
 public record CalculatePackagesRequest(
         @NotNull @NotEmpty List<CargoPackage> packages,
         @NotNull String currencyCode,

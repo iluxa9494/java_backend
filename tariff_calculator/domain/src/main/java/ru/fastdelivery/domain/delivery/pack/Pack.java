@@ -5,9 +5,6 @@ import ru.fastdelivery.domain.dimension.OuterDimensions;
 
 import java.math.BigInteger;
 
-/**
- * Упаковка груза
- */
 public record Pack(Weight weight, OuterDimensions outerDimensions) {
     private static final Weight maxWeight = new Weight(BigInteger.valueOf(150_000));
 

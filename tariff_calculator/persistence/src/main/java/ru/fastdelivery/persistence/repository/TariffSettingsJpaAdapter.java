@@ -7,10 +7,6 @@ import ru.fastdelivery.persistence.mapper.EntityToDomainMapper;
 
 import java.util.Optional;
 
-/**
- * Адаптер для получения актуальных тарифных настроек из базы данных.
- * Реализует интерфейс TariffSettingsRepository, используя JPA.
- */
 @Repository
 public class TariffSettingsJpaAdapter implements TariffSettingsRepository {
     private final TariffSettingsJpaRepository repository;

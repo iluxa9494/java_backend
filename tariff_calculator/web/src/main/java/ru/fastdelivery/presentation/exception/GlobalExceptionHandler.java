@@ -8,11 +8,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.stream.Collectors;
 
-/**
- * Глобальный обработчик исключений в приложении.
- * Обрабатывает типовые ошибки валидации и бизнес-исключения,
- * возвращая понятный ответ пользователю.
- */
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {

@@ -11,10 +11,6 @@ import ru.fastdelivery.domain.tariff.TariffSettings;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/**
- * Выполняет расчет полной стоимости доставки на основе веса, объема и расстояния.
- * Использует настройки тарифа из базы или значения по умолчанию.
- */
 @RequiredArgsConstructor
 @Slf4j
 public class TotalCalculator {

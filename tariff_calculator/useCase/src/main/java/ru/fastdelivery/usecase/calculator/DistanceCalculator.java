@@ -5,10 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.fastdelivery.domain.geo.Coordinate;
 
-/**
- * Выполняет расчет расстояния между двумя географическими координатами
- * с использованием формулы гаверсинуса.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
