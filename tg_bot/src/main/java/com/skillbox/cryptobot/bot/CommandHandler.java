@@ -55,9 +55,6 @@ public class CommandHandler extends TelegramLongPollingCommandBot {
         return botToken;
     }
 
-    /**
-     * Обрабатывает обновления (включая Callback Query)
-     */
     @Override
     public void onUpdatesReceived(List<Update> updates) {
         log.info("Получено сообщение: {}", updates);
@@ -85,9 +82,6 @@ public class CommandHandler extends TelegramLongPollingCommandBot {
         }
     }
 
-    /**
-     * Обрабатывает Callback Query (кнопки)
-     */
     private void handleCallbackQuery(Update update) {
         String callbackData = update.getCallbackQuery().getData();
         Long chatId = update.getCallbackQuery().getMessage().getChatId();
@@ -116,9 +110,6 @@ public class CommandHandler extends TelegramLongPollingCommandBot {
         }
     }
 
-    /**
-     * Отправляет текстовое сообщение
-     */
     private void sendTextMessage(Long chatId, String text) {
         try {
             execute(new SendMessage(chatId.toString(), text));

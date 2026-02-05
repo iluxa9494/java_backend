@@ -17,9 +17,6 @@ public class SubscriptionService {
 
     private final SubscriberRepository subscriberRepository;
 
-    /**
-     * Подписывает пользователя на курс BTC
-     */
     @Transactional
     public void subscribe(Long telegramId, BigDecimal price) {
         log.info("Начинаем подписку пользователя {} на цену BTC: {} USD", telegramId, price);
@@ -44,9 +41,6 @@ public class SubscriptionService {
         }
     }
 
-    /**
-     * Отписывает пользователя (сбрасывает targetPrice в NULL)
-     */
     @Transactional
     public void unsubscribe(Long telegramId) {
         log.info("Начинаем отписку пользователя {}", telegramId);
@@ -62,9 +56,6 @@ public class SubscriptionService {
         }
     }
 
-    /**
-     * Получает подписку пользователя (цена BTC, на которую он подписан)
-     */
     public BigDecimal getSubscription(Long telegramId) {
         log.info("Проверяем подписку пользователя {}", telegramId);
         long startTime = System.currentTimeMillis();

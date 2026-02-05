@@ -18,9 +18,6 @@ public class NotificationService {
     @Qualifier("cryptoBot")
     private final AbsSender telegramBot;
 
-    /**
-     * Отправляет уведомление пользователю о достижении целевой цены BTC
-     */
     public void sendPriceAlert(Long chatId, BigDecimal currentPrice) {
         String messageText = "📢 Пора покупать, стоимость биткоина " + currentPrice + " USD";
 

@@ -24,10 +24,6 @@ public class PriceCheckerScheduler {
     private final SubscriberRepository subscriberRepository;
     private final NotificationService notificationService;
 
-    /**
-     * Запрашивает курс BTC и отправляет уведомления подписчикам
-     * Раз в 2 минуты
-     */
     @Scheduled(fixedRate = 120000)
     public void checkBitcoinPrice() {
         try {
@@ -59,9 +55,6 @@ public class PriceCheckerScheduler {
         }
     }
 
-    /**
-     * Проверяет, прошло ли достаточно времени с последнего уведомления
-     */
     private boolean shouldNotify(Subscriber subscriber) {
         if (subscriber.getLastNotificationTime() == null) {
             return true;
