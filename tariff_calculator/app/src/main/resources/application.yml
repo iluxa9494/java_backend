@@ -36,6 +36,13 @@ geo:
   min-longitude: 30
   max-longitude: 96
 
+cbr:
+  enabled: true
+  url: https://www.cbr.ru/scripts/XML_daily.asp
+  fixed-delay-ms: 86400000
+  initial-delay-ms: 10000
+  request-timeout-ms: 5000
+
 management:
   endpoints:
     web:
