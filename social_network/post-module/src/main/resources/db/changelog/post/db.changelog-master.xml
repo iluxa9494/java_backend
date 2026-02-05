@@ -21,4 +21,5 @@
 
     <!-- Счётчики реакций -->
     <include file="db/changelog/0012-reaction-count.xml"/>
+    <include file="db/changelog/0013-seed-demo-posts.xml"/>
 </databaseChangeLog>
