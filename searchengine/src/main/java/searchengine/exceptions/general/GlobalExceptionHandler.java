@@ -13,10 +13,6 @@ import searchengine.exceptions.indexing.SiteAlreadyExistsException;
 import searchengine.exceptions.validation.InvalidQueryException;
 import searchengine.exceptions.validation.InvalidUrlException;
 
-/**
- * Глобальный обработчик исключений, возвращающий корректные HTTP-ответы
- * с сообщениями об ошибках в формате JSON.
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalStateException.class)

@@ -11,9 +11,6 @@ import searchengine.model.Site;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Репозиторий для работы с леммами — единицами текста, используемыми при поисковой индексации.
- */
 @Repository
 public interface LemmaRepository extends JpaRepository<Lemma, Integer> {
     @Query("SELECT l FROM Lemma l WHERE l.site = :site AND l.lemma IN :lemmas")

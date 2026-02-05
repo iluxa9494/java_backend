@@ -6,9 +6,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-/**
- * Сущность индекса, связывающая страницу и лемму с указанием её веса (rank).
- */
 @Entity
 @Table(name = "search_index")
 @Data

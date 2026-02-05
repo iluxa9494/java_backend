@@ -4,9 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Подробная статистика по отдельному сайту.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -10,9 +10,6 @@ import searchengine.repositories.SiteRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Сервис для обновления статуса сайтов в базе данных.
- */
 @Service
 public class SiteStatusService {
     private final SiteRepository siteRepository;

@@ -15,9 +15,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Сервис статистики - формирует сводную и детализированную информацию по индексированным сайтам.
- */
 @Service
 @RequiredArgsConstructor
 public class StatisticsServiceImpl implements StatisticsService {

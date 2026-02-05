@@ -11,9 +11,6 @@ import searchengine.repositories.SearchIndexRepository;
 
 import java.util.List;
 
-/**
- * Сервис для очистки данных, связанных с сайтом: страниц, индексов и лемм.
- */
 @Service
 @RequiredArgsConstructor
 public class DataCleaner {

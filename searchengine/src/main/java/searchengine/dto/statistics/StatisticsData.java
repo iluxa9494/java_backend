@@ -6,9 +6,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-/**
- * Представляет данные статистики: общую и подробную информацию.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

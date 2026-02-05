@@ -10,9 +10,6 @@ import searchengine.model.SiteStatus;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Репозиторий для доступа к данным сайтов.
- */
 @Repository
 public interface SiteRepository extends JpaRepository<Site, Integer> {
     Optional<Site> findByUrl(String url);

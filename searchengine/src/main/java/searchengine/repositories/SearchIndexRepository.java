@@ -11,9 +11,6 @@ import searchengine.model.SearchIndex;
 
 import java.util.List;
 
-/**
- * Репозиторий для доступа к сущностям, представляющим связи между страницами и леммами.
- */
 @Repository
 public interface SearchIndexRepository extends JpaRepository<SearchIndex, Integer> {
     @Modifying

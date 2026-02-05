@@ -4,9 +4,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-/**
- * Точка входа в Spring Boot приложение.
- */
 @SpringBootApplication
 @EnableConfigurationProperties
 public class Application {

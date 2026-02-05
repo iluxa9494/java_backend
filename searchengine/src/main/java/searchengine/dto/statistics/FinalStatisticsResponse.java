@@ -4,9 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Финальный ответ со статистикой.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

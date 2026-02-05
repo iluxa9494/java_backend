@@ -6,9 +6,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-/**
- * Сущность страницы сайта, содержащая путь, код ответа, заголовок и HTML-контент.
- */
 @Entity
 @Table(
         name = "page",

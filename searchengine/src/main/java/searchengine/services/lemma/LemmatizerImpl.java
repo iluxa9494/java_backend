@@ -10,10 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Сервис для морфологического анализа текста на русском языке.
- * Выполняет лемматизацию и отсекает служебные слова.
- */
 @Service
 @Slf4j
 public class LemmatizerImpl implements Lemmatizer {

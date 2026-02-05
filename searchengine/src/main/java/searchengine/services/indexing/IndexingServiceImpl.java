@@ -35,10 +35,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * Реализация сервиса индексации, выполняющая индексацию сайтов и отдельных страниц,
- * а также управление процессом запуска и остановки индексации.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
