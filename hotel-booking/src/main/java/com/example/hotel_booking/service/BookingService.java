@@ -41,9 +41,14 @@ public class BookingService {
             log.warn("Комната с ID {} не найдена", request.getRoomId());
             return new ResourceNotFoundException("Комната не найдена");
         });
+        validateDates(request.getCheckIn(), request.getCheckOut());
+        if (!isRoomAvailable(room.getId(), request.getCheckIn(), request.getCheckOut())) {
+            throw new RoomNotAvailableException("Комната уже забронирована на эти даты.");
+        }
         Booking booking = bookingMapper.toEntity(request);
         booking.setUser(user);
         booking.setRoom(room);
+        booking.validateDates();
         booking = bookingRepository.save(booking);
         log.info("Бронирование успешно создано с ID {}", booking.getId());
         return bookingMapper.toDto(booking);
@@ -56,7 +61,7 @@ public class BookingService {
             log.warn("Бронирование с ID {} не найдено", id);
             return new ResourceNotFoundException("Бронирование не найдено");
         });
-        if (!isRoomAvailable(booking.getRoom().getId(), request.getCheckIn(), request.getCheckOut())) {
+        if (!isRoomAvailableForUpdate(booking.getRoom().getId(), booking.getId(), request.getCheckIn(), request.getCheckOut())) {
             throw new RoomNotAvailableException("Комната уже забронирована на эти даты.");
         }
         bookingMapper.updateEntity(request, booking);
@@ -90,5 +95,17 @@ public class BookingService {
 
     private boolean isRoomAvailable(Long roomId, LocalDate checkIn, LocalDate checkOut) {
         return bookingRepository.findByRoomIdAndCheckOutAfterAndCheckInBefore(roomId, checkIn, checkOut).isEmpty();
+    }
+
+    private boolean isRoomAvailableForUpdate(Long roomId, Long bookingId, LocalDate checkIn, LocalDate checkOut) {
+        return bookingRepository
+                .findByRoomIdAndIdNotAndCheckOutAfterAndCheckInBefore(roomId, bookingId, checkIn, checkOut)
+                .isEmpty();
+    }
+
+    private void validateDates(LocalDate checkIn, LocalDate checkOut) {
+        if (checkIn == null || checkOut == null || !checkOut.isAfter(checkIn)) {
+            throw new IllegalArgumentException("Дата выезда должна быть позже даты заезда.");
+        }
     }
 }

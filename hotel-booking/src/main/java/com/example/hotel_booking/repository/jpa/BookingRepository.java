@@ -12,6 +12,12 @@ import java.util.List;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByRoomIdAndCheckOutAfterAndCheckInBefore(Long roomId, LocalDate checkIn, LocalDate checkOut);
+    List<Booking> findByRoomIdAndIdNotAndCheckOutAfterAndCheckInBefore(
+            Long roomId,
+            Long id,
+            LocalDate checkIn,
+            LocalDate checkOut
+    );
 
     Page<Booking> findAll(Pageable pageable);
 }

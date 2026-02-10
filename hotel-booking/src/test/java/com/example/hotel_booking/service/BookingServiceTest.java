@@ -4,6 +4,7 @@ import com.example.hotel_booking.dto.Booking.BookingCreateRequest;
 import com.example.hotel_booking.dto.Booking.BookingDto;
 import com.example.hotel_booking.dto.Booking.BookingUpdateRequest;
 import com.example.hotel_booking.exception.ResourceNotFoundException;
+import com.example.hotel_booking.exception.RoomNotAvailableException;
 import com.example.hotel_booking.mapper.BookingMapper;
 import com.example.hotel_booking.model.Booking;
 import com.example.hotel_booking.model.Room;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -81,6 +83,11 @@ public class BookingServiceTest {
     void testCreateBooking_Success() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
+        when(bookingRepository.findByRoomIdAndCheckOutAfterAndCheckInBefore(
+                1L,
+                createRequest.getCheckIn(),
+                createRequest.getCheckOut()
+        )).thenReturn(List.of());
         when(bookingMapper.toEntity(createRequest)).thenReturn(booking);
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
         when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
@@ -89,6 +96,20 @@ public class BookingServiceTest {
         assertEquals(1L, result.getUserId());
         assertEquals(1L, result.getRoomId());
         verify(bookingRepository).save(any(Booking.class));
+    }
+
+    @Test
+    void testCreateBooking_RoomNotAvailable() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
+        when(bookingRepository.findByRoomIdAndCheckOutAfterAndCheckInBefore(
+                1L,
+                createRequest.getCheckIn(),
+                createRequest.getCheckOut()
+        )).thenReturn(List.of(booking));
+
+        assertThrows(RoomNotAvailableException.class, () -> bookingService.createBooking(createRequest));
+        verify(bookingRepository, never()).save(any(Booking.class));
     }
 
     @Test
@@ -116,6 +137,12 @@ public class BookingServiceTest {
     @Test
     void testUpdateBooking_Success() {
         when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+        when(bookingRepository.findByRoomIdAndIdNotAndCheckOutAfterAndCheckInBefore(
+                1L,
+                1L,
+                updateRequest.getCheckIn(),
+                updateRequest.getCheckOut()
+        )).thenReturn(List.of());
         when(bookingRepository.save(any())).thenReturn(booking);
         when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
         BookingDto result = bookingService.updateBooking(1L, updateRequest);

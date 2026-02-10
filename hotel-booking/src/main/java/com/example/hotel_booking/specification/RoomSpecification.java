@@ -1,6 +1,7 @@
 package com.example.hotel_booking.specification;
 
 import com.example.hotel_booking.model.Room;
+import jakarta.persistence.criteria.Subquery;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -34,11 +35,20 @@ public class RoomSpecification {
     public static Specification<Room> isAvailableBetweenDates(LocalDate checkIn, LocalDate checkOut) {
         return (root, query, cb) -> {
             if (checkIn == null || checkOut == null) return cb.conjunction();
+            if (!checkOut.isAfter(checkIn)) {
+                return cb.disjunction();
+            }
 
-            Predicate checkInPredicate = cb.lessThanOrEqualTo(root.get("bookings").get("checkOut"), checkIn);
-            Predicate checkOutPredicate = cb.greaterThanOrEqualTo(root.get("bookings").get("checkIn"), checkOut);
+            Subquery<Long> overlapSubquery = query.subquery(Long.class);
+            var bookingRoot = overlapSubquery.from(com.example.hotel_booking.model.Booking.class);
+            overlapSubquery.select(cb.literal(1L));
+            overlapSubquery.where(
+                    cb.equal(bookingRoot.get("room").get("id"), root.get("id")),
+                    cb.lessThan(bookingRoot.get("checkIn"), checkOut),
+                    cb.greaterThan(bookingRoot.get("checkOut"), checkIn)
+            );
 
-            return cb.or(checkInPredicate, checkOutPredicate);
+            return cb.not(cb.exists(overlapSubquery));
         };
     }
 }
