@@ -1,0 +1,196 @@
+.news-add
+  background ui-cl-color-white-theme
+  box-shadow box-shadow-main
+  cursor pointer
+  border-radius 3%
+  &.open
+    cursor default
+
+.news-add-form
+  position relative
+
+.news-add__mask
+  padding 20px
+  height 60px
+  display flex
+  align-items center
+
+.news-add__pic
+  width 35px
+  height 35px
+  border-radius border-half
+  overflow hidden
+  margin-right 15px
+
+.news-add__placeholder
+  color #B0B0BC
+  font-size font-size-small
+  display block
+  margin-right auto
+
+.news-add__block
+  cursor pointer
+  & + &
+    margin-left 15px
+  &.photo
+    .simple-svg-wrapper
+      width 22px
+      height 22px
+      margin-left 15px
+  &.add
+    margin-top -5px
+    .simple-svg-wrapper
+      width 15px
+      height 15px
+
+.news-add__main
+  display flex
+  height auto
+  min-height 380px
+  padding 5px 35px 20px
+
+.news-add__text
+  margin-right 40px
+  width 100%
+  display flex
+  flex-direction column
+  padding-right 50px
+  border-right 1px solid ui-cl-color-e6e6e6
+
+.news-add__text-title
+  font-family font-exo
+  font-weight font-weight-bold
+  font-size 24px
+  color ui-cl-color-steel-gray
+  margin-bottom 20px
+  display flex
+  width 100%
+  word-wrap break-word;
+  &::placeholder
+    color #CFCFCF
+
+.news-add__text-main
+  font-size font-size-downdefault
+  line-height 26px
+  color ui-cl-color-storm-gray
+  display block
+  margin-bottom 10px
+  width 100%
+  flex auto
+  max-height 210px
+  overflow-y scroll
+  strong
+    font-weight font-weight-bold
+  em
+    font-style italic
+  a
+    color ui-cl-color-eucalypt
+    font-weight font-weight-bold
+    cursor pointer
+
+.news-add__actions
+  padding-top 20px
+  border-top 1px solid ui-cl-color-e6e6e6
+
+.news-add__actions-buttons
+  display flex
+  align-items center
+  button
+    width 26px
+    height 26px
+    display flex
+    align-items center
+    justify-content center
+    background-color #F5F7FB
+    color ui-cl-color-storm-gray
+    cursor pointer
+    transition all 0.2s
+    &.is-active
+      background-color ui-cl-color-storm-gray
+      color #F5F7FB
+      .simple-svg
+        fill #F5F7FB
+    &.bold
+      font-weight font-weight-bold
+    &.italic
+      font-style italic
+    &.underline
+      text-decoration underline
+    .simple-svg-wrapper
+      width 12px
+      height 12px
+      margin-top -12px
+    .simple-svg
+      fill ui-cl-color-storm-gray
+  button + button
+    margin-left 10px
+
+.news-add__actions-link
+  position relative
+  margin-left 20px
+
+.news-add__actions-link-hidden
+  position absolute
+  bottom calc(100% + 7px)
+  left -20px
+  width 200px
+  opacity 0
+  visibility hidden
+  z-index 10
+  &.is-active
+    opacity 1
+    visibility visible
+  form
+    display flex
+    border 1px solid ui-cl-color-e6e6e6
+
+.news-add__settings
+  max-width 172px
+  width 100%
+  flex none
+  display flex
+  flex-direction column
+  .add-tags
+    margin-bottom auto
+
+.news-add__settings-title
+  font-size 24px
+  font-family font-exo
+  color #4E4D4D
+  margin-bottom 25px
+
+.news-add__planning
+  margin-bottom 10px
+
+.news-add__modal
+  .modal__wrapper
+    max-width 415px
+    padding 35px 40px
+  .modal__body
+    margin 0
+    margin-bottom 30px
+    max-width 100%
+  .vc-container
+    border none
+    width 100%
+  .vc-text-weekends-900
+    color ui-cl-color-wild-watermelon
+    &.vc-text-gray-400
+      color rgba(ui-cl-color-wild-watermelon, 0.5)
+
+.news-add__modal-selects
+  display flex
+  justify-content space-between
+  padding-top 40px
+  border-top 1px solid ui-cl-color-e6e6e6
+.news-add__modal-select
+  font-size font-size-small
+  padding 0 10px
+  &.day
+    width 55px
+  &.month
+    width 100px
+  &.year
+    width 70px
+  &.time
+    width 70px

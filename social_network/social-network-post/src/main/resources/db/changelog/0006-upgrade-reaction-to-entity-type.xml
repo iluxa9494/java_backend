@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- 1) Добавляем недостающие колонки -->
+    <changeSet id="0006-01-add-entity_type" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="reaction" columnName="entity_type"/></not>
+        </preConditions>
+        <addColumn tableName="reaction">
+            <column name="entity_type" type="varchar(16)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="0006-02-add-entity_id" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="reaction" columnName="entity_id"/></not>
+        </preConditions>
+        <addColumn tableName="reaction">
+            <column name="entity_id" type="uuid"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="0006-03-add-user_id" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="reaction" columnName="user_id"/></not>
+        </preConditions>
+        <addColumn tableName="reaction">
+            <column name="user_id" type="uuid"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="0006-04-add-created_at" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="reaction" columnName="created_at"/></not>
+        </preConditions>
+        <addColumn tableName="reaction">
+            <column name="created_at" type="timestamp with time zone"
+                    defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </addColumn>
+    </changeSet>
+
+    <!-- 2) Миграция post_id/comment_id -> entity_type/entity_id -->
+    <changeSet id="0006-05-migrate-post-to-entity" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <columnExists tableName="reaction" columnName="post_id"/>
+                <columnExists tableName="reaction" columnName="entity_type"/>
+            </and>
+        </preConditions>
+        <sql>
+            UPDATE reaction
+            SET entity_type = 'POST',
+                entity_id   = post_id
+            WHERE entity_type IS NULL AND post_id IS NOT NULL;
+        </sql>
+    </changeSet>
+
+    <changeSet id="0006-06-migrate-comment-to-entity" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <columnExists tableName="reaction" columnName="comment_id"/>
+                <columnExists tableName="reaction" columnName="entity_type"/>
+            </and>
+        </preConditions>
+        <sql>
+            UPDATE reaction
+            SET entity_type = 'COMMENT',
+                entity_id   = comment_id
+            WHERE entity_type IS NULL AND comment_id IS NOT NULL;
+        </sql>
+    </changeSet>
+
+    <!-- 3) Временно заполняем user_id -->
+    <changeSet id="0006-07-fill-user-id" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="reaction" columnName="user_id"/>
+        </preConditions>
+        <sql>
+            UPDATE reaction SET user_id = gen_random_uuid() WHERE user_id IS NULL;
+        </sql>
+    </changeSet>
+
+    <!-- 4) NOT NULL ограничения -->
+    <changeSet id="0006-08-not-null" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <columnExists tableName="reaction" columnName="entity_type"/>
+                <columnExists tableName="reaction" columnName="entity_id"/>
+                <columnExists tableName="reaction" columnName="user_id"/>
+                <columnExists tableName="reaction" columnName="reaction_type"/>
+            </and>
+        </preConditions>
+        <addNotNullConstraint tableName="reaction" columnName="entity_type" columnDataType="varchar(16)"/>
+        <addNotNullConstraint tableName="reaction" columnName="entity_id"   columnDataType="uuid"/>
+        <addNotNullConstraint tableName="reaction" columnName="user_id"     columnDataType="uuid"/>
+        <addNotNullConstraint tableName="reaction" columnName="reaction_type" columnDataType="varchar(32)"/>
+    </changeSet>
+
+    <!-- 5) Дроп старых FK -->
+    <changeSet id="0006-09-drop-fk" author="aslan">
+        <sql>ALTER TABLE IF EXISTS reaction DROP CONSTRAINT IF EXISTS fk_reaction_post;</sql>
+        <sql>ALTER TABLE IF EXISTS reaction DROP CONSTRAINT IF EXISTS fk_reaction_comment;</sql>
+    </changeSet>
+
+    <!-- 5b) Удаляем старые колонки, если ещё есть -->
+    <changeSet id="0006-10-drop-old-columns" author="aslan">
+        <!-- Разрешаем старый checksum, чтобы не падать на валидации -->
+        <validCheckSum>9:8243d9c51285a5af9d83391f1fd3a0b2</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <or>
+                <columnExists tableName="reaction" columnName="post_id"/>
+                <columnExists tableName="reaction" columnName="comment_id"/>
+                <columnExists tableName="reaction" columnName="time"/>
+            </or>
+        </preConditions>
+        <sql>
+            ALTER TABLE reaction DROP COLUMN IF EXISTS post_id;
+            ALTER TABLE reaction DROP COLUMN IF EXISTS comment_id;
+            ALTER TABLE reaction DROP COLUMN IF EXISTS "time";
+        </sql>
+    </changeSet>
+
+    <!-- 6) Уникальные ключи и индексы -->
+    <changeSet id="0006-11-unique" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <!-- Если уже существует constraint ИЛИ индекс с таким именем в public — не выполнять -->
+            <sqlCheck expectedResult="0">
+                SELECT CASE
+                           WHEN EXISTS (
+                               SELECT 1
+                               FROM pg_constraint c
+                                        JOIN pg_namespace n ON n.oid = c.connamespace
+                               WHERE c.conname = 'uk_reaction_entity_user'
+                                 AND n.nspname = 'public'
+                           )
+                               OR EXISTS (
+                                   SELECT 1
+                                   FROM pg_class cl
+                                            JOIN pg_namespace n ON n.oid = cl.relnamespace
+                                   WHERE cl.relname = 'uk_reaction_entity_user'
+                                     AND n.nspname = 'public'
+                               )
+                               THEN 1 ELSE 0 END
+            </sqlCheck>
+        </preConditions>
+
+        <addUniqueConstraint tableName="reaction"
+                             columnNames="entity_type,entity_id,user_id"
+                             constraintName="uk_reaction_entity_user"/>
+    </changeSet>
+    <changeSet id="0006-12-indexes" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(*) FROM pg_indexes
+                    WHERE schemaname = 'public'
+                    AND tablename  = 'reaction'
+                    AND indexname  = 'idx_reaction_entity'
+                </sqlCheck>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(*) FROM pg_indexes
+                    WHERE schemaname = 'public'
+                    AND tablename  = 'reaction'
+                    AND indexname  = 'idx_reaction_user'
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <createIndex tableName="reaction" indexName="idx_reaction_entity">
+            <column name="entity_type"/>
+            <column name="entity_id"/>
+        </createIndex>
+        <createIndex tableName="reaction" indexName="idx_reaction_user">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 7) ENUM для entity_type -->
+    <changeSet id="0006-13-enum" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM pg_type WHERE typname = 'reaction_entity_type'
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            CREATE TYPE reaction_entity_type AS ENUM ('POST','COMMENT');
+        </sql>
+    </changeSet>
+
+    <changeSet id="0006-14-alter-column-to-enum" author="aslan">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <columnExists tableName="reaction" columnName="entity_type"/>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(*)
+                    FROM information_schema.columns
+                    WHERE table_schema='public'
+                    AND table_name='reaction'
+                    AND column_name='entity_type'
+                    AND udt_name='reaction_entity_type'
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <sql>
+            ALTER TABLE reaction
+            ALTER COLUMN entity_type TYPE reaction_entity_type
+            USING entity_type::reaction_entity_type;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

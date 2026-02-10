@@ -1,0 +1,1 @@
+CREATE DATABASE friend_db;

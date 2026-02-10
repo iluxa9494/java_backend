@@ -1,0 +1,44 @@
+.modal
+  position fixed
+  top 0
+  left 0
+  right 0
+  bottom 0
+  z-index 1050
+  background rgba(0, 0, 0, 0.5)
+  overflow auto
+
+  &.fade-enter-active,
+  &.fade-leave-active
+    transition all .2s ease-in
+  
+  &.fade-enter,
+  &.fade-leave-to
+    opacity 0
+
+.modal__wrapper
+  box-sizing border-box
+  margin 50vh auto 16px
+  transform translateY(-50%)
+  background ui-cl-color-white-theme
+  box-shadow box-shadow-main
+  box-sizing border-box
+  position relative
+  width auto
+  max-width 560px
+  padding 30px 50px
+  border-radius border-small
+
+.modal__body
+  color ui-cl-color-comet
+  font-size font-size-updefault
+  line-height 25px
+  text-align center
+  margin 0 auto 20px
+  max-width 90%
+
+.modal__actions
+  display flex
+  justify-content center
+  .btn + .btn
+    margin-left 20px

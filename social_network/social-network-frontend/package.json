@@ -1,0 +1,70 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve --port=8088",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@tiptap/pm": "^2.1.12",
+    "@tiptap/starter-kit": "^2.1.12",
+    "@tiptap/vue-3": "^2.1.12",
+    "@vuelidate/core": "^2.0.3",
+    "@vuelidate/validators": "^2.0.4",
+    "@vuepic/vue-datepicker": "^7.2.0",
+    "axios": "^1.5.1",
+    "core-js": "^3.32.2",
+    "dayjs": "^1.11.10",
+    "inputmask": "^5.0.8",
+    "moment": "^2.29.4",
+    "qrcode-generator": "^1.4.4",
+    "stylus": "^0.60.0",
+    "stylus-loader": "^7.1.3",
+    "v-tooltip": "^2.1.3",
+    "vue": "^3.3.4",
+    "vue-loader": "^17.3.0",
+    "vue-moment": "^4.1.0",
+    "vue-router": "^4.2.5",
+    "vue-select": "^4.0.0-beta.6",
+    "vue3-emoji-picker": "^1.1.8",
+    "vue3-toastify": "^0.1.14",
+    "vue3-virtual-scroll-list": "^0.2.1",
+    "vuex": "^4.1.0",
+    "webpack": "^5.88.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/eslint-parser": "^7.22.15",
+    "@tiptap/extension-underline": "^2.1.12",
+    "@types/estree": "^1.0.2",
+    "@vue/cli-plugin-babel": "^5.0.8",
+    "@vue/cli-plugin-eslint": "^5.0.8",
+    "@vue/cli-service": "^5.0.8",
+    "click-outside-vue3": "^4.0.1",
+    "eslint": "^8.50.0",
+    "eslint-plugin-vue": "^9.17.0",
+    "yarn": "^1.22.22"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "@babel/eslint-parser"
+    },
+    "rules": {"no-console":  "off"}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}

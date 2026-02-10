@@ -1,0 +1,73 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- 1) Включаем pgcrypto (для gen_random_uuid()), идемпотентно -->
+    <changeSet id="0012-1-enable-pgcrypto" author="you">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM pg_extension WHERE extname = 'pgcrypto'
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <sql>CREATE EXTENSION IF NOT EXISTS pgcrypto;</sql>
+    </changeSet>
+
+    <!-- 2) Создаём reaction_count (если её нет) + уникальный ключ + индекс -->
+    <changeSet id="0012-2-create-reaction-count" author="you">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="reaction_count"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="reaction_count">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="entity_type" type="VARCHAR(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entity_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reaction_type" type="VARCHAR(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="count" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMPTZ" defaultValueDate="NOW()"/>
+        </createTable>
+
+        <addUniqueConstraint tableName="reaction_count"
+                             columnNames="entity_type,entity_id,reaction_type"
+                             constraintName="ux_reaction_count_entity_type_id_type"/>
+
+        <createIndex indexName="idx_reaction_count_entity" tableName="reaction_count">
+            <column name="entity_type"/>
+            <column name="entity_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 3) Backfill из reaction (если обе таблицы есть). Идемпотентно за счёт ON CONFLICT -->
+    <changeSet id="0012-3-backfill-reaction-count" author="you">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="reaction"/>
+            <tableExists tableName="reaction_count"/>
+        </preConditions>
+
+        <sql>
+            INSERT INTO reaction_count (id, entity_type, entity_id, reaction_type, count, updated_at)
+            SELECT gen_random_uuid(), r.entity_type, r.entity_id, r.reaction_type, COUNT(*), NOW()
+            FROM reaction r
+            GROUP BY r.entity_type, r.entity_id, r.reaction_type
+                ON CONFLICT (entity_type, entity_id, reaction_type)
+            DO UPDATE SET count = EXCLUDED.count, updated_at = NOW();
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

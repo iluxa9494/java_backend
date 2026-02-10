@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003
+      author: ilia
+      changes:
+        - createTable:
+            tableName: lemma
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: lemma
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: frequency
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: site_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: lemma
+            baseColumnNames: site_id
+            constraintName: fk_lemma_site
+            referencedTableName: site
+            referencedColumnNames: id

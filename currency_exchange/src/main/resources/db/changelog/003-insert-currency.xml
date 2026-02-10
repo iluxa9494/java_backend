@@ -1,0 +1,36 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd">
+
+    <changeSet author="ilia" id="insert_currency">
+        <insert tableName="currency">
+            <column name="name" value="Доллар США"/>
+            <column name="nominal" value="1"/>
+            <column name="iso_numeric_code" value="840"/>
+            <column name="iso_char_code" value="USD"/>
+            <column name="exchange_rate" value="93.5224"/>
+            <column name="created_at" valueComputed="now()"/>
+        </insert>
+
+        <insert tableName="currency">
+            <column name="name" value="Евро"/>
+            <column name="nominal" value="1"/>
+            <column name="iso_numeric_code" value="978"/>
+            <column name="iso_char_code" value="EUR"/>
+            <column name="exchange_rate" value="99.5534"/>
+            <column name="created_at" valueComputed="now()"/>
+        </insert>
+
+        <insert tableName="currency">
+            <column name="name" value="Китайский юань"/>
+            <column name="nominal" value="1"/>
+            <column name="iso_numeric_code" value="156"/>
+            <column name="iso_char_code" value="CNY"/>
+            <column name="exchange_rate" value="12.7660"/>
+            <column name="created_at" valueComputed="now()"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

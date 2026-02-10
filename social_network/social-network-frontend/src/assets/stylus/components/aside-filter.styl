@@ -1,0 +1,33 @@
+
+.aside-filter
+  background #fff
+  box-shadow box-shadow-main
+  padding 30px 40px 0
+  border-radius border-big-radius
+  
+.aside-filter__title
+  margin-bottom 15px
+  font-family font-exo
+  font-size 24px
+  font-weight font-weight-bold
+
+
+.aside-filter__item
+  color rgba(#000, 0.5)
+  font-size font-size-downdefault
+  padding 30px 0
+  border-top 1px solid ui-cl-color-e6e6e6
+  cursor pointer
+
+  &.active
+    cursor default
+    font-weight font-weight-bold
+    color ui-cl-color-eucalypt
+
+  @media (max-width breakpoint-xl)
+    padding 0
+    color ui-cl-color-steel-gray
+    border-top none
+    display block
+    padding 20px
+    flex auto

@@ -1,0 +1,24 @@
+<!-- db/changelog/db.changelog-master.xml -->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <include file="db/changelog/0001-create-posts.xml"/>
+    <include file="db/changelog/0002-create-comments.xml"/>
+    <include file="db/changelog/0003-create-reactions.xml"/>
+    <include file="db/changelog/0004-fix-reactions.xml"/>
+    <include file="db/changelog/0005-recreate-reaction.xml"/>
+
+    <!-- Оставляем только НОВУЮ миграцию на entity_type/entity_id -->
+    <include file="db/changelog/0006-upgrade-reaction-to-entity-type.xml"/>
+
+    <include file="db/changelog/0007-fix-post-table.xml"/>
+    <include file="db/changelog/0008-create-comment-if-missing.xml"/>
+    <include file="db/changelog/0009-fix-reaction-table.xml"/>
+    <include file="db/changelog/0010-reaction-guard.xml"/>
+
+    <!-- Счётчики реакций -->
+    <include file="db/changelog/0012-reaction-count.xml"/>
+</databaseChangeLog>

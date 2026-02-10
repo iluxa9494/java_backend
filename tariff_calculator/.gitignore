@@ -1,0 +1,75 @@
+### Java ###
+*.class
+*.jar
+*.war
+*.ear
+
+### Gradle ###
+.gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+gradle-app.setting
+
+### Maven ###
+.mvn/
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackupgot
+pom.xml.next
+release.properties
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+springBootApp.iml
+.springBeans
+.sts4-cache
+
+### Eclipse ###
+.metadata/
+bin/
+tmp/
+
+### VS Code ###
+.vscode/
+
+### Logs ###
+logs/
+*.log
+hs_err_pid*
+
+### Docker ###
+docker-compose.override.yml
+.dockerignore
+
+### Spring Boot ###
+/BOOT-INF/
+/META-INF/
+/module-info.class
+
+### Environment Variables ###
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+### MACOS ###
+.DS_Store
+
+### WINDOWS ###
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+### LINUX ###
+*~
+.nfs*

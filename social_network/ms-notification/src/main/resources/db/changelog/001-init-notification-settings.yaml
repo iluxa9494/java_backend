@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-init-notification-settings
+      author: ilia
+      changes:
+        - createTable:
+            tableName: notification_settings
+            columns:
+              - column: { name: id, type: UUID, constraints: { primaryKey: true } }
+              - column: { name: user_id, type: UUID, constraints: { nullable: false, unique: true } }
+              - column: { name: friend_request, type: BOOLEAN, defaultValueBoolean: true }
+              - column: { name: friend_birthday, type: BOOLEAN, defaultValueBoolean: true }
+              - column: { name: post_comment, type: BOOLEAN, defaultValueBoolean: true }
+              - column: { name: comment_comment, type: BOOLEAN, defaultValueBoolean: true }
+              - column: { name: post, type: BOOLEAN, defaultValueBoolean: true }
+              - column: { name: message, type: BOOLEAN, defaultValueBoolean: true }
+              - column: { name: send_email_message, type: BOOLEAN, defaultValueBoolean: false }
+              - column: { name: updated_at, type: TIMESTAMPTZ, defaultValueComputed: NOW() }
+        - createIndex:
+            indexName: idx_notification_settings_user
+            tableName: notification_settings
+            columns:
+              - column: { name: user_id }

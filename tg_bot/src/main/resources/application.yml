@@ -1,0 +1,38 @@
+server:
+  port: 8083
+
+telegram:
+  bot:
+    username: ${TELEGRAM_BOT_USERNAME:MUR_BTCBot}
+    token: ${TELEGRAM_BOT_TOKEN}
+    notify:
+      delay:
+        value: 10
+        unit: MINUTES
+
+binance:
+  api:
+    getPrice: https://api.binance.com/api/v3/avgPrice?symbol=BTCUSDT
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/cryptobot
+    username: ${POSTGRES_USER:bot_user}
+    password: ${POSTGRES_PASSWORD:secure_password}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: always
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    com.skillbox.cryptobot: DEBUG

@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url:
+    username:
+    password:
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+tariff:
+  volume-cost-per-m3: 1200.00
+  weight-cost-per-gram: 0.04
+  minimal-price: 500.00
+  distance-step: 450
+
+geo:
+  min-latitude: 45
+  max-latitude: 65
+  min-longitude: 30
+  max-longitude: 96

@@ -1,0 +1,70 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="0003-create-reactions" author="aslan">
+        <!-- если ранее уже была другая контрольная сумма -->
+        <validCheckSum>ANY</validCheckSum>
+
+        <preConditions onFail="HALT">
+            <tableExists tableName="posts"/>
+            <tableExists tableName="comment"/>
+        </preConditions>
+
+        <createTable tableName="reaction">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="post_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="comment_id" type="UUID"/>
+
+            <column name="reaction_type" type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="time" type="TIMESTAMPTZ" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- FK на posts -->
+        <addForeignKeyConstraint
+                baseTableName="reaction"
+                baseColumnNames="post_id"
+                referencedTableName="posts"
+                referencedColumnNames="id"
+                constraintName="fk_reaction_post"
+                onDelete="CASCADE"/>
+
+        <!-- FK на comment (исправлено с comments -> comment) -->
+        <addForeignKeyConstraint
+                baseTableName="reaction"
+                baseColumnNames="comment_id"
+                referencedTableName="comment"
+                referencedColumnNames="id"
+                constraintName="fk_reaction_comment"
+                onDelete="CASCADE"/>
+
+        <createIndex tableName="reaction" indexName="idx_reaction_post_id">
+            <column name="post_id"/>
+        </createIndex>
+
+        <createIndex tableName="reaction" indexName="idx_reaction_comment_id">
+            <column name="comment_id"/>
+        </createIndex>
+
+        <rollback>
+            <dropTable tableName="reaction" cascadeConstraints="true"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

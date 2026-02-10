@@ -1,0 +1,182 @@
+name: Build & publish Docker images to GHCR
+
+on:
+  push:
+    branches: ["main"]
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ghcr-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  OWNER: ${{ github.repository_owner }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - name: currency-exchange
+            context: ./currency_exchange
+            dockerfile: ./currency_exchange/Dockerfile
+            image: java_backend-currency-exchange
+
+          - name: hotel-booking
+            context: ./hotel-booking
+            dockerfile: ./hotel-booking/Dockerfile
+            image: java_backend-hotel-booking
+
+          - name: searchengine
+            context: ./searchengine
+            dockerfile: ./searchengine/Dockerfile
+            image: java_backend-searchengine
+
+          - name: tariff-calculator
+            context: ./tariff_calculator
+            dockerfile: ./tariff_calculator/Dockerfile
+            image: java_backend-tariff-calculator
+
+          - name: tg-bot
+            context: ./tg_bot
+            dockerfile: ./tg_bot/Dockerfile
+            image: java_backend-tg-bot
+
+          # social_network microservices (REAL PATHS)
+          - name: sn-api-gateway
+            context: ./social_network/api-gateway
+            dockerfile: ./social_network/api-gateway/Dockerfile
+            image: java_backend-social-network-api-gateway
+
+          - name: sn-mc-authentication
+            context: ./social_network/mc-authentication
+            dockerfile: ./social_network/mc-authentication/Dockerfile
+            image: java_backend-social-network-mc-authentication
+
+          - name: sn-ms-notification
+            context: ./social_network/ms-notification
+            dockerfile: ./social_network/ms-notification/Dockerfile
+            image: java_backend-social-network-ms-notification
+
+          - name: sn-social-network-post
+            context: ./social_network/social-network-post
+            dockerfile: ./social_network/social-network-post/Dockerfile
+            image: java_backend-social-network-post
+
+          - name: sn-dialog-service
+            context: ./social_network/dialog_service
+            dockerfile: ./social_network/dialog_service/Dockerfile
+            image: java_backend-social-network-dialog-service
+
+          - name: sn-eureka-server
+            context: ./social_network/eureka-server
+            dockerfile: ./social_network/eureka-server/Dockerfile
+            image: java_backend-social-network-eureka-server
+
+          - name: sn-mc-account
+            context: ./social_network/mc-account
+            dockerfile: ./social_network/mc-account/Dockerfile
+            image: java_backend-social-network-mc-account
+
+          - name: sn-social-network-integration
+            context: ./social_network/social-network-integration
+            dockerfile: ./social_network/social-network-integration/Dockerfile
+            image: java_backend-social-network-integration
+
+          - name: sn-social-network-friend-service
+            context: ./social_network/social-network-friend-service
+            dockerfile: ./social_network/social-network-friend-service/Dockerfile
+            image: java_backend-social-network-friend-service
+
+          - name: sn-social-network-frontend
+            context: ./social_network/social-network-frontend
+            dockerfile: ./social_network/social-network-frontend/Dockerfile
+            image: java_backend-social-network-frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Network check (GHCR)
+        shell: bash
+        run: |
+          set -euxo pipefail
+          echo "DNS:"
+          getent hosts ghcr.io || true
+          echo
+          echo "HTTP check:"
+          curl -I --max-time 10 https://ghcr.io/v2/ || true
+          echo
+
+      - name: Log in to GHCR (retry)
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5; do
+            echo "Attempt $i: docker login ${REGISTRY}"
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login "${REGISTRY}" -u "${{ github.actor }}" --password-stdin && exit 0
+            echo "Login failed. Sleeping 5s..."
+            sleep 5
+          done
+          echo "❌ GHCR login failed after retries"
+          exit 1
+
+      - name: Docker meta (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ matrix.image }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,format=short
+            type=ref,event=tag
+
+      - name: Build and push (attempt 1)
+        id: build1
+        continue-on-error: true
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          platforms: linux/amd64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+          sbom: false
+
+      - name: Build and push (attempt 2)
+        if: steps.build1.outcome == 'failure'
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          platforms: linux/amd64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+          sbom: false

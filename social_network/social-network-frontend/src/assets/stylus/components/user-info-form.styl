@@ -1,0 +1,111 @@
+.user-info-form__block
+  &+&
+    margin-top 30px
+  
+  &--actions
+    margin-top 20px
+
+    .btn + .btn
+      margin-left 20px
+    
+  &--photo
+    .user-info-form__wrap
+      display block
+  
+    .btn
+      height 35px
+  
+    .btn
+      height 35px
+
+.user-info-form__label_stylus
+  font-size font-size-downdefault
+  display flex
+  align-items center
+  justify-content flex-end
+  color ui-cl-color-comet
+  margin-bottom 10px
+  padding-left 10px
+  white-space nowrap
+  
+.user-info-form__wrap
+  display flex
+  width 100%
+
+  @media (max-width breakpoint-xl)
+    max-width 100%
+  
+.user-info-form__input_stylus
+  width 100%
+  border 1px solid ui-cl-color-e3e3e3
+  padding 15px 20px
+  font-size font-size-downdefault
+  color #000
+  display flex
+  align-items center
+  white-space nowrap
+  overflow hidden
+  position relative
+  border-radius border-small
+
+  &::placeholder
+    color #B0B0BC
+  
+  &--textarea
+    padding 15px 20px
+    min-height 150px
+    white-space normal
+  
+  &-photo
+    display none
+  
+  &--photo
+    padding 0 32px 0 20px
+  
+.user-info-form__photo-wrap
+  display flex
+  align-items center
+  justify-content center
+
+.setting-main__photo-delete
+  max-width 100%
+  overflow hidden
+  display flex
+  align-items center
+  height 100%
+
+  .simple-svg-wrapper
+    position absolute
+    right 10px
+    top 8px
+    width 12px
+    height 12px
+  
+.user-info-form__photo-pic
+  margin-top 15px
+  max-height 150px
+  max-width 50%
+  overflow hidden
+  position relative
+  padding-bottom 50%
+
+  img
+    position absolute
+    top 0
+    left 0
+    width 100%
+    height 100%
+    object-fit contain
+  
+.user-info-form__select
+  &+&
+    margin-left 13px
+  
+  &.day
+    width 100px
+  
+  &.month
+    flex auto
+  
+  &.year
+    width 145px

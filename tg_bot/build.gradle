@@ -1,0 +1,70 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.1.5'
+	id 'io.spring.dependency-management' version '1.1.3'
+	id 'io.freefair.lombok' version '8.4'
+    id 'com.github.johnrengelman.processes' version '0.5.0'
+}
+
+def envFile = file(".env")
+if (envFile.exists()) {
+    def env = new Properties()
+    file(".env").withReader { env.load(it) }
+    env.each { key, value -> project.ext.set(key, value) }
+
+} else {
+    println "⚠️ Файл .env не найден! Убедитесь, что он существует в корне проекта."
+}
+
+ext {
+	telegrambotsVersion = '6.8.0'
+	logbackVersion = '1.4.8'
+	jaxbApiVersion = '2.3.1'
+	postgresqlDriverVersion = '42.6.0'
+	springOrmVersion = '6.0.13'
+    jakartaPersistenceVersion = '3.1.0'
+    springBootVersion = '3.1.5'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter"
+
+	implementation "org.telegram:telegrambots:$telegrambotsVersion"
+	implementation "org.telegram:telegrambotsextensions:$telegrambotsVersion"
+
+	implementation "ch.qos.logback:logback-classic:$logbackVersion"
+	implementation "ch.qos.logback:logback-core:$logbackVersion"
+
+    implementation "javax.xml.bind:jaxb-api:$jaxbApiVersion"
+
+    implementation "org.postgresql:postgresql:$postgresqlDriverVersion"
+
+    implementation "org.springframework:spring-orm:$springOrmVersion"
+
+    implementation "org.hibernate:hibernate-core:6.2.7.Final"
+
+    implementation "jakarta.persistence:jakarta.persistence-api:$jakartaPersistenceVersion"
+    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.springframework.boot:spring-boot-starter-web"
+
+    implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

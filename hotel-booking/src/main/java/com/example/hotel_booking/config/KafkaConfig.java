@@ -1,0 +1,42 @@
+package com.example.hotel_booking.config;
+
+import jakarta.annotation.PostConstruct;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.core.KafkaAdmin;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Configuration
+@EnableKafka
+public class KafkaConfig {
+
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
+
+    @Bean
+    public KafkaAdmin kafkaAdmin() {
+        Map<String, Object> configs = new HashMap<>();
+        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        return new KafkaAdmin(configs);
+    }
+
+    /**
+     * Топик, который слушает KafkaConsumer (statistics-events).
+     * 1 партиция и replicationFactor=1 — норм для single-broker dev окружения.
+     */
+    @Bean
+    public NewTopic statisticsEventsTopic() {
+        return new NewTopic("statistics-events", 1, (short) 1);
+    }
+
+    @PostConstruct
+    public void logKafkaBootstrap() {
+        System.out.println("Kafka bootstrap servers: " + bootstrapServers);
+    }
+}
