@@ -13,7 +13,10 @@ public class CurrencyUpdateScheduler {
 
     private final CurrencyUpdateService currencyUpdateService;
 
-    @Scheduled(cron = "${scheduler.cron.expression:0 0 * * * *}")
+    @Scheduled(
+            initialDelayString = "${scheduler.initial-delay-ms:120000}",
+            fixedDelayString = "${scheduler.fixed-delay-ms:21600000}"
+    )
     public void scheduledCurrencyUpdate() {
         log.info("Запуск планового обновления курсов валют...");
         try {

@@ -12,7 +12,10 @@ import ru.skillbox.currency.exchange.service.CurrencyUpdateService;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
-@TestPropertySource(properties = "scheduler.cron.expression=* * * * * *")
+@TestPropertySource(properties = {
+        "scheduler.initial-delay-ms=0",
+        "scheduler.fixed-delay-ms=1000"
+})
 public class CurrencyUpdateSchedulerTest {
 
     @SpyBean
