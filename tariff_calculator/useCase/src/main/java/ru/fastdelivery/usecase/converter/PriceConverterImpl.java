@@ -9,10 +9,6 @@ import ru.fastdelivery.domain.repository.CurrencyRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/**
- * Реализация конвертации цен между валютами на основе курса к рублю.
- * Использует {@link CurrencyRepository} для получения актуальных курсов валют.
- */
 @RequiredArgsConstructor
 @Slf4j
 public class PriceConverterImpl implements PriceConverter {

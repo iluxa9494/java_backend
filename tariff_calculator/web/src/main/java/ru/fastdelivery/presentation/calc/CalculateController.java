@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.fastdelivery.domain.common.currency.CurrencyFactory;
 import ru.fastdelivery.domain.common.weight.Weight;
@@ -19,6 +18,7 @@ import ru.fastdelivery.domain.delivery.pack.Pack;
 import ru.fastdelivery.domain.delivery.shipment.Shipment;
 import ru.fastdelivery.domain.dimension.OuterDimensions;
 import ru.fastdelivery.domain.geo.Coordinate;
+import ru.fastdelivery.domain.repository.UserRequestRepository;
 import ru.fastdelivery.presentation.api.request.CalculatePackagesRequest;
 import ru.fastdelivery.presentation.api.response.CalculatePackagesResponse;
 import ru.fastdelivery.presentation.config.GeoProperties;
@@ -28,12 +28,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-/**
- * Контроллер для расчета стоимости доставки.
- * Обрабатывает запросы на расчет по упаковкам и координатам, возвращает итоговую стоимость и минимальную цену.
- */
 @RestController
-@RequestMapping("/api/v1/calculate")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Расчеты стоимости доставки")
@@ -42,8 +37,9 @@ public class CalculateController {
     private final TariffCalculateUseCase tariffCalculateUseCase;
     private final CurrencyFactory currencyFactory;
     private final ObjectMapper objectMapper;
+    private final UserRequestRepository userRequestRepository;
 
-    @PostMapping
+    @PostMapping(path = {"/api/v1/calculate", "/api/tariff-calculator"})
     @Operation(summary = "Расчет стоимости по упаковкам груза")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Успешный расчет"),
@@ -53,20 +49,35 @@ public class CalculateController {
             @Valid @RequestBody CalculatePackagesRequest request,
             HttpServletRequest servletRequest
     ) {
+        String requestJson = "";
+        String ipAddress = extractClientIp(servletRequest);
+        String userAgent = servletRequest.getHeader("User-Agent");
+
         try {
-            String requestJson = objectMapper.writeValueAsString(request);
+            requestJson = objectMapper.writeValueAsString(request);
             log.info("Запрос на расчет: IP={}, UA={}, Payload={}",
-                    servletRequest.getRemoteAddr(),
-                    servletRequest.getHeader("User-Agent"),
+                    ipAddress,
+                    userAgent,
                     requestJson
             );
             validateCoordinates(request);
             List<Pack> packs = request.packages().stream()
                     .map(pkg -> new Pack(
-                            new Weight(pkg.weight().toBigIntegerExact()),
+                            new Weight(validateWeight(pkg.weight()).toBigIntegerExact()),
                             normalizeDimensions(pkg.length(), pkg.width(), pkg.height())
                     ))
                     .toList();
+            if (log.isInfoEnabled()) {
+                log.info("Нормализованные данные: packagesCount={}, totalWeightGrams={}, currencyCode={}, source={}, destination={}",
+                        packs.size(),
+                        packs.stream()
+                                .map(pack -> pack.weight().weightGrams())
+                                .reduce(java.math.BigInteger.ZERO, java.math.BigInteger::add),
+                        request.currencyCode(),
+                        request.source(),
+                        request.destination()
+                );
+            }
             Shipment shipment = new Shipment(
                     packs,
                     new Coordinate(request.source().lat(), request.source().lon()),
@@ -78,11 +89,64 @@ public class CalculateController {
                     tariffCalculateUseCase.minimalPrice()
             );
             String responseJson = objectMapper.writeValueAsString(response);
+            saveSuccessfulRequest(ipAddress, userAgent, requestJson, response, responseJson);
             log.info("Успешный ответ: {}", responseJson);
             return response;
+        } catch (IllegalArgumentException e) {
+            saveFailedRequest(ipAddress, userAgent, requestJson, e.getMessage());
+            throw e;
         } catch (Exception e) {
-            log.error("Ошибка при расчете тарифа: {}", e.getMessage());
-            throw new RuntimeException("Ошибка при расчете тарифа");
+            log.error("Ошибка при расчете тарифа", e);
+            saveFailedRequest(ipAddress, userAgent, requestJson, e.getMessage());
+            throw new RuntimeException("Ошибка при расчете тарифа", e);
+        }
+    }
+
+    private String extractClientIp(HttpServletRequest servletRequest) {
+        String forwardedFor = servletRequest.getHeader("X-Forwarded-For");
+        if (forwardedFor != null && !forwardedFor.isBlank()) {
+            return forwardedFor.split(",")[0].trim();
+        }
+        return servletRequest.getRemoteAddr();
+    }
+
+    private void saveSuccessfulRequest(
+            String ipAddress,
+            String userAgent,
+            String requestJson,
+            CalculatePackagesResponse response,
+            String responseJson
+    ) {
+        try {
+            userRequestRepository.saveSuccess(
+                    ipAddress,
+                    userAgent,
+                    requestJson,
+                    response.totalPrice(),
+                    response.minimalPrice(),
+                    response.currencyCode(),
+                    responseJson
+            );
+        } catch (Exception saveException) {
+            log.error("Не удалось сохранить успешный расчет в БД", saveException);
+        }
+    }
+
+    private void saveFailedRequest(
+            String ipAddress,
+            String userAgent,
+            String requestJson,
+            String errorMessage
+    ) {
+        try {
+            userRequestRepository.saveFailure(
+                    ipAddress,
+                    userAgent,
+                    requestJson,
+                    errorMessage
+            );
+        } catch (Exception saveException) {
+            log.error("Не удалось сохранить ошибку расчета в БД", saveException);
         }
     }
 
@@ -123,5 +187,13 @@ public class CalculateController {
                     String.format("Размер %s превышает максимально допустимые 1500 мм.", dimensionName)
             );
         }
+    }
+
+    private BigDecimal validateWeight(BigDecimal weight) {
+        BigDecimal maxAllowed = BigDecimal.valueOf(150000);
+        if (weight.compareTo(maxAllowed) > 0) {
+            throw new IllegalArgumentException("Вес превышает максимально допустимые 150000 г.");
+        }
+        return weight;
     }
 }

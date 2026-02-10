@@ -4,76 +4,54 @@ SHELL ["/bin/bash", "-c"]
 
 WORKDIR /build
 
-COPY api-gateway/pom.xml api-gateway/pom.xml
-COPY eureka-server/pom.xml eureka-server/pom.xml
-COPY mc-authentication/pom.xml mc-authentication/pom.xml
-COPY mc-account/pom.xml mc-account/pom.xml
-COPY ms-notification/pom.xml ms-notification/pom.xml
-COPY social-network-post/pom.xml social-network-post/pom.xml
-COPY dialog_service/pom.xml dialog_service/pom.xml
-COPY social-network-friend-service/pom.xml social-network-friend-service/pom.xml
-COPY social-network-integration/pom.xml social-network-integration/pom.xml
+COPY pom.xml pom.xml
+COPY social-network-app/pom.xml social-network-app/pom.xml
+COPY auth-module/pom.xml auth-module/pom.xml
+COPY account-module/pom.xml account-module/pom.xml
+COPY friend-module/pom.xml friend-module/pom.xml
+COPY post-module/pom.xml post-module/pom.xml
+COPY dialog-module/pom.xml dialog-module/pom.xml
+COPY notification-module/pom.xml notification-module/pom.xml
+COPY integration-module/pom.xml integration-module/pom.xml
+COPY social-network-frontend/package.json social-network-frontend/package.json
+COPY social-network-frontend/package-lock.json social-network-frontend/package-lock.json
+COPY social-network-frontend/vue.config.js social-network-frontend/vue.config.js
 
 RUN --mount=type=cache,target=/root/.m2 \
     set -euo pipefail; \
-    for module in \
-      api-gateway \
-      eureka-server \
-      mc-authentication \
-      mc-account \
-      ms-notification \
-      social-network-post \
-      dialog_service \
-      social-network-friend-service \
-      social-network-integration; do \
-      mvn -q -DskipTests -f "/build/${module}/pom.xml" dependency:go-offline; \
-    done
+    mvn -q -DskipTests dependency:go-offline
 
-COPY api-gateway api-gateway
-COPY eureka-server eureka-server
-COPY mc-authentication mc-authentication
-COPY mc-account mc-account
-COPY ms-notification ms-notification
-COPY social-network-post social-network-post
-COPY dialog_service dialog_service
-COPY social-network-friend-service social-network-friend-service
-COPY social-network-integration social-network-integration
+COPY social-network-app social-network-app
+COPY auth-module auth-module
+COPY account-module account-module
+COPY friend-module friend-module
+COPY post-module post-module
+COPY dialog-module dialog-module
+COPY notification-module notification-module
+COPY integration-module integration-module
+COPY social-network-frontend social-network-frontend
 
 RUN --mount=type=cache,target=/root/.m2 \
     set -euo pipefail; \
-    modules=( \
-      "api-gateway:api-gateway" \
-      "eureka-server:eureka-server" \
-      "mc-authentication:mc-authentication" \
-      "mc-account:mc-account" \
-      "ms-notification:ms-notification" \
-      "social-network-post:social-network-post" \
-      "dialog_service:dialog-service" \
-      "social-network-friend-service:social-network-friend-service" \
-      "social-network-integration:social-network-integration" \
-    ); \
+    mvn -q -DskipTests package; \
     mkdir -p /out; \
-    for entry in "${modules[@]}"; do \
-      dir="${entry%%:*}"; \
-      name="${entry##*:}"; \
-      (cd "/build/${dir}" && mvn -q -DskipTests package); \
-      jar="$(ls -1 "/build/${dir}/target/"*.jar | grep -vE '(-sources|-javadoc|\\.original|plain)\\.jar$' | head -n1)"; \
-      if [[ -z "${jar}" ]]; then \
-        jar="$(ls -1 "/build/${dir}/target/"*.jar | grep -vE '(-sources|-javadoc)\\.jar$' | head -n1)"; \
-      fi; \
-      test -n "${jar}"; \
-      cp "${jar}" "/out/${name}.jar"; \
-    done
+    jar="$(ls -1 /build/social-network-app/target/*.jar | grep -vE '(-sources|-javadoc|\\.original|plain)\\.jar$' | head -n1)"; \
+    test -n "${jar}"; \
+    cp "${jar}" /out/social-network.jar
 
 FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-COPY --from=build /out/*.jar /app/
+COPY --from=build /out/social-network.jar /app/social-network.jar
 COPY entrypoint-social-network.sh /entrypoint-social-network.sh
+
+RUN apt-get update \
+    && apt-get install -y curl \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN chmod +x /entrypoint-social-network.sh
 
-EXPOSE 8765
+EXPOSE 8080
 
 ENTRYPOINT ["/entrypoint-social-network.sh"]

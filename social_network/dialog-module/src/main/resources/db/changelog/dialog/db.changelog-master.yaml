@@ -1,0 +1,87 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: codex
+      changes:
+        - createTable:
+            tableName: dialog
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: unread_count
+                  type: INT
+              - column:
+                  name: conversation_partner1
+                  type: UUID
+              - column:
+                  name: conversation_partner2
+                  type: UUID
+              - column:
+                  name: last_message_id
+                  type: UUID
+  - changeSet:
+      id: 2
+      author: codex
+      changes:
+        - createTable:
+            tableName: message
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: dialog_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time
+                  type: TIMESTAMP
+              - column:
+                  name: message_text
+                  type: TEXT
+              - column:
+                  name: conversation_partner1
+                  type: UUID
+              - column:
+                  name: conversation_partner2
+                  type: UUID
+              - column:
+                  name: read_status
+                  type: VARCHAR(32)
+              - column:
+                  name: stub_date
+                  type: BOOLEAN
+              - column:
+                  name: date
+                  type: VARCHAR(64)
+  - changeSet:
+      id: 3
+      author: codex
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: message
+            baseColumnNames: dialog_id
+            referencedTableName: dialog
+            referencedColumnNames: id
+            constraintName: fk_message_dialog
+        - addForeignKeyConstraint:
+            baseTableName: dialog
+            baseColumnNames: last_message_id
+            referencedTableName: message
+            referencedColumnNames: id
+            constraintName: fk_dialog_last_message
+        - createIndex:
+            tableName: message
+            indexName: idx_message_dialog_id
+            columns:
+              - column:
+                  name: dialog_id

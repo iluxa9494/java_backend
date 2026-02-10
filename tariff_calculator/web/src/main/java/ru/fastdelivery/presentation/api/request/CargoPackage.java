@@ -5,9 +5,6 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
-/**
- * Данные об одной упаковке груза.
- */
 public record CargoPackage(
         @NotNull @DecimalMin(value = "0.0", inclusive = false)
         BigDecimal weight,

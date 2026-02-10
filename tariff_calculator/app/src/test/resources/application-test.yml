@@ -1,0 +1,11 @@
+tariff:
+  volume-cost-per-m3: 1200.00
+  weight-cost-per-gram: 0.04
+  minimal-price: 500.00
+  distance-step: 450
+
+geo:
+  min-latitude: 45
+  max-latitude: 65
+  min-longitude: 30
+  max-longitude: 96

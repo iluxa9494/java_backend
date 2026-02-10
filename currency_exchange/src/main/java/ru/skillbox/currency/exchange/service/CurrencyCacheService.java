@@ -17,9 +17,6 @@ public class CurrencyCacheService {
     private final CurrencyRepository currencyRepository;
     private final Map<Long, Currency> currencyCache = new ConcurrentHashMap<>();
 
-    /**
-     * Инициализация кеша валют при запуске.
-     */
     public void initializeCache() {
         log.info("Инициализация кеша валют...");
         currencyRepository.findAll().forEach(currency ->
@@ -28,30 +25,16 @@ public class CurrencyCacheService {
         log.info("Кеш валют успешно загружен. Количество записей: {}", currencyCache.size());
     }
 
-    /**
-     * Получить валюту из кеша по числовому коду (ISO).
-     *
-     * @param isoNumericCode числовой код валюты.
-     * @return объект Currency, если найден.
-     */
     public Currency getCurrencyFromCache(Long isoNumericCode) {
         return currencyCache.get(isoNumericCode);
     }
 
-    /**
-     * Обновить кеш при изменении курса валют.
-     *
-     * @param updatedCurrency обновленный объект Currency.
-     */
     public void updateCache(Currency updatedCurrency) {
         currencyCache.put(Long.valueOf(updatedCurrency.getIsoNumCode()), updatedCurrency);
         log.info("Кеш обновлен для валюты: {} с новым курсом: {}",
                 updatedCurrency.getIsoCharCode(), updatedCurrency.getExchangeRate());
     }
 
-    /**
-     * Очистить кеш валют.
-     */
     public void clearCache() {
         currencyCache.clear();
         log.info("Кеш валют очищен.");

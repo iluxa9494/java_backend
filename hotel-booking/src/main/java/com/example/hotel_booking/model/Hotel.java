@@ -58,9 +58,6 @@ public class Hotel {
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rating> ratings;
 
-    /**
-     * Метод для обновления рейтинга отеля на основе новых оценок пользователей.
-     */
     public void updateRating(BigDecimal newRating) {
         this.ratingsCount++;
         BigDecimal totalRating = this.rating

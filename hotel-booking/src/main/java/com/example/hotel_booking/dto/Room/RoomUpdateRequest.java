@@ -14,10 +14,10 @@ import java.math.BigDecimal;
 @Builder
 public class RoomUpdateRequest {
     @NotBlank
-    private String title;
+    private String name;
     private String description;
     @NotBlank
-    private String number;
+    private String roomNumber;
     @NotNull
     @Positive
     private BigDecimal price;

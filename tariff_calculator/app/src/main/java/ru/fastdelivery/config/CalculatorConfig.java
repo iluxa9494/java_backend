@@ -7,10 +7,6 @@ import ru.fastdelivery.usecase.calculator.DistanceCalculator;
 import ru.fastdelivery.usecase.calculator.TotalCalculator;
 import ru.fastdelivery.usecase.calculator.VolumeCalculator;
 
-/**
- * Конфигурация калькуляторов, используемых для расчета стоимости доставки.
- * Создает бин TotalCalculator с необходимыми зависимостями.
- */
 @Configuration
 public class CalculatorConfig {
 
@@ -25,10 +21,10 @@ public class CalculatorConfig {
                 volumeCalculator,
                 distanceCalculator,
                 tariffSettingsRepository,
-                tariffProperties.getPerKg(),
-                tariffProperties.getPerCubicMeter(),
-                tariffProperties.getMinimal(),
-                tariffProperties.getDistanceStepKm()
+                tariffProperties.getWeightCostPerGram(),
+                tariffProperties.getVolumeCostPerM3(),
+                tariffProperties.getMinimalPrice(),
+                tariffProperties.getDistanceStep()
         );
     }
 }

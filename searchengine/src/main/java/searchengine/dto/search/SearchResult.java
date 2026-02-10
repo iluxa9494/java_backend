@@ -3,10 +3,6 @@ package searchengine.dto.search;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * DTO для представления одного результата поиска.
- * Содержит информацию о сайте, странице, заголовке, сниппете и релевантности.
- */
 @Setter
 @Getter
 public class SearchResult {

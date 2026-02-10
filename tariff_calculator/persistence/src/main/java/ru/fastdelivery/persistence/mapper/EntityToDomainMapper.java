@@ -7,9 +7,6 @@ import ru.fastdelivery.persistence.entity.AdditionalServiceEntity;
 import ru.fastdelivery.persistence.entity.CurrencyEntity;
 import ru.fastdelivery.persistence.entity.TariffSettingsEntity;
 
-/**
- * Маппер для преобразования сущностей JPA в доменные модели и обратно.
- */
 public class EntityToDomainMapper {
     public static Currency toDomain(CurrencyEntity entity) {
         if (entity == null) {

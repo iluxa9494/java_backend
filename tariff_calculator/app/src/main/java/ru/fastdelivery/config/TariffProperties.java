@@ -7,17 +7,13 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
-/**
- * Конфигурационные свойства тарифов на доставку.
- * Загружаются из блока cost.rub в application.yml.
- */
 @Getter
 @Setter
 @Component
-@ConfigurationProperties(prefix = "cost.rub")
+@ConfigurationProperties(prefix = "tariff")
 public class TariffProperties {
-    private BigDecimal perKg;
-    private BigDecimal perCubicMeter;
-    private BigDecimal minimal;
-    private int distanceStepKm;
+    private BigDecimal weightCostPerGram;
+    private BigDecimal volumeCostPerM3;
+    private BigDecimal minimalPrice;
+    private int distanceStep;
 }

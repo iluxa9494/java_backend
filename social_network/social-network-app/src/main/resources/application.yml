@@ -1,0 +1,206 @@
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /projects/social-network
+  forward-headers-strategy: framework
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${MANAGEMENT_WEB_EXPOSURE_INCLUDE:health,info,mappings}
+  endpoint:
+    mappings:
+      enabled: ${MANAGEMENT_MAPPINGS_ENABLED:true}
+    health:
+      show-details: always
+  health:
+    mail:
+      enabled: false
+
+spring:
+  application:
+    name: social-network
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+  liquibase:
+    enabled: false
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    listener:
+      missing-topics-fatal: false
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:redis_db}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${SPRING_DATA_REDIS_PASSWORD:redis}
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://mongodb:27017/appdatabase}
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+social:
+  auth:
+    datasource:
+      url: ${SOCIAL_AUTH_DB_URL:jdbc:postgresql://postgres:5432/auth_db}
+      username: ${SOCIAL_AUTH_DB_USERNAME:postgres}
+      password: ${SOCIAL_AUTH_DB_PASSWORD:postgres}
+      schema: ${SOCIAL_AUTH_DB_SCHEMA:public}
+      driver-class-name: org.postgresql.Driver
+    liquibase:
+      enabled: ${SOCIAL_AUTH_LIQUIBASE_ENABLED:true}
+      change-log: ${SOCIAL_AUTH_LIQUIBASE_CHANGELOG:classpath:db/changelog/auth/db.changelog-master.xml}
+    redis:
+      host: ${SOCIAL_AUTH_REDIS_HOST:redis_db}
+      port: ${SOCIAL_AUTH_REDIS_PORT:6379}
+      password: ${SOCIAL_AUTH_REDIS_PASSWORD:redis}
+    mongodb:
+      uri: ${SOCIAL_AUTH_MONGODB_URI:mongodb://mongodb:27017/appdatabase}
+    kafka:
+      bootstrap-servers: ${SOCIAL_AUTH_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
+    mail:
+      host: ${SOCIAL_AUTH_MAIL_HOST:smtp.gmail.com}
+      port: ${SOCIAL_AUTH_MAIL_PORT:587}
+      username: ${SOCIAL_AUTH_MAIL_USERNAME:}
+      password: ${SOCIAL_AUTH_MAIL_PASSWORD:}
+    jwt:
+      secret: ${SOCIAL_AUTH_JWT_SECRET:change_me}
+      token-expiration: ${SOCIAL_AUTH_JWT_TOKEN_EXPIRATION:PT24H}
+      refresh-token-expiration: ${SOCIAL_AUTH_JWT_REFRESH_TOKEN_EXPIRATION:P7D}
+
+  account:
+    datasource:
+      url: ${SOCIAL_ACCOUNT_DB_URL:jdbc:postgresql://postgres:5432/account_db}
+      username: ${SOCIAL_ACCOUNT_DB_USERNAME:postgres}
+      password: ${SOCIAL_ACCOUNT_DB_PASSWORD:postgres}
+      schema: ${SOCIAL_ACCOUNT_DB_SCHEMA:public}
+      driver-class-name: org.postgresql.Driver
+    liquibase:
+      enabled: ${SOCIAL_ACCOUNT_LIQUIBASE_ENABLED:true}
+      change-log: ${SOCIAL_ACCOUNT_LIQUIBASE_CHANGELOG:classpath:db/changelog/account/db.changelog-master.yaml}
+    redis:
+      host: ${SOCIAL_ACCOUNT_REDIS_HOST:redis_db}
+      port: ${SOCIAL_ACCOUNT_REDIS_PORT:6379}
+      password: ${SOCIAL_ACCOUNT_REDIS_PASSWORD:redis}
+    kafka:
+      bootstrap-servers: ${SOCIAL_ACCOUNT_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
+
+  friend:
+    datasource:
+      url: ${SOCIAL_FRIEND_DB_URL:jdbc:postgresql://postgres:5432/friend_db}
+      username: ${SOCIAL_FRIEND_DB_USERNAME:postgres}
+      password: ${SOCIAL_FRIEND_DB_PASSWORD:postgres}
+      schema: ${SOCIAL_FRIEND_DB_SCHEMA:public}
+      driver-class-name: org.postgresql.Driver
+    liquibase:
+      enabled: ${SOCIAL_FRIEND_LIQUIBASE_ENABLED:true}
+      change-log: ${SOCIAL_FRIEND_LIQUIBASE_CHANGELOG:classpath:db/changelog/changelog-master.yaml}
+    kafka:
+      bootstrap-servers: ${SOCIAL_FRIEND_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
+
+  post:
+    datasource:
+      url: ${SOCIAL_POST_DB_URL:jdbc:postgresql://postgres:5432/post_db}
+      username: ${SOCIAL_POST_DB_USERNAME:postgres}
+      password: ${SOCIAL_POST_DB_PASSWORD:postgres}
+      schema: ${SOCIAL_POST_DB_SCHEMA:public}
+      driver-class-name: org.postgresql.Driver
+    liquibase:
+      enabled: ${SOCIAL_POST_LIQUIBASE_ENABLED:true}
+      change-log: ${SOCIAL_POST_LIQUIBASE_CHANGELOG:classpath:db/changelog/post/db.changelog-master.xml}
+    kafka:
+      bootstrap-servers: ${SOCIAL_POST_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
+
+  dialog:
+    datasource:
+      url: ${SOCIAL_DIALOG_DB_URL:jdbc:postgresql://postgres:5432/dialog_db}
+      username: ${SOCIAL_DIALOG_DB_USERNAME:postgres}
+      password: ${SOCIAL_DIALOG_DB_PASSWORD:postgres}
+      schema: ${SOCIAL_DIALOG_DB_SCHEMA:public}
+      driver-class-name: org.postgresql.Driver
+    liquibase:
+      enabled: ${SOCIAL_DIALOG_LIQUIBASE_ENABLED:true}
+      change-log: ${SOCIAL_DIALOG_LIQUIBASE_CHANGELOG:classpath:db/changelog/dialog/db.changelog-master.yaml}
+
+  notification:
+    datasource:
+      url: ${SOCIAL_NOTIFICATION_DB_URL:jdbc:postgresql://postgres:5432/notification_db}
+      username: ${SOCIAL_NOTIFICATION_DB_USERNAME:postgres}
+      password: ${SOCIAL_NOTIFICATION_DB_PASSWORD:postgres}
+      schema: ${SOCIAL_NOTIFICATION_DB_SCHEMA:public}
+      driver-class-name: org.postgresql.Driver
+    liquibase:
+      enabled: ${SOCIAL_NOTIFICATION_LIQUIBASE_ENABLED:true}
+      change-log: ${SOCIAL_NOTIFICATION_LIQUIBASE_CHANGELOG:classpath:db/changelog/notification/db.changelog-master.yaml}
+    kafka:
+      bootstrap-servers: ${SOCIAL_NOTIFICATION_KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
+
+  integration:
+    redis:
+      host: ${SOCIAL_INTEGRATION_REDIS_HOST:redis_db}
+      port: ${SOCIAL_INTEGRATION_REDIS_PORT:6379}
+      password: ${SOCIAL_INTEGRATION_REDIS_PASSWORD:redis}
+    storage:
+      s3:
+        endpoint: ${SOCIAL_INTEGRATION_S3_ENDPOINT:http://minio:9000}
+      access-key-id: ${SOCIAL_INTEGRATION_ACCESS_KEY_ID:minioadmin}
+      secret-key: ${SOCIAL_INTEGRATION_SECRET_KEY:minioadmin}
+
+app:
+  jwt:
+    secret: ${SOCIAL_AUTH_JWT_SECRET:change_me}
+    tokenExpiration: ${SOCIAL_AUTH_JWT_TOKEN_EXPIRATION:PT24H}
+    refreshTokenExpiration: ${SOCIAL_AUTH_JWT_REFRESH_TOKEN_EXPIRATION:P7D}
+  kafka:
+    kafkaUserTopic: ${SOCIAL_KAFKA_USER_TOPIC:user-topic}
+    kafkaUserEmailChanged: ${SOCIAL_KAFKA_USER_EMAIL_CHANGED:user-email-changed}
+    kafkaUserPasswordChanged: ${SOCIAL_KAFKA_USER_PASSWORD_CHANGED:user-password-changed}
+    kafkaGroupId: ${SOCIAL_KAFKA_AUTH_GROUP:auth-group}
+    topic:
+      post: ${SOCIAL_KAFKA_POST_TOPIC:post-topic}
+      comment: ${SOCIAL_KAFKA_COMMENT_TOPIC:comment-topic}
+      reaction: ${SOCIAL_KAFKA_REACTION_TOPIC:reaction-topic}
+      partitions: ${SOCIAL_KAFKA_TOPIC_PARTITIONS:1}
+      replicas: ${SOCIAL_KAFKA_TOPIC_REPLICAS:1}
+
+client:
+  connect-timeout-seconds: ${SOCIAL_CLIENT_CONNECT_TIMEOUT_SECONDS:3}
+  read-timeout-seconds: ${SOCIAL_CLIENT_READ_TIMEOUT_SECONDS:5}
+
+geo:
+  base-country-url: ${SOCIAL_GEO_BASE_COUNTRY_URL:https://api.hh.ru/areas}
+  redis:
+    all-country-key: ${SOCIAL_GEO_REDIS_ALL_COUNTRY_KEY:geo:all-countries}
+  update:
+    initial-delay-ms: ${SOCIAL_GEO_UPDATE_INITIAL_DELAY_MS:10000}
+    interval-ms: ${SOCIAL_GEO_UPDATE_INTERVAL_MS:43200000}
+    min-interval-ms: ${SOCIAL_GEO_UPDATE_MIN_INTERVAL_MS:3600000}
+
+storage:
+  access-key-id: ${SOCIAL_INTEGRATION_ACCESS_KEY_ID:minioadmin}
+  secret-key: ${SOCIAL_INTEGRATION_SECRET_KEY:minioadmin}
+  region: ${SOCIAL_INTEGRATION_REGION:us-east-1}
+  s3:
+    endpoint: ${SOCIAL_INTEGRATION_S3_ENDPOINT:http://minio:9000}
+    bucket-name: ${SOCIAL_INTEGRATION_S3_BUCKET:social-network}

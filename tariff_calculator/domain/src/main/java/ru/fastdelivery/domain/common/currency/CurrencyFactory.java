@@ -2,9 +2,6 @@ package ru.fastdelivery.domain.common.currency;
 
 import ru.fastdelivery.domain.repository.CurrencyRepository;
 
-/**
- * Фабрика для создания валютных объектов на основе данных из базы.
- */
 public class CurrencyFactory {
     private final CurrencyRepository currencyRepository;
 

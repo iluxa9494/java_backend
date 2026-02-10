@@ -18,13 +18,13 @@ public class RoomCreateRequest {
     private Long hotelId;
 
     @NotBlank
-    private String title;
+    private String name;
 
     @NotBlank
     private String description;
 
     @NotBlank
-    private String number;
+    private String roomNumber;
 
     @NotNull
     @Positive

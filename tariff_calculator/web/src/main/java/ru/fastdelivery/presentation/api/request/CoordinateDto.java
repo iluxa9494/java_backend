@@ -6,9 +6,6 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
-/**
- * DTO координат для передачи в запросе.
- */
 public record CoordinateDto(
         @NotNull @Min(-90) @Max(90)
         BigDecimal lat,

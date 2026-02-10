@@ -6,11 +6,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
 @Table(name = "rooms", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"hotel_id", "number"})
+        @UniqueConstraint(columnNames = {"hotel_id", "room_number"})
 })
 @Getter
 @Setter
@@ -27,22 +28,21 @@ public class Room {
     @JoinColumn(name = "hotel_id", nullable = false)
     private Hotel hotel;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "name", nullable = false, length = 255)
     @NotBlank
-    private String title;
+    private String name;
 
-    @Column(nullable = false)
-    @NotBlank
+    @Column(name = "description")
     private String description;
 
-    @Column(nullable = false, length = 10)
+    @Column(name = "room_number", nullable = false, length = 50)
     @NotBlank
-    private String number;
+    private String roomNumber;
 
-    @Column(nullable = false)
+    @Column(name = "price", precision = 10, scale = 2, nullable = false)
     @NotNull
     @Positive
-    private Double price;
+    private BigDecimal price;
 
     @Column(name = "max_guests", nullable = false)
     @NotNull

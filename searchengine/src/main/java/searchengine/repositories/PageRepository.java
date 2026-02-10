@@ -10,9 +10,6 @@ import searchengine.model.Site;
 
 import java.util.List;
 
-/**
- * Репозиторий для работы с сущностями страниц сайтов.
- */
 @Repository
 public interface PageRepository extends JpaRepository<Page, Integer> {
     Page findBySiteAndPath(Site site, String path);

@@ -7,9 +7,6 @@ import ru.fastdelivery.domain.geo.Coordinate;
 
 import java.util.List;
 
-/**
- * Представляет доставку: упаковки, координаты и валюту.
- */
 public record Shipment(
         List<Pack> packages,
         Coordinate source,

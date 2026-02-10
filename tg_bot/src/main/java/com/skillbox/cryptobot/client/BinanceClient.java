@@ -31,11 +31,6 @@ public class BinanceClient {
                 .build();
     }
 
-    /**
-     * Получает цену BTC с Binance API с ретраями и логированием
-     *
-     * @return Цена биткоина
-     */
     public BigDecimal getBitcoinPrice() {
         int maxRetries = 3;
         int retryDelay = 3000;

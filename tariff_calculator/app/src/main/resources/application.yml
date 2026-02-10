@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url:
-    username:
-    password:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -15,6 +15,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        hbm2ddl:
+          auto: none
     open-in-view: false
 
   flyway:
@@ -33,6 +35,13 @@ geo:
   max-latitude: 65
   min-longitude: 30
   max-longitude: 96
+
+cbr:
+  enabled: true
+  url: https://www.cbr.ru/scripts/XML_daily.asp
+  fixed-delay-ms: 86400000
+  initial-delay-ms: 10000
+  request-timeout-ms: 5000
 
 management:
   endpoints:

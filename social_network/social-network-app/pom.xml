@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ru.skillbox.socialnetwork</groupId>
+        <artifactId>social-network</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>social-network-app</artifactId>
+    <name>social-network-app</name>
+    <description>Single Spring Boot application for modular monolith</description>
+
+    <properties>
+        <frontend.dir>${project.basedir}/../social-network-frontend</frontend.dir>
+        <frontend.dist.dir>${project.basedir}/../social-network-frontend/dist</frontend.dist.dir>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.skillbox.socialnetwork</groupId>
+            <artifactId>auth-module</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.skillbox.socialnetwork</groupId>
+            <artifactId>account-module</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.skillbox.socialnetwork</groupId>
+            <artifactId>friend-module</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.skillbox.socialnetwork</groupId>
+            <artifactId>post-module</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.skillbox.socialnetwork</groupId>
+            <artifactId>dialog-module</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.skillbox.socialnetwork</groupId>
+            <artifactId>notification-module</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.skillbox.socialnetwork</groupId>
+            <artifactId>integration-module</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>ru.skillbox.socialnetwork.app.SocialNetworkApplication</mainClass>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.15.0</version>
+                <configuration>
+                    <workingDirectory>${frontend.dir}</workingDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-node-and-npm</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>v20.11.1</nodeVersion>
+                            <npmVersion>10.2.4</npmVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-ci</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>ci</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-build</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run build</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-frontend</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${frontend.dist.dir}</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

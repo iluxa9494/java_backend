@@ -11,6 +11,7 @@ import ru.fastdelivery.domain.delivery.shipment.Shipment;
 import ru.fastdelivery.domain.dimension.OuterDimensions;
 import ru.fastdelivery.domain.geo.Coordinate;
 import ru.fastdelivery.domain.repository.TariffSettingsRepository;
+import ru.fastdelivery.domain.tariff.TariffSettings;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -71,5 +72,85 @@ public class TotalCalculatorTest {
         Price price = calculator.getMinimalPrice();
         assertThat(price.getAmount()).isEqualTo(new BigDecimal("500.00"));
         assertThat(price.getCurrencyCode()).isEqualTo("RUB");
+    }
+
+    @Test
+    @DisplayName("Большие значения веса/габаритов дают цену больше минимальной")
+    void whenLargeValues_thenTotalGreaterThanMinimal() {
+        TariffSettings tariff = new TariffSettings(
+                new BigDecimal("0.04"),
+                new BigDecimal("1200.00"),
+                new BigDecimal("500.00"),
+                450,
+                "RUB"
+        );
+        when(repository.getLatest()).thenReturn(Optional.of(tariff));
+        VolumeCalculator realVolume = new VolumeCalculator();
+        DistanceCalculator realDistance = new DistanceCalculator();
+        TotalCalculator realCalculator = new TotalCalculator(
+                realVolume,
+                realDistance,
+                repository,
+                new BigDecimal("0.04"),
+                new BigDecimal("1200.00"),
+                new BigDecimal("500.00"),
+                450
+        );
+
+        Currency currency = new Currency("RUB", BigDecimal.ONE);
+        Shipment shipment = new Shipment(
+                List.of(new Pack(
+                        new Weight(BigInteger.valueOf(150000)),
+                        new OuterDimensions(BigDecimal.valueOf(1500), BigDecimal.valueOf(1500), BigDecimal.valueOf(1500))
+                )),
+                new Coordinate(BigDecimal.ZERO, BigDecimal.ZERO),
+                new Coordinate(BigDecimal.ZERO, BigDecimal.valueOf(50)),
+                currency
+        );
+
+        Price price = realCalculator.calculateTotal(shipment);
+        assertThat(price.getAmount()).isGreaterThan(new BigDecimal("500.00"));
+    }
+
+    @Test
+    @DisplayName("Объемный расчет использует стоимость за м3")
+    void whenVolumeDominates_thenUsesVolumeRate() {
+        TariffSettings tariff = new TariffSettings(
+                new BigDecimal("0.00"),
+                new BigDecimal("1000.00"),
+                new BigDecimal("0.00"),
+                450,
+                "RUB"
+        );
+        TariffSettingsRepository repo = mock(TariffSettingsRepository.class);
+        when(repo.getLatest()).thenReturn(Optional.of(tariff));
+
+        VolumeCalculator realVolume = new VolumeCalculator();
+        DistanceCalculator zeroDistance = mock(DistanceCalculator.class);
+        when(zeroDistance.calculate(any(), any())).thenReturn(0.0);
+
+        TotalCalculator volumeCalculator = new TotalCalculator(
+                realVolume,
+                zeroDistance,
+                repo,
+                new BigDecimal("0.00"),
+                new BigDecimal("1000.00"),
+                new BigDecimal("0.00"),
+                450
+        );
+
+        Currency currency = new Currency("RUB", BigDecimal.ONE);
+        Shipment shipment = new Shipment(
+                List.of(new Pack(
+                        new Weight(BigInteger.valueOf(1000)),
+                        new OuterDimensions(BigDecimal.valueOf(350), BigDecimal.valueOf(600), BigDecimal.valueOf(250))
+                )),
+                new Coordinate(BigDecimal.valueOf(55.75), BigDecimal.valueOf(37.61)),
+                new Coordinate(BigDecimal.valueOf(55.75), BigDecimal.valueOf(37.61)),
+                currency
+        );
+
+        Price price = volumeCalculator.calculateTotal(shipment);
+        assertThat(price.getAmount()).isEqualByComparingTo(new BigDecimal("52.50"));
     }
 }

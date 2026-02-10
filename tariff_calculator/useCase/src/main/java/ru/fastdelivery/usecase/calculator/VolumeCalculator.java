@@ -6,9 +6,6 @@ import ru.fastdelivery.domain.delivery.shipment.Shipment;
 
 import java.math.BigDecimal;
 
-/**
- * Сервис для расчета суммарного объема всех упаковок в отправлении.
- */
 @Slf4j
 @Component
 public class VolumeCalculator {

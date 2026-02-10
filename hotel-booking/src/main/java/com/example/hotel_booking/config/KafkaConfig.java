@@ -30,10 +30,6 @@ public class KafkaConfig {
         return admin;
     }
 
-    /**
-     * Топик, который слушает KafkaConsumer (statistics-events).
-     * 1 партиция и replicationFactor=1 — норм для single-broker dev окружения.
-     */
     @Bean
     public NewTopic statisticsEventsTopic() {
         return new NewTopic("statistics-events", 1, (short) 1);

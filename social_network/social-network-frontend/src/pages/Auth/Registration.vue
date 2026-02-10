@@ -28,9 +28,13 @@
               v$.password1.$dirty &&
               v$.password1.required &&
               v$.password2.sameAsPassword &&
-              v$.password1.minLength,
+              v$.password1.minLength &&
+              v$.password1.maxLength,
           }"
         />
+        <span class="form__error" v-if="password1ServerError">
+          {{ password1ServerError }}
+        </span>
 
         <password-repeat-field
           id="register-repeat-password"
@@ -41,9 +45,13 @@
               v$.password2.$dirty &&
               v$.password2.required &&
               v$.password2.sameAsPassword &&
-              v$.password2.minLength,
+              v$.password2.minLength &&
+              v$.password2.maxLength,
           }"
         />
+        <span class="form__error" v-if="password2ServerError">
+          {{ password2ServerError }}
+        </span>
 
         <button
           class="form__block-nextstep"
@@ -117,7 +125,7 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import useTranslations from "@/composables/useTranslations";
 import useVuelidate from "@vuelidate/core";
-import { required, email, minLength, sameAs } from "@vuelidate/validators";
+import { required, email, minLength, maxLength, sameAs } from "@vuelidate/validators";
 import PasswordField from "@/components/FormElements/PasswordField.vue";
 import PasswordRepeatField from "@/components/FormElements/PasswordRepeatField.vue";
 import EmailField from "@/components/FormElements/EmailField.vue";
@@ -150,16 +158,19 @@ export default {
     const captchaCode = ref("");
     const captchaSecret = ref("");
     const confirm = ref(false);
+    const password1ServerError = ref("");
+    const password2ServerError = ref("");
     const isCode = ref(true);
     const { translationsLang } = useTranslations();
 
     const rules = {
   confirm: { sameAs: sameAs(() => true) },
   emailValue: { required, email },
-  password1: { required, minLength: minLength(8) },
+  password1: { required, minLength: minLength(8), maxLength: maxLength(20) },
   password2: {
     required,
     minLength: minLength(8),
+    maxLength: maxLength(20),
     sameAsPassword: sameAs(() => password1.value), 
   },
   firstName: { required, minLength: minLength(3) },
@@ -218,14 +229,23 @@ export default {
         captchaSecret: captchaSecret.value
       };
 
+      password1ServerError.value = "";
+      password2ServerError.value = "";
+
       store
         .dispatch("auth/api/register", data)
         .then(() => {
           router.push({ name: "RegisterSuccess" });
         })
         .catch((error) => {
-          const errorMessage = error.response.data.error_description[0] || "";
-          if (errorMessage === "Неверный код авторизации") {
+          const errorMessage = error?.response?.data?.message || "";
+          if (errorMessage.includes("password1:")) {
+            password1ServerError.value = errorMessage;
+          }
+          if (errorMessage.includes("password2:")) {
+            password2ServerError.value = errorMessage;
+          }
+          if (errorMessage.includes("captcha")) {
             isCode.value = false;
           }
         });
@@ -234,6 +254,16 @@ export default {
     watch(captchaCode, (newVal) => {
       if (!isCode.value && newVal) {
         isCode.value = true;
+      }
+    });
+    watch(password1, () => {
+      if (password1ServerError.value) {
+        password1ServerError.value = "";
+      }
+    });
+    watch(password2, () => {
+      if (password2ServerError.value) {
+        password2ServerError.value = "";
       }
     });
 
@@ -257,6 +287,8 @@ export default {
       captchaSecret,
       translationsLang,
       v$,
+      password1ServerError,
+      password2ServerError,
       isStep1Disabled,
       currentStep,
       submitHandler,

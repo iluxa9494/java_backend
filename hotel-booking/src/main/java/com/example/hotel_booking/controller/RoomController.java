@@ -61,8 +61,8 @@ public class RoomController {
     @GetMapping("/search")
     public Page<RoomDto> searchRooms(
             @RequestParam(required = false) Long hotelId,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) java.math.BigDecimal minPrice,
+            @RequestParam(required = false) java.math.BigDecimal maxPrice,
             @RequestParam(required = false) Integer minGuests,
             @RequestParam(required = false) Integer maxGuests,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,

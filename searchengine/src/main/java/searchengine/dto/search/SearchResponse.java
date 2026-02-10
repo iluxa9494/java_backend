@@ -5,10 +5,6 @@ import lombok.Setter;
 
 import java.util.List;
 
-/**
- * DTO-ответ на поисковый запрос.
- * Содержит флаг результата, количество найденных страниц и список найденных результатов.
- */
 @Getter
 @Setter
 public class SearchResponse {

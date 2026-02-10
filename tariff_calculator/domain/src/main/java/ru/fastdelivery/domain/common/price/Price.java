@@ -5,9 +5,6 @@ import ru.fastdelivery.domain.common.currency.Currency;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-/**
- * Представляет цену в определённой валюте
- */
 public record Price(
         BigDecimal amount,
         Currency currency) {

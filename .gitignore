@@ -85,7 +85,3 @@ nginx/
 !tg_bot/gradle/wrapper/gradle-wrapper.jar
 !tg_bot/gradle/wrapper/gradle-wrapper.properties
 !tg_bot/gradle/wrapper/**
-
-java_backend.sh
-project_dump.txt
-project_dump_excluded.txt

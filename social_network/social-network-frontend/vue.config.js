@@ -1,6 +1,7 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
   transpileDependencies: true,
+  publicPath: process.env.VUE_APP_PUBLIC_PATH || '/projects/social-network/',
 
   devServer: {
     // proxy: 'http://localhost:8088',

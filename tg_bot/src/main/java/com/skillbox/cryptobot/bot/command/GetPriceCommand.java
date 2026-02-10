@@ -30,9 +30,6 @@ public class GetPriceCommand extends BotCommand {
         handlePriceRequest(absSender, chatId);
     }
 
-    /**
-     * Метод обработки Callback Query (кнопка "Обновить цену")
-     */
     public void handlePriceRequest(AbsSender absSender, Long chatId) {
         log.info("Обрабатываем Callback Query: получение цены BTC для пользователя {}", chatId);
 
@@ -45,9 +42,6 @@ public class GetPriceCommand extends BotCommand {
         }
     }
 
-    /**
-     * Отправляет сообщение пользователю
-     */
     private void sendMessage(AbsSender sender, Long chatId, String text) {
         if (sender == null) {
             log.error("Ошибка: AbsSender не может быть null при отправке сообщения.");

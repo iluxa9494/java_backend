@@ -13,15 +13,18 @@ COPY tg_bot/settings.gradle tg_bot/settings.gradle
 COPY tg_bot/gradlew tg_bot/gradlew
 COPY tg_bot/gradle/ tg_bot/gradle/
 
-COPY social_network/api-gateway/pom.xml social_network/api-gateway/pom.xml
-COPY social_network/eureka-server/pom.xml social_network/eureka-server/pom.xml
-COPY social_network/mc-authentication/pom.xml social_network/mc-authentication/pom.xml
-COPY social_network/mc-account/pom.xml social_network/mc-account/pom.xml
-COPY social_network/ms-notification/pom.xml social_network/ms-notification/pom.xml
-COPY social_network/social-network-post/pom.xml social_network/social-network-post/pom.xml
-COPY social_network/dialog_service/pom.xml social_network/dialog_service/pom.xml
-COPY social_network/social-network-friend-service/pom.xml social_network/social-network-friend-service/pom.xml
-COPY social_network/social-network-integration/pom.xml social_network/social-network-integration/pom.xml
+COPY social_network/pom.xml social_network/pom.xml
+COPY social_network/social-network-app/pom.xml social_network/social-network-app/pom.xml
+COPY social_network/auth-module/pom.xml social_network/auth-module/pom.xml
+COPY social_network/account-module/pom.xml social_network/account-module/pom.xml
+COPY social_network/friend-module/pom.xml social_network/friend-module/pom.xml
+COPY social_network/post-module/pom.xml social_network/post-module/pom.xml
+COPY social_network/dialog-module/pom.xml social_network/dialog-module/pom.xml
+COPY social_network/notification-module/pom.xml social_network/notification-module/pom.xml
+COPY social_network/integration-module/pom.xml social_network/integration-module/pom.xml
+COPY social_network/social-network-frontend/package.json social_network/social-network-frontend/package.json
+COPY social_network/social-network-frontend/package-lock.json social_network/social-network-frontend/package-lock.json
+COPY social_network/social-network-frontend/vue.config.js social_network/social-network-frontend/vue.config.js
 
 RUN --mount=type=cache,target=/root/.m2 \
     set -eu; \
@@ -29,18 +32,10 @@ RUN --mount=type=cache,target=/root/.m2 \
     for module in \
       currency_exchange \
       hotel-booking \
-      searchengine \
-      social_network/api-gateway \
-      social_network/eureka-server \
-      social_network/mc-authentication \
-      social_network/mc-account \
-      social_network/ms-notification \
-      social_network/social-network-post \
-      social_network/dialog_service \
-      social_network/social-network-friend-service \
-      social_network/social-network-integration; do \
+      searchengine; do \
       mvn -q -DskipTests -f "/build/${module}/pom.xml" dependency:go-offline; \
-    done
+    done; \
+    mvn -q -DskipTests -f "/build/social_network/pom.xml" dependency:go-offline
 
 COPY currency_exchange currency_exchange
 COPY hotel-booking hotel-booking
@@ -57,29 +52,15 @@ RUN --mount=type=cache,target=/root/.m2 \
     (cd /build/hotel-booking && mvn -q -DskipTests package); \
     (cd /build/searchengine && mvn -q -DskipTests package); \
     (cd /build/tg_bot && chmod +x ./gradlew && ./gradlew --no-daemon clean bootJar); \
-    (cd /build/social_network/api-gateway && mvn -q -DskipTests package); \
-    (cd /build/social_network/eureka-server && mvn -q -DskipTests package); \
-    (cd /build/social_network/mc-authentication && mvn -q -DskipTests package); \
-    (cd /build/social_network/mc-account && mvn -q -DskipTests package); \
-    (cd /build/social_network/ms-notification && mvn -q -DskipTests package); \
-    (cd /build/social_network/social-network-post && mvn -q -DskipTests package); \
-    (cd /build/social_network/dialog_service && mvn -q -DskipTests package); \
-    (cd /build/social_network/social-network-friend-service && mvn -q -DskipTests package); \
-    (cd /build/social_network/social-network-integration && mvn -q -DskipTests package); \
+    (cd /build/social_network && mvn -q -DskipTests package); \
     \
     cp "$(ls -1 /build/currency_exchange/target/*.jar | grep -v 'original' | head -n1)" /out/currency-exchange.jar; \
     cp "$(ls -1 /build/hotel-booking/target/*.jar | grep -v 'original' | head -n1)" /out/hotel-booking.jar; \
     cp "$(ls -1 /build/searchengine/target/*.jar | grep -v 'original' | head -n1)" /out/searchengine.jar; \
     cp "$(ls -1 /build/tg_bot/build/libs/*.jar | head -n1)" /out/tg-bot.jar; \
-    cp "$(ls -1 /build/social_network/api-gateway/target/*.jar | grep -v 'original' | head -n1)" /out/api-gateway.jar; \
-    cp "$(ls -1 /build/social_network/eureka-server/target/*.jar | grep -v 'original' | head -n1)" /out/eureka-server.jar; \
-    cp "$(ls -1 /build/social_network/mc-authentication/target/*.jar | grep -v 'original' | head -n1)" /out/mc-authentication.jar; \
-    cp "$(ls -1 /build/social_network/mc-account/target/*.jar | grep -v 'original' | head -n1)" /out/mc-account.jar; \
-    cp "$(ls -1 /build/social_network/ms-notification/target/*.jar | grep -v 'original' | head -n1)" /out/ms-notification.jar; \
-    cp "$(ls -1 /build/social_network/social-network-post/target/*.jar | grep -v 'original' | head -n1)" /out/social-network-post.jar; \
-    cp "$(ls -1 /build/social_network/dialog_service/target/*.jar | grep -v 'original' | head -n1)" /out/dialog-service.jar; \
-    cp "$(ls -1 /build/social_network/social-network-friend-service/target/*.jar | grep -v 'original' | head -n1)" /out/social-network-friend-service.jar; \
-    cp "$(ls -1 /build/social_network/social-network-integration/target/*.jar | grep -v 'original' | head -n1)" /out/social-network-integration.jar
+    jar="$(ls -1 /build/social_network/social-network-app/target/*.jar | grep -vE '(-sources|-javadoc|\\.original|plain)\\.jar$' | head -n1)"; \
+    test -n "${jar}"; \
+    cp "${jar}" /out/social-network.jar
 
 FROM maven:3.9.9-eclipse-temurin-17 AS build-tariff
 

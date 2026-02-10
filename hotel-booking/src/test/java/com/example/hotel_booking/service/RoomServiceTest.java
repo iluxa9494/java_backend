@@ -43,26 +43,26 @@ public class RoomServiceTest {
 
     @Test
     void testGetAllRooms() {
-        List<Room> rooms = List.of(new Room(1L, new Hotel(), "Luxury Suite", "Nice room", "101", 200.0, 2, null));
+        List<Room> rooms = List.of(new Room(1L, new Hotel(), "Luxury Suite", "Nice room", "101", BigDecimal.valueOf(200.0), 2, null));
         when(roomRepository.findAll()).thenReturn(rooms);
         when(roomMapper.toDto(any(Room.class))).thenAnswer(invocation -> {
             Room room = invocation.getArgument(0);
-            return new RoomDto(room.getId(), 1L, room.getTitle(), room.getDescription(), room.getNumber(), BigDecimal.valueOf(room.getPrice()), room.getMaxGuests());
+            return new RoomDto(room.getId(), 1L, room.getName(), room.getDescription(), room.getRoomNumber(), room.getPrice(), room.getMaxGuests());
         });
         List<RoomDto> result = roomService.getAllRooms();
         assertEquals(1, result.size());
-        assertEquals("Luxury Suite", result.get(0).getTitle());
+        assertEquals("Luxury Suite", result.get(0).getName());
         verify(roomRepository, times(1)).findAll();
     }
 
     @Test
     void testGetRoomById_WhenRoomExists() {
-        Room room = new Room(1L, new Hotel(), "Luxury Suite", "Nice room", "101", 200.0, 2, null);
+        Room room = new Room(1L, new Hotel(), "Luxury Suite", "Nice room", "101", BigDecimal.valueOf(200.0), 2, null);
         when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
-        when(roomMapper.toDto(room)).thenReturn(new RoomDto(room.getId(), 1L, room.getTitle(), room.getDescription(), room.getNumber(), BigDecimal.valueOf(room.getPrice()), room.getMaxGuests()));
+        when(roomMapper.toDto(room)).thenReturn(new RoomDto(room.getId(), 1L, room.getName(), room.getDescription(), room.getRoomNumber(), room.getPrice(), room.getMaxGuests()));
         RoomDto result = roomService.getRoomById(1L);
         assertNotNull(result);
-        assertEquals("Luxury Suite", result.getTitle());
+        assertEquals("Luxury Suite", result.getName());
         verify(roomRepository, times(1)).findById(1L);
     }
 
@@ -78,20 +78,20 @@ public class RoomServiceTest {
         Hotel hotel = new Hotel();
         hotel.setId(1L);
         RoomCreateRequest request = new RoomCreateRequest(1L, "Luxury Suite", "Nice room", "101", BigDecimal.valueOf(200.0), 2);
-        Room room = new Room(1L, hotel, request.getTitle(), request.getDescription(), request.getNumber(), request.getPrice().doubleValue(), request.getMaxGuests(), null);
+        Room room = new Room(1L, hotel, request.getName(), request.getDescription(), request.getRoomNumber(), request.getPrice(), request.getMaxGuests(), null);
         when(hotelRepository.findById(1L)).thenReturn(Optional.of(hotel));
         when(roomMapper.toEntity(request)).thenReturn(room);
         when(roomRepository.save(any(Room.class))).thenReturn(room);
-        when(roomMapper.toDto(room)).thenReturn(new RoomDto(room.getId(), 1L, room.getTitle(), room.getDescription(), room.getNumber(), BigDecimal.valueOf(room.getPrice()), room.getMaxGuests()));
+        when(roomMapper.toDto(room)).thenReturn(new RoomDto(room.getId(), 1L, room.getName(), room.getDescription(), room.getRoomNumber(), room.getPrice(), room.getMaxGuests()));
         RoomDto result = roomService.createRoom(request);
         assertNotNull(result);
-        assertEquals("Luxury Suite", result.getTitle());
+        assertEquals("Luxury Suite", result.getName());
         verify(roomRepository, times(1)).save(any(Room.class));
     }
 
     @Test
     void testDeleteRoom() {
-        Room room = new Room(1L, new Hotel(), "Luxury Suite", "Nice room", "101", 200.0, 2, null);
+        Room room = new Room(1L, new Hotel(), "Luxury Suite", "Nice room", "101", BigDecimal.valueOf(200.0), 2, null);
         when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
         roomService.deleteRoom(1L);
         verify(roomRepository, times(1)).delete(room);
@@ -99,7 +99,7 @@ public class RoomServiceTest {
 
     @Test
     void testIsRoomAvailable() {
-        Room room = new Room(1L, new Hotel(), "Luxury Suite", "Nice room", "101", 200.0, 2, List.of());
+        Room room = new Room(1L, new Hotel(), "Luxury Suite", "Nice room", "101", BigDecimal.valueOf(200.0), 2, List.of());
         when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
         boolean isAvailable = roomService.isRoomAvailable(1L, LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 5));
         assertTrue(isAvailable);

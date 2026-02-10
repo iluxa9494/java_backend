@@ -6,9 +6,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-/**
- * Сущность леммы, связанной с конкретным сайтом и частотой её встречаемости.
- */
 @Entity
 @Table(
         name = "lemma",

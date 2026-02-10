@@ -30,7 +30,7 @@ public class TelegramBotConfiguration {
 
         try {
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-            botsApi.registerBot(cryptoBot); // Здесь только Long Polling (без Webhook)
+            botsApi.registerBot(cryptoBot);
 
             log.info("Telegram bot registered successfully in Long Polling mode.");
             return botsApi;

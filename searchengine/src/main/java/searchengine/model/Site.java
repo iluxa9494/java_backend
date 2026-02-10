@@ -8,9 +8,6 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Сущность сайта, содержащая информацию о статусе, URL, имени и связанных страницах и леммах.
- */
 @Entity
 @Table(name = "site")
 @Data

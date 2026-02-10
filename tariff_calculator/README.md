@@ -94,6 +94,34 @@
 Интерфейс для тестирования и документации API доступен по адресу:  
 [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
+## API для фронтенда tariff-calculator
+
+- `POST /api/v1/calculate`
+- Тело запроса:
+  - `packages[]`: `weight`, `length`, `width`, `height`
+  - `source`: `lat`, `lon`
+  - `destination`: `lat`, `lon`
+  - `currencyCode`
+- Ответ:
+  - `totalPrice`
+  - `minimalPrice`
+  - `currencyCode`
+
+## Миграции БД и сохранение результатов
+
+Flyway миграции в `persistence/src/main/resources/db/migration` создают:
+- `tariff_settings`
+- `currency`
+- `additional_services`
+- `calculation_additional_services`
+- `user_requests`
+
+Начиная с `V3__extend_user_requests_for_calculation_results.sql` в `user_requests` сохраняются:
+- входной payload (`request_payload`)
+- рассчитанные значения (`total_price`, `minimal_price`, `currency_code`, `response_payload`)
+- статус (`status`: `SUCCESS`/`ERROR`)
+- текст ошибки (`error_message`)
+
 ---
 
 ## Smoke check (public endpoints)

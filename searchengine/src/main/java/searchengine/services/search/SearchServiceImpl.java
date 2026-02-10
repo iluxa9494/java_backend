@@ -16,9 +16,6 @@ import searchengine.services.lemma.Lemmatizer;
 
 import java.util.*;
 
-/**
- * Реализация сервиса полнотекстового поиска по проиндексированным сайтам.
- */
 @Service
 @Slf4j
 @RequiredArgsConstructor

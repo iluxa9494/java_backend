@@ -17,10 +17,6 @@ import searchengine.services.statistics.StatisticsService;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-/**
- * Контроллер для обработки API-запросов, связанных с управлением индексацией,
- * поиском и получением статистики.
- */
 @Slf4j
 @RestController
 @RequestMapping("/api")

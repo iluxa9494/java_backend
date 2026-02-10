@@ -14,6 +14,7 @@
         invalid:
           (v.$dirty && !v.required) ||
           (v.$dirty && !v.minLength) ||
+          (v.$dirty && !v.maxLength) ||
           (v.$dirty && !v.sameAsPassword),
       }"
       @change="v.$touch()"
@@ -25,6 +26,11 @@
 
     <span class="form__error" v-if="v.$dirty && !v.minLength">
       {{ translationsLang.validatePass1 }} {{ v.$params.minLength.min }}
+      {{ translationsLang.validatePass2 }}
+      {{ password.length }}
+    </span>
+    <span class="form__error" v-if="v.$dirty && !v.maxLength">
+      {{ translationsLang.validatePass1 }} {{ v.$params.maxLength.max }}
       {{ translationsLang.validatePass2 }}
       {{ password.length }}
     </span>

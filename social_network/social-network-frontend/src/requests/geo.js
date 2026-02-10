@@ -2,10 +2,10 @@ import axios from 'axios';
 
 export default {
   getCountries() {
-    return axios.get('/geo/country');
+    return axios.get('geo/country');
   },
 
   getSities(countryId) {
-    return axios.get(`/geo/country/${countryId}/city`);
+    return axios.get(`geo/country/${countryId}/city`);
   },
 };

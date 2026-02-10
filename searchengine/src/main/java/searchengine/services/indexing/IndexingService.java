@@ -1,8 +1,5 @@
 package searchengine.services.indexing;
 
-/**
- * Интерфейс сервиса для управления процессом индексации сайтов и отдельных страниц.
- */
 public interface IndexingService {
     void startIndexing();
 

@@ -11,10 +11,6 @@ import ru.fastdelivery.domain.tariff.TariffSettings;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/**
- * Выполняет расчет полной стоимости доставки на основе веса, объема и расстояния.
- * Использует настройки тарифа из базы или значения по умолчанию.
- */
 @RequiredArgsConstructor
 @Slf4j
 public class TotalCalculator {
@@ -27,7 +23,20 @@ public class TotalCalculator {
     private final int fallbackDistanceStepKm;
 
     public Price calculateTotal(Shipment shipment) {
-        log.debug("Начат расчет полной стоимости доставки");
+        log.info("Начат расчет полной стоимости доставки: packages={}, currency={}, source={}, destination={}",
+                shipment.packages().size(),
+                shipment.currency().getCode(),
+                shipment.source(),
+                shipment.destination());
+        if (log.isInfoEnabled()) {
+            shipment.packages().forEach(pack -> log.info(
+                    "Package: weightGrams={}, dimensions(mm)={}x{}x{}",
+                    pack.weight().weightGrams(),
+                    pack.outerDimensions().length(),
+                    pack.outerDimensions().width(),
+                    pack.outerDimensions().height()
+            ));
+        }
         TariffSettings tariff = tariffSettingsRepository.getLatest().orElse(null);
         Currency currency = shipment.currency();
         BigDecimal weightRate;
@@ -40,24 +49,36 @@ public class TotalCalculator {
             volumeRate = fallbackVolumeRate;
             minimal = fallbackMinimalPrice;
             distanceStepKm = fallbackDistanceStepKm;
+            log.info("Fallback тариф: weightRate={}, volumeRate={}, minimalPrice={}, distanceStepKm={}",
+                    weightRate, volumeRate, minimal, distanceStepKm);
         } else {
             weightRate = tariff.getWeightRate();
             volumeRate = tariff.getVolumeRate();
             minimal = tariff.getMinimalPrice();
             distanceStepKm = tariff.getDistanceStepKm();
+            log.info("Тариф из БД: weightRate={}, volumeRate={}, minimalPrice={}, distanceStepKm={}, currencyCode={}",
+                    weightRate, volumeRate, minimal, distanceStepKm, tariff.getCurrencyCode());
         }
-        BigDecimal weight = shipment.weightAllPackages().kilograms();
+        BigDecimal weightGrams = new BigDecimal(shipment.weightAllPackages().weightGrams());
+        BigDecimal weightKg = weightGrams.divide(BigDecimal.valueOf(1000), 6, RoundingMode.HALF_UP);
         BigDecimal volume = volumeCalculator.calculate(shipment);
         double distance = distanceCalculator.calculate(shipment.source(), shipment.destination());
-        BigDecimal weightCost = weightRate.multiply(weight);
+        int distanceSteps = (int) Math.ceil(distance / distanceStepKm);
+        if (distanceSteps < 1) {
+            distanceSteps = 1;
+        }
+        BigDecimal weightCost = weightRate.multiply(weightGrams);
         BigDecimal volumeCost = volumeRate.multiply(volume);
-        BigDecimal distanceCoefficient = BigDecimal.valueOf(distance / distanceStepKm).max(BigDecimal.ONE);
+        BigDecimal distanceCoefficient = BigDecimal.valueOf(distanceSteps);
         BigDecimal maxCost = weightCost.max(volumeCost);
         BigDecimal costWithDistance = maxCost.multiply(distanceCoefficient);
         BigDecimal finalAmount = costWithDistance.max(minimal)
                 .setScale(2, RoundingMode.CEILING);
-        log.debug("Рассчитанная стоимость: {}, Минимальная: {}, Итоговая (округленная): {}",
-                costWithDistance, minimal, finalAmount);
+        log.info("Детали расчета: weightGrams={}, weightKg={}, volumeM3={}, distanceKm={}, distanceStepKm={}, distanceSteps={}, distanceCoef={}",
+                weightGrams, weightKg, volume, distance, distanceStepKm, distanceSteps, distanceCoefficient);
+        log.info("Стоимость до минималки: weightCost={}, volumeCost={}, maxCost={}, costWithDistance={}",
+                weightCost, volumeCost, maxCost, costWithDistance);
+        log.info("Минималка={} => финальная={}", minimal, finalAmount);
         return Price.of(finalAmount, currency.getCode());
     }
 

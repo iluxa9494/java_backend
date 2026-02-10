@@ -19,11 +19,6 @@ public class CurrencyService {
 
     private final CurrencyRepository currencyRepository;
 
-    /**
-     * Получить список всех валют.
-     *
-     * @return список валют в виде DTO.
-     */
     @Transactional(readOnly = true)
     public List<CurrencyDto> getAllCurrencies() {
         return currencyRepository.findAll().stream()
@@ -31,11 +26,6 @@ public class CurrencyService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Получить список всех валют в формате CurrencyShortDto.
-     *
-     * @return список валют (только name и exchangeRate).
-     */
     @Transactional(readOnly = true)
     public List<CurrencyShortDto> getAllShortCurrencies() {
         return currencyRepository.findAll().stream()
@@ -43,35 +33,17 @@ public class CurrencyService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Получить валюту по ID.
-     *
-     * @param id идентификатор валюты.
-     * @return DTO объекта валюты.
-     */
     @Transactional(readOnly = true)
     public Optional<CurrencyDto> getCurrencyById(Long id) {
         return currencyRepository.findById(id).map(this::convertToDto);
     }
 
-    /**
-     * Получить валюту по числовому коду (ISO).
-     *
-     * @param isoNumericCode числовой код валюты.
-     * @return DTO объекта валюты.
-     */
     @Transactional(readOnly = true)
     public Optional<CurrencyDto> getCurrencyByIsoCode(Integer isoNumericCode) {
         return currencyRepository.findByIsoNumCode(isoNumericCode)
                 .map(this::convertToDto);
     }
 
-    /**
-     * Создать новую запись валюты.
-     *
-     * @param currencyDto DTO с данными валюты.
-     * @return созданная валюта.
-     */
     @Transactional
     public CurrencyDto createCurrency(CurrencyDto currencyDto) {
         Currency currency = new Currency();
@@ -85,13 +57,6 @@ public class CurrencyService {
         return convertToDto(savedCurrency);
     }
 
-    /**
-     * Конвертирует сумму из одной валюты в другую.
-     *
-     * @param amount         сумма для конвертации.
-     * @param isoNumericCode числовой код валюты.
-     * @return сконвертированная сумма.
-     */
     @Transactional(readOnly = true)
     public BigDecimal convertCurrency(BigDecimal amount, Integer isoNumericCode) {
         Currency currency = currencyRepository.findByIsoNumCode(isoNumericCode)
@@ -102,13 +67,6 @@ public class CurrencyService {
         return amount.multiply(currency.getExchangeRate());
     }
 
-    /**
-     * Обновление курса валюты.
-     *
-     * @param isoNumericCode  числовой код валюты.
-     * @param newExchangeRate новый курс обмена.
-     * @return обновленный объект валюты.
-     */
     @Transactional
     public CurrencyDto updateCurrencyRate(Integer isoNumericCode, BigDecimal newExchangeRate) {
         Currency currency = currencyRepository.findByIsoNumCode(isoNumericCode)
@@ -121,19 +79,11 @@ public class CurrencyService {
         return convertToDto(updatedCurrency);
     }
 
-    /**
-     * Удалить валюту по ID.
-     *
-     * @param id идентификатор валюты.
-     */
     @Transactional
     public void deleteCurrency(Long id) {
         currencyRepository.deleteById(id);
     }
 
-    /**
-     * Конвертация сущности в DTO.
-     */
     private CurrencyDto convertToDto(Currency currency) {
         return new CurrencyDto(
                 currency.getId(),

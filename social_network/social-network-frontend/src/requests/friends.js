@@ -46,7 +46,7 @@ export default {
   },
 
   friendRequestsCount() {
-    return axios.get('/friends/count');
+    return axios.get('friends/count');
   },
 
   friendSearch(firstName, statusCode) {
