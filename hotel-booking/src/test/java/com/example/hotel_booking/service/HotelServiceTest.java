@@ -4,7 +4,7 @@ import com.example.hotel_booking.dto.Hotel.HotelCreateRequest;
 import com.example.hotel_booking.dto.Hotel.HotelDto;
 import com.example.hotel_booking.dto.Hotel.HotelUpdateRequest;
 import com.example.hotel_booking.model.Hotel;
-import com.example.hotel_booking.repository.HotelRepository;
+import com.example.hotel_booking.repository.jpa.HotelRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

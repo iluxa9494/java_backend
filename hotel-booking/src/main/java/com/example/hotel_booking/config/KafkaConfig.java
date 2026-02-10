@@ -23,7 +23,11 @@ public class KafkaConfig {
     public KafkaAdmin kafkaAdmin() {
         Map<String, Object> configs = new HashMap<>();
         configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        return new KafkaAdmin(configs);
+        configs.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, "2000");
+        configs.put(AdminClientConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, "3000");
+        KafkaAdmin admin = new KafkaAdmin(configs);
+        admin.setFatalIfBrokerNotAvailable(true);
+        return admin;
     }
 
     /**

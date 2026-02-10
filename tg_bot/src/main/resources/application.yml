@@ -4,7 +4,7 @@ server:
 telegram:
   bot:
     username: ${TELEGRAM_BOT_USERNAME:MUR_BTCBot}
-    token: ${TELEGRAM_BOT_TOKEN}
+    token: ${TELEGRAM_BOT_TOKEN:}
     notify:
       delay:
         value: 10
@@ -16,10 +16,12 @@ binance:
 
 spring:
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/cryptobot
-    username: ${POSTGRES_USER:bot_user}
-    password: ${POSTGRES_PASSWORD:secure_password}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
+    # localhost внутри контейнера = сам контейнер, поэтому используем host из docker-сети
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${DB_HOST:postgres-apps}:${DB_PORT:5432}/${DB_NAME:cryptobot}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DB_USER:${POSTGRES_USER:postgres}}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:${POSTGRES_PASSWORD:postgres}}}
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -27,9 +29,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
   sql:
     init:
-      mode: always
+      mode: never   # важно: не выполнять SQL init на каждом старте
 
 logging:
   level:

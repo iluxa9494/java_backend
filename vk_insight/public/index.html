@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VK Analyzer</title>
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/145/145813.png" type="image/png" />
+  <!-- Шрифты (можете добавить/удалить по вкусу) -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* 
+      ТЁМНАЯ ТЕМА С ЕДИНЫМ ЦВЕТОМ ДЛЯ КНОПОК 
+    */
+
+    :root {
+      /* Основные цвета для тёмной темы */
+      --dark-bg-start: #1f1f1f;
+      --dark-bg-end: #2b2b2b;
+      --page-bg: rgba(255, 255, 255, 0.08); /* полупрозрачный фон для «стекла» */
+      --glass-border: rgba(255, 255, 255, 0.15);
+
+      /* Цвета текста и тени */
+      --text-color: #fff;
+      --shadow-color: rgba(0, 0, 0, 0.5);
+
+      /* Единый цвет для всех кнопок */
+      --button-bg: #bb86fc;
+      --button-hover: #9d70da;
+
+      /* Доп. настройки */
+      --transition-speed: 0.4s;
+      --border-radius: 12px;
+    }
+
+    /* Фон-бекграунд: градиентный переход для тёмной темы */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      color: var(--text-color);
+
+      /* Тёмный анимированный градиент */
+      background: linear-gradient(120deg, var(--dark-bg-start), var(--dark-bg-end));
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientBG {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Контейнер всех страниц (4 "экрана" по горизонтали) */
+    .wrapper {
+      display: flex;
+      width: 400vw; /* 4 страницы по ширине */
+      height: 100vh;
+      transition: transform var(--transition-speed) ease;
+    }
+
+    /* Каждая "страница" */
+    .page {
+      width: 100vw;
+      padding: 40px 20px;
+      box-sizing: border-box;
+      margin: 20px;
+
+      background: var(--page-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 10px var(--shadow-color);
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-y: auto;
+      animation: fadeIn var(--transition-speed) ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2rem;
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      color: var(--text-color);
+    }
+
+    /* Базовая группа полей/кнопок в форме */
+    .form-group {
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--text-color);
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--border-radius);
+      background-color: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      transition: border var(--transition-speed), box-shadow var(--transition-speed);
+      outline: none;
+      font-family: inherit;
+    }
+
+    .input-with-tooltip {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .inline-tooltip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: help;
+      flex: 0 0 auto;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .tooltip-content {
+      position: absolute;
+      left: calc(100% + 8px);
+      top: 50%;
+      transform: translateY(-50%);
+      min-width: 240px;
+      max-width: 320px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.85);
+      color: #fff;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      display: none;
+      z-index: 10;
+    }
+
+    .tooltip-content a {
+      color: #bb86fc;
+      text-decoration: none;
+    }
+
+    .tooltip-content a:hover {
+      text-decoration: underline;
+    }
+
+    .input-with-tooltip.tooltip-open .tooltip-content {
+      display: block;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--button-bg);
+      box-shadow: 0 0 8px rgba(187, 134, 252, 0.3);
+    }
+
+    /* Кнопки (единый стиль) */
+    .form-group button,
+    .start-page button,
+    .analysis-page button,
+    .message-page button {
+      background-color: var(--button-bg);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 12px;
+      cursor: pointer;
+      transition: background var(--transition-speed), transform var(--transition-speed);
+    }
+
+    .form-group button:hover:not([disabled]),
+    .start-page button:hover:not([disabled]),
+    .analysis-page button:hover:not([disabled]),
+    .message-page button:hover:not([disabled]) {
+      background-color: var(--button-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(187, 134, 252, 0.2);
+    }
+
+    .form-group button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Стартовая страница */
+    .start-page {
+      text-align: center;
+      justify-content: center;
+    }
+
+    .start-page img {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 20px;
+      animation: rotateIn 1s ease;
+      border-radius: 50%;
+    }
+
+    @keyframes rotateIn {
+      from { transform: rotate(-360deg) scale(0.5); opacity: 0; }
+      to   { transform: rotate(0deg) scale(1);   opacity: 1; }
+    }
+
+    .start-page p {
+      font-size: 1.1rem;
+      color: #fff;
+      max-width: 500px;
+      margin-bottom: 20px;
+      line-height: 1.5;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    /* Фильтры классификации */
+    .classification-filters {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      align-items: center;
+      width: 100%;
+      max-width: nowrap;
+      justify-content: center;
+	  
+    }
+	.classification-filters select {
+	  /* Общий фон «закрытого» селекта */
+	  background-color: #000; 
+	  color: #fff;
+	  border: 1px solid rgba(255, 255, 255, 0.2);
+	  border-radius: var(--border-radius);
+	  padding: 8px;
+	  font-family: inherit;
+
+	  /* Убираем нативные стили в некоторых браузерах (чтобы лучше кастомизировать) */
+	  -webkit-appearance: none; 
+	  -moz-appearance: none; 
+	  appearance: none;
+
+	  /* При фокусе подсвечиваем */
+	  transition: border var(--transition-speed), box-shadow var(--transition-speed);
+	}
+	.classification-filters select:focus {
+	  border-color: var(--button-bg);
+	  box-shadow: 0 0 8px rgba(187, 134, 252, 0.3);
+	}
+
+	/* Стили для раскрывающегося списка опций */
+	.classification-filters select option,
+	.classification-filters select optgroup {
+	  background-color: #000;  /* Чёрный фон у каждой опции */
+	  color: #fff;             /* Белый текст */
+	}
+
+    /* Контейнер страницы анализа */
+    .analysis-content {
+      width: 100%;
+
+    }
+
+    /* Таблица пользователей */
+    .users-table-container {
+      width: 100%;
+      max-height: 60vh;
+      overflow-x: auto;
+      overflow-y: auto;
+      margin-top: 20px;
+      border-radius: var(--border-radius);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 2px 4px var(--shadow-color);
+    }
+
+    table {
+      min-width: 1200px;
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed; /* фиксированная компоновка */
+      color: #eee;
+    }
+	/* Если нужно уберу break-word */
+    th, td {
+      padding: 10px; 
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      white-space: nomal;
+	  word-wrap: break-word;
+      overflow: visible;
+      text-overflow: ellipsis;
+      transition: background var(--transition-speed);
+      font-family: 'Roboto', sans-serif;
+      line-height: 1.5; 
+    }
+
+    th {
+      background-color: rgba(255,255,255,0.07);
+      font-weight: 600;
+    }
+
+    tr:hover td {
+      background-color: rgba(255,255,255,0.1);
+    }
+
+    /* Ограничение ширины столбцов */
+    th:nth-child(1), td:nth-child(1)  { width: 5%; }
+    th:nth-child(2), td:nth-child(2)  { width: 10%; }
+    th:nth-child(3), td:nth-child(3)  { width: 10%; }
+    th:nth-child(4), td:nth-child(4)  { width: 10%; }
+    th:nth-child(5), td:nth-child(5)  { width: 8%; }
+    th:nth-child(6), td:nth-child(6)  { width: 8%; }
+    th:nth-child(7), td:nth-child(7)  { width: 10%; }
+    th:nth-child(8), td:nth-child(8)  { width: 30%; }
+    th:nth-child(9), td:nth-child(9)  { width: 8%; }
+    th:nth-child(10), td:nth-child(10){ width: 15%; }
+
+    /* "Стеклянные" блоки для ручных классификаций */
+    .manual-classification {
+      width: 100%;
+      max-width: 600px;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      margin: 20px 0; /* чуть больше отступ сверху/снизу */
+      position: relative;
+    }
+    .manual-classification h3 {
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+    }
+    .manual-classification .mc-group {
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .manual-classification input {
+      background-color: rgba(255,255,255,0.06);
+      color: #fff;
+    }
+
+    /* Прогресс-бар */
+    progress {
+      width: 100%;
+      height: 20px;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      -webkit-appearance: none;
+      appearance: none;
+      background-color: rgba(255,255,255,0.2);
+    }
+
+    progress::-webkit-progress-bar {
+      background-color: transparent;
+    }
+
+    progress::-webkit-progress-value {
+      background-color: var(--button-bg);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <!-- Стартовая страница -->
+    <div class="page start-page">
+      <img src="https://cdn-icons-png.flaticon.com/512/145/145813.png" alt="Иконка ВК" />
+      <h1>VK Analyzer</h1>
+      <p>Добро пожаловать в VK Analyzer – инновационное приложение для анализа и фильтрации данных пользователей ВКонтакте. Насладитесь безупречным дизайном, плавными анимациями и удобным интерфейсом.</p>
+      <button id="start-button">Начать</button>
+    </div>
+
+    <!-- Страница настроек -->
+    <div class="page settings-page">
+      <h1>Настройки приложения</h1>
+      <form id="search-form">
+        <div class="form-group">
+          <label for="api-vk">API ВК</label>
+          <div class="input-with-tooltip" id="api-vk-tooltip">
+            <input type="text" id="api-vk" name="apiVk" placeholder="Введите API ВК" required />
+            <button type="button" class="inline-tooltip" aria-label="Token generator help">i</button>
+            <div class="tooltip-content">
+              To obtain a token, visit the generator:
+              <a href="https://vkserv.ru/api/inst/token" target="_blank" rel="noopener">https://vkserv.ru/api/inst/token</a>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="group-url">Ссылка на группу</label>
+          <input type="text" id="group-url" name="groupUrl" placeholder="Введите ссылку на группу" required />
+        </div>
+        <div class="form-group">
+          <label for="age">Возраст</label>
+          <input type="number" id="age" name="age" placeholder="Введите возраст" required />
+        </div>
+        <div class="form-group">
+          <button type="submit" id="search-button">Поиск</button>
+        </div>
+        <div class="form-group">
+          <button id="analysis-button" type="button">Анализ</button>
+        </div>
+      </form>
+      <div class="form-group">
+        <button id="load-user-count" type="button">Обновить количество пользователей</button>
+        <label>Количество добавленных пользователей в базу:</label>
+        <span id="user-count">0</span>
+      </div>
+      <div class="form-group">
+        <label>Прогресс загрузки:</label>
+        <progress id="search-progress" value="0" max="100"></progress>
+        <span id="progress-text">0%</span>
+      </div>
+    </div>
+
+    <!-- Страница анализа -->
+    <div class="page analysis-page">
+      <h1>Анализ данных</h1>
+      <div class="form-group">
+        <button id="settings-button" type="button">Настройки приложения</button>
+      </div>
+      <div class="form-group">
+        <button id="message-button" type="button">Отправка сообщений</button>
+      </div>
+      <div class="form-group">
+        <button id="load-users" type="button">Загрузить пользователей из БД</button>
+      </div>
+
+      <!-- Всё в одну "колонку" -->
+      <div class="analysis-content">
+        <!-- Фильтры классификации + возраст -->
+        <div class="classification-filters">
+          <label for="main-interest">Класс интересов:</label>
+          <select id="main-interest">
+            <!-- Будут заполнены динамически -->
+          </select>
+          <label for="sub-interest">Подкласс:</label>
+          <select id="sub-interest">
+            <option value="">Все</option>
+          </select>
+        </div>
+        <div class="classification-filters">
+          <label for="filter-age">Фильтр по возрасту:</label>
+          <input type="number" id="filter-age" placeholder="Введите возраст" />
+        </div>
+
+        <!-- Таблица -->
+        <div class="users-table-container">
+          <table id="users-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox" onclick="toggleAllCheckboxes(this)" /></th>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>Возраст</th>
+                <th>Пол</th>
+                <th>Город</th>
+                <th>Интересы</th>
+                <th>Образование</th>
+                <th>Активен</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <!-- Блоки «Создать новую классификацию» и «Управление классификациями» теперь снизу -->
+        <div class="manual-classification">
+          <h3>Создать новую классификацию</h3>
+          <div class="mc-group">
+            <label for="new-class">Новый класс:</label>
+            <input type="text" id="new-class" placeholder="Введите название класса" />
+          </div>
+          <div class="mc-group">
+            <label for="new-subclass">Новый подкласс:</label>
+            <input type="text" id="new-subclass" placeholder="Введите название подкласса" />
+          </div>
+          <div class="mc-group">
+            <label for="new-keywords">Ключевые слова (через запятую):</label>
+            <input type="text" id="new-keywords" placeholder="например: слово1, слово2, слово3" />
+          </div>
+          <div class="mc-group">
+            <label for="new-city">Город (опционально):</label>
+            <input type="text" id="new-city" placeholder="Введите город" />
+          </div>
+          <div class="mc-group">
+            <label for="new-age">Возраст (опционально):</label>
+            <input type="number" id="new-age" placeholder="Введите возраст" />
+          </div>
+          <button id="add-classification" type="button">Добавить классификацию</button>
+        </div>
+
+        <div class="manual-classification" id="manage-classifications">
+          <h3>Управление классификациями</h3>
+          <div id="classifications-list">
+            <!-- Список будет загружаться динамически -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Страница отправки сообщений -->
+    <div class="page message-page">
+      <h1>Отправка сообщений</h1>
+      <div class="form-group">
+        <textarea id="message-input" rows="5" placeholder="Введите сообщение"></textarea>
+      </div>
+      <div class="form-group">
+        <button id="send-message" type="button">Отправить сообщение</button>
+      </div>
+      <div class="form-group">
+        <button id="back-to-analysis" type="button">Вернуться к анализу</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Глобальные переменные для работы с ручными классификациями
+    let manualClassData = {};
+
+    // Функция для обновления выпадающих списков (Класс и Подкласс) на основе данных с сервера
+    async function updateDropdowns() {
+      try {
+        const response = await fetch('manual-classifications');
+        manualClassData = await response.json();
+        const mainSelect = document.getElementById('main-interest');
+        mainSelect.innerHTML = '<option value="">Все</option>';
+        for (let cls in manualClassData) {
+          const option = document.createElement('option');
+          option.value = cls;
+          option.textContent = cls;
+          mainSelect.appendChild(option);
+        }
+        const subSelect = document.getElementById('sub-interest');
+        subSelect.innerHTML = '<option value="">Все</option>';
+      } catch (e) {
+        console.error("Ошибка загрузки классификаций:", e);
+      }
+    }
+
+    // Обновляем список подклассов при выборе класса
+    document.getElementById('main-interest').addEventListener('change', async () => {
+      try {
+        const mainValue = document.getElementById('main-interest').value;
+        const subSelect = document.getElementById('sub-interest');
+        subSelect.innerHTML = '<option value="">Все</option>';
+        if (mainValue && manualClassData[mainValue]) {
+          for (let sub in manualClassData[mainValue]) {
+            const option = document.createElement('option');
+            option.value = sub;
+            option.textContent = sub;
+            subSelect.appendChild(option);
+          }
+        }
+        applyCombinedFilter();
+      } catch (e) {
+        console.error(e);
+      }
+    });
+    document.getElementById('sub-interest').addEventListener('change', applyCombinedFilter);
+
+    // Функция для выборки по классификации + возрасту
+    function applyCombinedFilter() {
+      const mainValue = document.getElementById('main-interest').value;
+      const subValue = document.getElementById('sub-interest').value;
+      const ageFilter = parseInt(document.getElementById('filter-age').value, 10);
+
+      Array.from(usersTableBody.children).forEach(row => {
+		const rowAge     = parseInt(row.children[4].textContent, 10);
+		const interests  = row.children[7].textContent.toLowerCase();
+		const rowCity    = row.children[6].textContent.trim().toLowerCase();
+        let classificationMatches = true;
+
+        if (mainValue) {
+          if (manualClassData[mainValue]) {
+            if (subValue) {
+              // Проверяем конкретный подкласс
+              const classification = manualClassData[mainValue][subValue];
+              if (classification) {
+                const keywords = classification.keywords.map(k => k.toLowerCase());
+                let keywordMatch = keywords.length === 0 || keywords.some(keyword => interests.includes(keyword));
+                let cityMatch = true, ageMatch = true;
+                if (classification.city) {
+                  cityMatch = rowCity === classification.city.toLowerCase();
+                }
+                if (classification.age) {
+                  ageMatch = rowAge === classification.age;
+                }
+                classificationMatches = keywordMatch && cityMatch && ageMatch;
+              } else {
+                classificationMatches = false;
+              }
+            } else {
+              // Выбран только класс => проверяем все подклассы
+              classificationMatches = Object.keys(manualClassData[mainValue]).some(sub => {
+                const classification = manualClassData[mainValue][sub];
+                const keywords = classification.keywords.map(k => k.toLowerCase());
+                let keywordMatch = keywords.length === 0 || keywords.some(keyword => interests.includes(keyword));
+                let cityMatch = true, ageMatch = true;
+                if (classification.city) {
+                  cityMatch = rowCity === classification.city.toLowerCase();
+                }
+                if (classification.age) {
+                  ageMatch = rowAge === classification.age;
+                }
+                return keywordMatch && cityMatch && ageMatch;
+              });
+            }
+          } else {
+            classificationMatches = false;
+          }
+        }
+
+        let ageMatches = isNaN(ageFilter) ? true : rowAge === ageFilter;
+        row.style.display = (classificationMatches && ageMatches) ? '' : 'none';
+      });
+    }
+
+    // Добавление новой классификации
+    async function addManualClassification() {
+      const newClassInput = document.getElementById('new-class');
+      const newSubclassInput = document.getElementById('new-subclass');
+      const newKeywordsInput = document.getElementById('new-keywords');
+      const newCityInput = document.getElementById('new-city');
+      const newAgeInput = document.getElementById('new-age');
+
+      const newClass = newClassInput.value.trim();
+      const newSubclass = newSubclassInput.value.trim();
+      const keywordsStr = newKeywordsInput.value.trim();
+      const newCity = newCityInput.value.trim();
+      const newAge = newAgeInput.value.trim();
+
+      if (!newClass || !newSubclass) {
+        alert("Пожалуйста, заполните поля 'Новый класс' и 'Новый подкласс'.");
+        return;
+      }
+
+      const keywords = keywordsStr 
+        ? keywordsStr.split(',').map(k => k.trim()).filter(k => k)
+        : [];
+
+      const payload = { newClass, newSubclass, keywords, city: newCity, age: newAge };
+
+      try {
+        const response = await fetch('manual-classifications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (result.error) {
+          alert(result.error);
+        } else {
+          alert("Новая классификация успешно добавлена!");
+          await updateDropdowns();
+          await loadManualClassifications();
+
+          newClassInput.value = "";
+          newSubclassInput.value = "";
+          newKeywordsInput.value = "";
+          newCityInput.value = "";
+          newAgeInput.value = "";
+
+          applyCombinedFilter();
+        }
+      } catch (err) {
+        console.error("Ошибка при добавлении классификации:", err);
+      }
+    }
+
+    // Загрузка и отображение классификаций (для управления)
+    async function loadManualClassifications() {
+      try {
+        const response = await fetch('manual-classifications');
+        const data = await response.json();
+        const listContainer = document.getElementById('classifications-list');
+        listContainer.innerHTML = "";
+
+        for (let cls in data) {
+          for (let sub in data[cls]) {
+            const classification = data[cls][sub];
+            const item = document.createElement('div');
+            item.style.borderBottom = "1px solid rgba(255,255,255,0.2)";
+            item.style.padding = "5px 0";
+            item.innerHTML = `
+              <strong>${cls} / ${sub}</strong><br>
+              Ключевые слова: ${classification.keywords.join(', ')}<br>
+              ${classification.city ? "Город: " + classification.city + "<br>" : ""}
+              ${classification.age ? "Возраст: " + classification.age + "<br>" : ""}
+              <button class="edit-btn" data-class="${cls}" data-sub="${sub}">Редактировать</button>
+              <button class="delete-btn" data-class="${cls}" data-sub="${sub}">Удалить</button>
+            `;
+            listContainer.appendChild(item);
+          }
+        }
+
+        // Удаление
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', async e => {
+            const cls = e.target.getAttribute('data-class');
+            const sub = e.target.getAttribute('data-sub');
+            if (confirm(`Удалить классификацию: ${cls} / ${sub}?`)) {
+              const response = await fetch(
+                `manual-classifications/${encodeURIComponent(cls)}/${encodeURIComponent(sub)}`,
+                { method: 'DELETE' }
+              );
+              const result = await response.json();
+              alert(result.message);
+              await updateDropdowns();
+              await loadManualClassifications();
+            }
+          });
+        });
+
+        // Редактирование
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+          btn.addEventListener('click', async e => {
+            const cls = e.target.getAttribute('data-class');
+            const sub = e.target.getAttribute('data-sub');
+            const newKeywords = prompt("Введите новые ключевые слова (через запятую):");
+            const newCity = prompt("Введите новый город (оставьте пустым, если не требуется):");
+            const newAge = prompt("Введите новый возраст (оставьте пустым, если не требуется):");
+
+            const payload = {
+              keywords: newKeywords ? newKeywords.split(',').map(k => k.trim()) : [],
+              city: newCity || null,
+              age: newAge ? parseInt(newAge, 10) : null
+            };
+
+            const response = await fetch(
+              `manual-classifications/${encodeURIComponent(cls)}/${encodeURIComponent(sub)}`,
+              {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              }
+            );
+            const result = await response.json();
+            alert(result.message);
+            await updateDropdowns();
+            await loadManualClassifications();
+          });
+        });
+
+      } catch (err) {
+        console.error('Ошибка загрузки ручных классификаций:', err);
+      }
+    }
+
+    // Общие переменные
+    const wrapper = document.querySelector('.wrapper');
+    const startButton = document.getElementById('start-button');
+    const analysisButton = document.getElementById('analysis-button');
+    const settingsButton = document.getElementById('settings-button');
+    const messageButton = document.getElementById('message-button');
+    const backToAnalysisButton = document.getElementById('back-to-analysis');
+    const userCountElement = document.getElementById('user-count');
+    const loadUsersButton = document.getElementById('load-users');
+    const loadUserCountButton = document.getElementById('load-user-count');
+    const filterAgeInput = document.getElementById('filter-age');
+    const progressBar = document.getElementById('search-progress');
+    const progressText = document.getElementById('progress-text');
+    const searchButton = document.getElementById('search-button');
+    const usersTableBody = document.querySelector('#users-table tbody');
+
+    // Навигация
+    startButton.addEventListener('click', () => {
+      wrapper.style.transform = 'translateX(-100vw)';
+    });
+    analysisButton.addEventListener('click', () => {
+      wrapper.style.transform = 'translateX(-200vw)';
+    });
+    settingsButton.addEventListener('click', () => {
+      wrapper.style.transform = 'translateX(-100vw)';
+    });
+    messageButton.addEventListener('click', () => {
+      wrapper.style.transform = 'translateX(-300vw)';
+    });
+    backToAnalysisButton.addEventListener('click', () => {
+      wrapper.style.transform = 'translateX(-200vw)';
+    });
+
+    // Фильтр по возрасту
+    filterAgeInput.addEventListener('input', applyCombinedFilter);
+
+    // Обработчик формы поиска пользователей
+    document.getElementById('search-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      if (searchButton.disabled) return;
+      searchButton.disabled = true;
+      progressBar.value = 0;
+      progressText.textContent = '0%';
+
+      const apiVk = document.getElementById('api-vk').value;
+      const groupUrl = document.getElementById('group-url').value;
+      const age = document.getElementById('age').value;
+
+      try {
+        const response = await fetch('search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiVk, groupUrl, age })
+        });
+        const data = await response.json();
+        alert(`Добавлено пользователей: ${data.addedCount}`);
+        updateUserCount();
+      } catch (error) {
+        console.error('Ошибка при добавлении пользователей:', error);
+      } finally {
+        searchButton.disabled = false;
+      }
+    });
+
+    // Подключение SSE (прогресс загрузки)
+    if (!!window.EventSource) {
+      const source = new EventSource('progress');
+      source.onmessage = event => {
+        const progress = parseFloat(event.data);
+        progressBar.value = progress;
+        progressText.textContent = progress.toFixed(0) + '%';
+      };
+    }
+
+    // Загрузка пользователей из БД
+    loadUsersButton.addEventListener('click', async function () {
+      try {
+        const response = await fetch('load-users');
+        const users = await response.json();
+        usersTableBody.innerHTML = '';
+        users.forEach(user => {
+          const row = document.createElement('tr');
+          const sex = user.sex === 1 ? 'Женский' : user.sex === 2 ? 'Мужской' : 'Не указан';
+		  const isActive = user.is_active
+			? (user.posts_recent ? 'Активен, часто постит' : 'Активен')
+			: 'Не активен';
+          row.innerHTML = `
+			  <td><input type="checkbox" /></td>
+			  <td><a href="https://vk.com/id${user.id}" class="user-link" target="_blank">${user.id}</a></td>
+			  <td>${user.first_name}</td>
+			  <td>${user.last_name}</td>
+			  <td>${user.age}</td>
+			  <td>${sex}</td>
+			  <td>${user.city || 'Не указано'}</td>
+			  <td>${user.interests || 'Закрытый профиль'}</td>
+			  <td>${user.education_level || 'Не указано'}</td>
+			  <td>${isActive}</td>
+          `;
+          usersTableBody.appendChild(row);
+        });
+        applyCombinedFilter();
+      } catch (error) {
+        console.error('Ошибка загрузки пользователей:', error);
+      }
+    });
+
+    loadUserCountButton.addEventListener('click', updateUserCount);
+
+    async function updateUserCount() {
+      try {
+        const response = await fetch('user-count');
+        const data = await response.json();
+        userCountElement.textContent = data.count || 0;
+      } catch (error) {
+        console.error('Ошибка при получении количества пользователей:', error);
+      }
+    }
+    updateUserCount();
+
+    // Отправка сообщений
+    document.getElementById('send-message').addEventListener('click', () => {
+      const message = document.getElementById('message-input').value;
+      if (message.trim() === '') {
+        alert('Сообщение не может быть пустым!');
+      } else {
+        const rows = document.querySelectorAll('tbody tr');
+        const data = [];
+        data.push(message);
+        rows.forEach(row => {
+          const checkbox = row.querySelector('input[type="checkbox"]');
+          if (checkbox && checkbox.checked) {
+            const cells = row.getElementsByTagName('td');
+            const rowData = [];
+            for (let i = 0; i < cells.length; i++) {
+              rowData.push(cells[i].textContent);
+            }
+            data.push(rowData);
+          }
+        });
+
+        fetch('send-message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        })
+          .then(response => response.json())
+          .then(result => console.log('Server response:', result))
+          .catch(error => console.error('Error:', error));
+
+        alert('Сообщение отправлено!');
+      }
+    });
+
+    // Выделить/снять выделение всех строк
+    function toggleAllCheckboxes(source) {
+      const checkboxes = document.querySelectorAll('#users-table tbody input[type="checkbox"]');
+      checkboxes.forEach(checkbox => checkbox.checked = source.checked);
+    }
+
+    // При загрузке страницы:
+    updateDropdowns();
+    loadManualClassifications();
+
+    // Обработчик на кнопку "Добавить классификацию"
+    document.getElementById('add-classification').addEventListener('click', addManualClassification);
+
+    // Tooltip toggle for API token help
+    const apiVkTooltip = document.getElementById('api-vk-tooltip');
+    const apiVkTooltipButton = apiVkTooltip?.querySelector('.inline-tooltip');
+    if (apiVkTooltip && apiVkTooltipButton) {
+      apiVkTooltipButton.addEventListener('click', e => {
+        e.stopPropagation();
+        apiVkTooltip.classList.toggle('tooltip-open');
+      });
+
+      document.addEventListener('click', () => {
+        apiVkTooltip.classList.remove('tooltip-open');
+      });
+
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+          apiVkTooltip.classList.remove('tooltip-open');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

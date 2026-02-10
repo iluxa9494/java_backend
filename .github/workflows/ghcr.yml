@@ -29,81 +29,10 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - name: currency-exchange
-            context: ./currency_exchange
-            dockerfile: ./currency_exchange/Dockerfile
-            image: java_backend-currency-exchange
-
-          - name: hotel-booking
-            context: ./hotel-booking
-            dockerfile: ./hotel-booking/Dockerfile
-            image: java_backend-hotel-booking
-
-          - name: searchengine
-            context: ./searchengine
-            dockerfile: ./searchengine/Dockerfile
-            image: java_backend-searchengine
-
-          - name: tariff-calculator
-            context: ./tariff_calculator
-            dockerfile: ./tariff_calculator/Dockerfile
-            image: java_backend-tariff-calculator
-
-          - name: tg-bot
-            context: ./tg_bot
-            dockerfile: ./tg_bot/Dockerfile
-            image: java_backend-tg-bot
-
-          # social_network microservices (REAL PATHS)
-          - name: sn-api-gateway
-            context: ./social_network/api-gateway
-            dockerfile: ./social_network/api-gateway/Dockerfile
-            image: java_backend-social-network-api-gateway
-
-          - name: sn-mc-authentication
-            context: ./social_network/mc-authentication
-            dockerfile: ./social_network/mc-authentication/Dockerfile
-            image: java_backend-social-network-mc-authentication
-
-          - name: sn-ms-notification
-            context: ./social_network/ms-notification
-            dockerfile: ./social_network/ms-notification/Dockerfile
-            image: java_backend-social-network-ms-notification
-
-          - name: sn-social-network-post
-            context: ./social_network/social-network-post
-            dockerfile: ./social_network/social-network-post/Dockerfile
-            image: java_backend-social-network-post
-
-          - name: sn-dialog-service
-            context: ./social_network/dialog_service
-            dockerfile: ./social_network/dialog_service/Dockerfile
-            image: java_backend-social-network-dialog-service
-
-          - name: sn-eureka-server
-            context: ./social_network/eureka-server
-            dockerfile: ./social_network/eureka-server/Dockerfile
-            image: java_backend-social-network-eureka-server
-
-          - name: sn-mc-account
-            context: ./social_network/mc-account
-            dockerfile: ./social_network/mc-account/Dockerfile
-            image: java_backend-social-network-mc-account
-
-          - name: sn-social-network-integration
-            context: ./social_network/social-network-integration
-            dockerfile: ./social_network/social-network-integration/Dockerfile
-            image: java_backend-social-network-integration
-
-          - name: sn-social-network-friend-service
-            context: ./social_network/social-network-friend-service
-            dockerfile: ./social_network/social-network-friend-service/Dockerfile
-            image: java_backend-social-network-friend-service
-
-          - name: sn-social-network-frontend
-            context: ./social_network/social-network-frontend
-            dockerfile: ./social_network/social-network-frontend/Dockerfile
-            image: java_backend-social-network-frontend
+          - name: java-backend
+            context: .
+            dockerfile: ./Dockerfile
+            image: java_backend
 
     steps:
       - name: Checkout

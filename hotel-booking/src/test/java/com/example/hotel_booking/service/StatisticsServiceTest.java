@@ -5,7 +5,7 @@ import com.example.hotel_booking.dto.Statistics.StatisticsEventDto;
 import com.example.hotel_booking.kafka.KafkaProducerService;
 import com.example.hotel_booking.model.BookingDetails;
 import com.example.hotel_booking.model.Statistics;
-import com.example.hotel_booking.repository.StatisticsRepository;
+import com.example.hotel_booking.repository.mongo.StatisticsRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

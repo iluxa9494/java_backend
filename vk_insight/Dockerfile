@@ -4,4 +4,4 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 COPY . .
 EXPOSE 8084
-CMD ["node","index.js"]
+CMD ["node","server.js"]

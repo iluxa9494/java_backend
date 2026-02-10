@@ -63,6 +63,14 @@ indexing-settings:
 
 server:
   port: 8082
+  servlet:
+    context-path: /projects/search-engine
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
 
 logging:
   level:
@@ -72,9 +80,6 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     searchengine: INFO
     org.postgresql: DEBUG
-
-  file:
-    name: logs/searchengine.log
 
   pattern:
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

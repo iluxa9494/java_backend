@@ -1,7 +1,7 @@
 package com.example.hotel_booking.security;
 
 import com.example.hotel_booking.model.User;
-import com.example.hotel_booking.repository.UserRepository;
+import com.example.hotel_booking.repository.jpa.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

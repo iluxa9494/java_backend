@@ -64,6 +64,21 @@ server:
 
 ## 📁 Сценарий запуска
 
+### Docker (единый образ из GHCR)
+
+```bash
+# Из корня репозитория
+# Параметры можно переопределить в .env (SEARCHENGINE_* переменные)
+docker compose -p java-backend --profile searchengine pull
+docker compose -p java-backend --profile searchengine up -d
+```
+
+Порт по умолчанию: `http://localhost:8004`
+
+---
+
+### Локально (без Docker)
+
 ```bash
 # Клонировать проект
 git clone https://github.com/your-repo/searchengine.git
@@ -79,7 +94,7 @@ psql -U postgres -c "CREATE DATABASE search_engine;"
 # Применить миграции Liquibase (выполняется автоматически при запуске)
 
 # Запустить проект
-mvn verify
+mvn spring-boot:run
 ```
 
 ---

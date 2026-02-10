@@ -55,7 +55,6 @@ docker-compose.override.yml
 /module-info.class
 
 ### Environment Variables ###
-.env
 .env.local
 .env.development.local
 .env.test.local
@@ -77,7 +76,16 @@ $RECYCLE.BIN/
 !searchengine/local-repo/**
 !searchengine/local-repo/**/*.jar
 
+### Local bootstrap scripts ###
+
+### Local nginx ###
+nginx/
+
 ### Allow Gradle Wrapper jar (required for CI Docker build) ###
 !tg_bot/gradle/wrapper/gradle-wrapper.jar
 !tg_bot/gradle/wrapper/gradle-wrapper.properties
 !tg_bot/gradle/wrapper/**
+
+java_backend.sh
+project_dump.txt
+project_dump_excluded.txt

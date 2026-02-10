@@ -4,7 +4,7 @@ import com.example.hotel_booking.dto.Role.RoleDto;
 import com.example.hotel_booking.mapper.RoleMapper;
 import com.example.hotel_booking.model.Role;
 import com.example.hotel_booking.model.RoleType;
-import com.example.hotel_booking.repository.RoleRepository;
+import com.example.hotel_booking.repository.jpa.RoleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

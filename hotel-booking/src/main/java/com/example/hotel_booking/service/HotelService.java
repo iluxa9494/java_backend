@@ -5,7 +5,7 @@ import com.example.hotel_booking.dto.Hotel.HotelDto;
 import com.example.hotel_booking.dto.Hotel.HotelUpdateRequest;
 import com.example.hotel_booking.mapper.HotelMapper;
 import com.example.hotel_booking.model.Hotel;
-import com.example.hotel_booking.repository.HotelRepository;
+import com.example.hotel_booking.repository.jpa.HotelRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
